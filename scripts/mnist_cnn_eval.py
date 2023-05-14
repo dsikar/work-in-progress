@@ -3,6 +3,13 @@ import torch.nn as nn
 import torch.nn.functional as F
 from torchvision import datasets, transforms
 import numpy as np
+
+import sys
+import os
+current_dir = os.path.dirname(os.path.abspath(__file__))
+parent_dir = os.path.dirname(current_dir)
+sys.path.append(parent_dir)
+
 from utils.distance_utils import histogram_overlap
 
 # Define transform to normalize data
@@ -35,12 +42,12 @@ net = Net()
 
 # Load the saved model from a file
 # PATH = 'mnist_vanilla_cnn_hyperion_20230426110500.pth' # trained on hyperion, Accuracy on test dataset: 98.35%
-PATH = 'mnist_vanilla_cnn_hyperion_20230508082100.pth' # trained on google colab, 
+PATH = 'models/mnist_vanilla_cnn_hyperion_202305132244.pth' # trained on google colab, 
 net = Net()
 net.load_state_dict(torch.load(PATH))
 
 # Load the test data
-testset = datasets.MNIST('data', train=False, download=False, transform=transform)
+testset = datasets.MNIST('/users/aczd097/ecai2023/data/', train=False, download=False, transform=transform)
 testloader = torch.utils.data.DataLoader(testset, batch_size=64, shuffle=True)
 
 # Test the model on the test dataset

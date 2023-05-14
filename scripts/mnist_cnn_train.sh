@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH -D /users/aczd097/ecai2023    # Working directory
+#SBATCH -D /users/aczd097/ecai2023/scripts    # Working directory
 #SBATCH --job-name mnistcnn                      # Job name
 #SBATCH --mail-type=ALL                 # Mail events (NONE, BEGIN, END, FAIL, ALL)
 #SBATCH --mail-user=daniel.sikar@city.ac.uk         # Where to send mail
@@ -25,7 +25,8 @@ module add gnu
 start=$(date +%s) # Record the start time in seconds since epoch
 
 #python mnist_cnn_train.py #--save-model todo
-python mnist_cnn_eval.py
+python mnist_cnn_test.py
+
 
 end=$(date +%s) # Record the end time in seconds since epoch
 diff=$((end-start)) 
@@ -35,5 +36,5 @@ hours=$((diff / 3600))
 minutes=$(( (diff % 3600) / 60 ))
 seconds=$((diff % 60))
 
-echo "python mnist_cnn_train.py - Script execution time: $hours hours, $minutes minutes, $seconds seconds"
+echo "python mnist_cnn_test.py - Script execution time: $hours hours, $minutes minutes, $seconds seconds"
 

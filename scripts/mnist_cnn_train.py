@@ -4,6 +4,7 @@ from torchvision import datasets, transforms
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
+import datetime
 
 # vanilla CNN
 class Net(nn.Module):
@@ -54,7 +55,7 @@ net = Net()
 print_parameters(net)
 
 # Train the model
-num_epochs = 10
+num_epochs = 100
 optimizer = optim.SGD(net.parameters(), lr=0.01) 
 criterion = nn.CrossEntropyLoss()
 
@@ -86,7 +87,12 @@ for epoch in range(num_epochs):
 
 print('Finished Training')
 
-# Save the trained model to a file
-PATH = 'mnist_vanilla_cnn_hyperion_20230508082100.pth'
+# Save the trained model weights to a file
+current_datetime = datetime.datetime.now()
+
+# Format the date and time string
+date_time_string = current_datetime.strftime("%Y%m%d%H%M")
+
+PATH = 'models/mnist_vanilla_cnn_hyperion_'+ date_time_string + '.pth'
 torch.save(net.state_dict(), PATH)
-print('Weights saved to mnist_vanilla_cnn_hyperion_20230508082100.pth')
+print('Weights saved to ' + PATH)
