@@ -138,6 +138,24 @@ class DistanceMetric:
         # Return the sum of the computed values
         return log_ratio.sum()
 
+class DistanceCalculator:
+    
+    def __init__(self, distance_metric):
+        self.distance_metric = distance_metric
+    
+    def get_distances_grayscale_labels(self, img1, img2):
+        return "{:.2f}|{:.2f}".format(self.distance_metric.KLDivergence(img1, img2), self.distance_metric.BhattacharyaDistance(img1, img2))
+    
+    def get_distances_RGB(self, img1, img2):
+        return {
+            'Bhattacharya': self.distance_metric.BhattacharyaDistance(img1, img2),
+            'HistogramIntersection': self.distance_metric.HistogramIntersection(img1, img2),
+            'KLDivergence': self.distance_metric.KLDivergence(img1, img2)
+        }
+    
+    def get_distances_RGB_labels(self, img1, img2):
+        return "{:.2f}|{:.2f}".format(self.distance_metric.KLDivergence(img1, img2), self.distance_metric.BhattacharyaDistance(img1, img2))
+    
 # helper functions
 def get_distances_grayscale(img1, img2, num_channels=1, num_bins=256, val_range=(-1, 1)):
     """
@@ -207,6 +225,7 @@ def get_distances_RGB(img1, img2):
         'HistogramIntersection': dm.HistogramIntersection(img1, img2),
         'KLDivergence': dm.KLDivergence(img1, img2)
     }
+
 
 def get_distances_RGB_labels(img1, img2):
     """
