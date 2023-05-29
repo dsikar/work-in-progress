@@ -63,12 +63,10 @@ class DistanceMetric:
             # Compute the histogram for the current channel
             hist, _ = np.histogram(channel_data, bins=self.num_bins)
             
-            histograms.append(hist) 
-
+            histograms.append(hist)
         # restore
         if self.val_range[0] == -1:
             img -= 1 # shift values to original range
-
         return histograms
 
     def BhattacharyaDistance(self, img1, img2):
@@ -226,52 +224,9 @@ def get_distances_RGB_labels(img1, img2):
     get_distances_RGB(img1, img2)
     """
     dm = DistanceMetric(num_channels=3, num_bins=256, val_range=(0, 255), epsilon=1e-10)
-    return {
-        'Bhattacharya': dm.BhattacharyaDistance(img1, img2),
-        'HistogramIntersection': dm.HistogramIntersection(img1, img2),
-        'KLDivergence': dm.KLDivergence(img1, img2)
-    }        
-# import numpy as np
-# from scipy.spatial.distance import jensenshannon
-
-# class Distance:
-
-#     def __init__(self):
-#         pass
-
-#     def histogram_overlap(self, img1, img2, num_bins=256):
-#         img1_min, img1_max = np.min(img1), np.max(img1)
-#         img2_min, img2_max = np.min(img2), np.max(img2)
-
-#         bins = np.linspace(min(img1_min, img2_min), max(img1_max, img2_max), num_bins+1)
-#         hist1, _ = np.histogram(img1, bins=bins)
-#         hist2, _ = np.histogram(img2, bins=bins)
-
-#         overlap = np.minimum(hist1, hist2).sum() / np.maximum(hist1, hist2).sum()
-#         return overlap
-
-#     def kl_divergence(self, img1, img2, num_bins=256):
-#         img1_min, img1_max = np.min(img1), np.max(img1)
-#         img2_min, img2_max = np.min(img2), np.max(img2)
-
-#         bins = np.linspace(min(img1_min, img2_min), max(img1_max, img2_max), num_bins+1)
-#         hist1, _ = np.histogram(img1, bins=bins, density=True)
-#         hist2, _ = np.histogram(img2, bins=bins, density=True)
-
-#         hist1 += 1e-8
-#         hist2 += 1e-8
-#         kl_div = np.sum(hist1 * np.log(hist1 / hist2))
-
-#         return kl_div
-
-#     def bhattacharyya_distance(self, img1, img2, num_bins=256):
-#         img1_min, img1_max = np.min(img1), np.max(img1)
-#         img2_min, img2_max = np.min(img2), np.max(img2)
-
-#         bins = np.linspace(min(img1_min, img2_min), max(img1_max, img2_max), num_bins+1)
-#         hist1, _ = np.histogram(img1, bins=bins, density=True)
-#         hist2, _ = np.histogram(img2, bins=bins, density=True)
-
-#         b_distance = -np.log(np.sum(np.sqrt(hist1 * hist2)))
-
-#         return b_distance
+    return "{:.2f}|{:.2f}".format(dm.KLDivergence(img1, img2), dm.BhattacharyaDistance(img1, img2))
+    # return {
+    #     'Bhattacharya': dm.BhattacharyaDistance(img1, img2),
+    #     'HistogramIntersection': dm.HistogramIntersection(img1, img2),
+    #     'KLDivergence': dm.KLDivergence(img1, img2)
+    # }        
