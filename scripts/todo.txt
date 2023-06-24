@@ -1,3 +1,4 @@
 1. Set two figures, one grayscale, one RGB.
 2. Plot a four image figure, original image, perturbed image, original histogram, perturbed histogram
-
+3. Plot histogram overlaps for 2 grayscale figures
+4. Write function to get 10 values out of heat map, min max and n most equidistant values in between.
