@@ -41,11 +41,11 @@ transform = transforms.Compose([
 ])
 
 # Download, if required, and load the training data
-trainset = datasets.MNIST('/users/aczd097/ecai2023/data/', train=True, download=False, transform=transform)
+trainset = datasets.MNIST('data/', train=True, download=True, transform=transform)
 trainloader = torch.utils.data.DataLoader(trainset, batch_size=64, shuffle=True)
 
 # Download, if required, and load the test data
-testset = datasets.MNIST('/users/aczd097/ecai2023/data/', train=False, download=False, transform=transform)
+testset = datasets.MNIST('data/', train=False, download=True, transform=transform)
 testloader = torch.utils.data.DataLoader(testset, batch_size=64, shuffle=True)
 
 # Create a network instance
@@ -55,7 +55,7 @@ net = Net()
 print_parameters(net)
 
 # Train the model
-num_epochs = 100
+num_epochs = 10
 optimizer = optim.SGD(net.parameters(), lr=0.01) 
 criterion = nn.CrossEntropyLoss()
 
@@ -93,6 +93,6 @@ current_datetime = datetime.datetime.now()
 # Format the date and time string
 date_time_string = current_datetime.strftime("%Y%m%d%H%M")
 
-PATH = 'models/mnist_vanilla_cnn_hyperion_'+ date_time_string + '.pth'
+PATH = 'models/mnist_vanilla_cnn_local_'+ date_time_string + '.pth'
 torch.save(net.state_dict(), PATH)
 print('Weights saved to ' + PATH)

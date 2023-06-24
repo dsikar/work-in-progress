@@ -6,11 +6,25 @@ import numpy as np
 
 import sys
 import os
+
+# Get the parent directory of the current script
+current_dir = os.path.dirname(os.path.abspath(__file__))
+
+# Add the parent directory to the module search path
+parent_dir = os.path.dirname(current_dir)
+sys.path.append(parent_dir)
+
+import sys
+import os
 current_dir = os.path.dirname(os.path.abspath(__file__))
 parent_dir = os.path.dirname(current_dir)
 sys.path.append(parent_dir)
 
-from utils.distance_utils import histogram_overlap
+from utils.distance_metrics import DistanceMetric
+
+# Instanciate the DistanceMetric class
+dm = DistanceMetric(num_channels=1, num_bins=50, val_range=(-1,1))
+
 
 # Define transform to normalize data
 transform = transforms.Compose([
@@ -42,12 +56,16 @@ net = Net()
 
 # Load the saved model from a file
 # PATH = 'mnist_vanilla_cnn_hyperion_20230426110500.pth' # trained on hyperion, Accuracy on test dataset: 98.35%
-PATH = 'models/mnist_vanilla_cnn_hyperion_202305132244.pth' # trained on google colab, 
+PATH = 'models/mnist_vanilla_cnn_local_202306241859.pth' # trained on google colab, 
+# prepend current_dir to PATH
+PATH = os.path.join(current_dir, PATH)
 net = Net()
 net.load_state_dict(torch.load(PATH))
 
 # Load the test data
-testset = datasets.MNIST('/users/aczd097/ecai2023/data/', train=False, download=False, transform=transform)
+# data path current_dir plus 'data/'
+datapath = os.path.join(current_dir, 'data/')
+testset = datasets.MNIST(datapath, train=False, download=False, transform=transform)
 testloader = torch.utils.data.DataLoader(testset, batch_size=64, shuffle=True)
 
 # Test the model on the test dataset
@@ -92,8 +110,10 @@ for value in np.arange(1, -1.1, -0.1):
         incorrect = 0
         total = 0
         overlap = 0
+        imgs_total = 0
 
         for inputs, labels in testloader:
+            inputs_copy = inputs.clone()
             inputs += value
             inputs = torch.clamp(inputs, -1, 1)  # clip values to range -1 to 1
             outputs = net(inputs)
@@ -102,12 +122,23 @@ for value in np.arange(1, -1.1, -0.1):
             correct += (predicted == labels).sum().item()
 
             # Compute the histogram overlap between the original and modified arrays
-            original_array = inputs.numpy().flatten()
-            modified_array = (inputs - value).numpy().flatten()
-            overlap += histogram_overlap(original_array, modified_array)                   
+            #original_array = inputs.numpy().flatten()
+            #modified_array = (inputs - value).numpy().flatten()
+            #overlap += histogram_overlap(original_array, modified_array)                   
+            
+            # loop through each image in the batch
+            for i in range(inputs.shape[0]):
+                original_array = inputs_copy[i].squeeze().numpy() #.numpy()inputs[i].squeeze().flatten()
+                modified_array = (inputs[i]).squeeze().numpy() #.numpy().flatten()
+                # clamp the modified array to the range -1 to 1
+                #modified_array = np.clip(modified_array, -1, 1)
+                # compute the histogram intersection between the original and modified arrays               
+                overlap += dm.HistogramIntersection(original_array, modified_array)
+            # increment the testloader_total counter
+            imgs_total += inputs.shape[0]
 
         accuracy = 100 * correct / total
-        overlap /= len(testloader) 
+        overlap /= imgs_total 
         print('Shift value: %.1f, Accuracy: %.2f%%, Overlap: %.4f' % (value, accuracy, overlap))
 
 # Accuracy on test dataset: 99.17%
@@ -132,3 +163,27 @@ for value in np.arange(1, -1.1, -0.1):
 # Shift value: -0.8, Accuracy: 96.98%, Overlap: 0.0243
 # Shift value: -0.9, Accuracy: 95.49%, Overlap: 0.0179
 # Shift value: -1.0, Accuracy: 92.94%, Overlap: 0.0766
+
+# 50 bins
+# Accuracy on test dataset: 98.38%
+# Shift value: 1.0, Accuracy: 49.01%, Overlap: 0.9197
+# Shift value: 0.9, Accuracy: 63.03%, Overlap: 0.9200
+# Shift value: 0.8, Accuracy: 74.65%, Overlap: 0.9227
+# Shift value: 0.7, Accuracy: 82.12%, Overlap: 0.9253
+# Shift value: 0.6, Accuracy: 90.94%, Overlap: 0.9267
+# Shift value: 0.5, Accuracy: 95.67%, Overlap: 0.9301
+# Shift value: 0.4, Accuracy: 97.61%, Overlap: 0.9328
+# Shift value: 0.3, Accuracy: 98.17%, Overlap: 0.9359
+# Shift value: 0.2, Accuracy: 98.45%, Overlap: 0.9398
+# Shift value: 0.1, Accuracy: 98.52%, Overlap: 0.9482
+# Shift value: 0.0, Accuracy: 98.38%, Overlap: 1.0000
+# Shift value: -0.1, Accuracy: 98.38%, Overlap: 0.9483
+# Shift value: -0.2, Accuracy: 98.21%, Overlap: 0.9403
+# Shift value: -0.3, Accuracy: 97.96%, Overlap: 0.9360
+# Shift value: -0.4, Accuracy: 97.68%, Overlap: 0.9335
+# Shift value: -0.5, Accuracy: 97.06%, Overlap: 0.9298
+# Shift value: -0.6, Accuracy: 95.95%, Overlap: 0.9271
+# Shift value: -0.7, Accuracy: 94.27%, Overlap: 0.9246
+# Shift value: -0.8, Accuracy: 91.74%, Overlap: 0.9232
+# Shift value: -0.9, Accuracy: 87.53%, Overlap: 0.9065
+# Shift value: -1.0, Accuracy: 81.18%, Overlap: 0.9056
