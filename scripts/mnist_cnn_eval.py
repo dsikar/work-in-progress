@@ -3,24 +3,17 @@ import torch.nn as nn
 import torch.nn.functional as F
 from torchvision import datasets, transforms
 import numpy as np
-
 import sys
 import os
+
 
 # Get the parent directory of the current script
 current_dir = os.path.dirname(os.path.abspath(__file__))
-
 # Add the parent directory to the module search path
 parent_dir = os.path.dirname(current_dir)
 sys.path.append(parent_dir)
-
-import sys
-import os
-current_dir = os.path.dirname(os.path.abspath(__file__))
-parent_dir = os.path.dirname(current_dir)
-sys.path.append(parent_dir)
-
 from utils.distance_metrics import DistanceMetric
+
 
 # Instanciate the DistanceMetric class
 dm = DistanceMetric(num_channels=1, num_bins=50, val_range=(-1,1))
