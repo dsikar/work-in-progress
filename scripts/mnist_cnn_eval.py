@@ -14,10 +14,8 @@ parent_dir = os.path.dirname(current_dir)
 sys.path.append(parent_dir)
 from utils.distance_metrics import DistanceMetric
 
-
 # Instanciate the DistanceMetric class
 dm = DistanceMetric(num_channels=1, num_bins=50, val_range=(-1,1))
-
 
 # Define transform to normalize data
 transform = transforms.Compose([
@@ -64,6 +62,7 @@ testloader = torch.utils.data.DataLoader(testset, batch_size=64, shuffle=True)
 # Test the model on the test dataset
 correct = 0
 total = 0
+
 
 with torch.no_grad():
     for inputs, labels in testloader:
