@@ -9,18 +9,15 @@ current_dir = os.path.dirname(os.path.abspath(__file__))
 parent_dir = os.path.dirname(current_dir)
 sys.path.append(parent_dir)
 
-# from utils.distance_metrics import DistanceMetric
+from utils.distance_metrics import DistanceMetric
 
-# # open an image
- 
-# from PIL import Image
-# import numpy as np
-
-# img = Image.open(current_dir + '/images/mnist_nine_grayscale.png')
-# img_arr = np.array(img)
-
-# plt.imshow(img_arr, cmap='gray')
-# plt.show()
+# show image
+from PIL import Image
+import numpy as np
+img = Image.open(current_dir + '/images/mnist_nine_grayscale.png')
+img_arr = np.array(img)
+plt.imshow(img_arr, cmap='gray')
+plt.show()
 
 
 # load the pickle file into memory
