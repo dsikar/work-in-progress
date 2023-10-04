@@ -14,6 +14,10 @@ sys.path.append(parent_dir)
 from utils.distance_metrics import DistanceMetric
 from utils.perturbations import *
 from utils.helper_functions import *
+from utils.perturbation_levels import PERTURBATION_LEVELS
+
+for i in range(0, len(PERTURBATION_LEVELS['gaussian_noise'])):
+  print(PERTURBATION_LEVELS['gaussian_noise'][i][0], PERTURBATION_LEVELS['gaussian_noise'][i][1])   
 
 # Define transform to normalize data
 transform = transforms.Compose([
@@ -63,7 +67,6 @@ def evaluate_perturbed_images(testloader):
                 # loop through each image in the batch
                 for i in range(inputs.shape[0]):
                     inputs[i] = pt.add_shot_noise(inputs[i].squeeze(0), value)
-                    inputs[i] = inputs[i].unsqueeze(0)
                     # calculate distances
                     bd += dm.BhattacharyaDistance(inputs_copy[i].squeeze().numpy(), inputs[i].squeeze().numpy())
                     kl += dm.KLDivergence(inputs_copy[i].squeeze().numpy(), inputs[i].squeeze().numpy())
