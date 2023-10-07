@@ -12,61 +12,34 @@ class Perturbation:
     def __init__(self, pixel_range=(-1, 1)):
         self.pixel_range = pixel_range
 
-    def add_gaussian_noise(self, image, mean=0, std=1):
+    def add_brightness(self, image, brightness = 0.1):
         """
-        Add Gaussian noise to a grayscale image.
+        Add brightness to a grayscale image.
 
         Args:
             image (ndarray): The grayscale image.
-            mean (float): The mean of the Gaussian distribution (default: 0).
-            std (float): The standard deviation of the Gaussian distribution (default: 1).
+            brightness_level (float): The amount of brightness to add (default: 0.1).
 
         Returns:
-            ndarray: The noisy image.
+            ndarray: The brighter image.
         """
-        h, w = image.shape
-        noise = np.random.normal(mean, std, (h, w))
-        noisy_image = image + noise
-        noisy_image = np.clip(noisy_image, *self.pixel_range)
-        return noisy_image
-
-    def add_shot_noise(self, image, intensity=0.1):
+        noisy_image = np.clip(image + brightness, *self.pixel_range)
+        return noisy_image  
+    
+    def add_contrast(self, image, contrast_level=0.1):
         """
-        Add shot noise to a grayscale image.
+        Add contrast to a grayscale image.
 
         Args:
             image (ndarray): The grayscale image.
-            intensity (float): The intensity of the shot noise (default: 0.1).
+            contrast_level (float): The amount of contrast to add (default: 0.1).
 
         Returns:
-            ndarray: The noisy image.
+            ndarray: The image with added contrast.
         """
-        h, w = image.shape
-        noise = np.random.poisson(intensity, (h, w))
-        noisy_image = image + noise
-        noisy_image = np.clip(noisy_image, *self.pixel_range)
-        return noisy_image
-
-    def add_impulse_noise(self, image, density=0.1, intensity=1):
-        """
-        Add impulse noise to a grayscale image.
-
-        Args:
-            image (ndarray): The grayscale image.
-            density (float): The density of the impulse noise (default: 0.1).
-            intensity (int): The intensity of the impulse noise (default: 1).
-
-        Returns:
-            ndarray: The noisy image.
-        """
-        h, w = image.shape
-        noise = np.zeros((h, w), dtype=np.uint8)
-        num_pixels = int(density * h * w)
-        indices = np.random.choice(h * w, num_pixels, replace=False)
-        noise.flat[indices] = intensity
-        noisy_image = image + noise
-        noisy_image = np.clip(noisy_image, *self.pixel_range)
-        return noisy_image
+        mean_pixel = np.mean(image)
+        noisy_image = np.clip((image - mean_pixel) * (1 + contrast_level), *self.pixel_range)
+        return noisy_image    
 
     def add_defocus_blur(self, image, kernel_size=3, blur_amount=1.0):
         """
@@ -84,7 +57,54 @@ class Perturbation:
         blurred_image = cv2.filter2D(image, -1, kernel)
         blurred_image = blurred_image * blur_amount + image * (1 - blur_amount)
         blurred_image = np.clip(blurred_image, *self.pixel_range)
-        return blurred_image      
+        return blurred_image     
+
+    def add_fog(self, image, fog_level=0.1, fog_density=0.5):
+        """
+        Add fog to a grayscale image.
+
+        Args:
+            image (ndarray): The grayscale image.
+            fog_level (float): The amount of fog to add (default: 0.1).
+            fog_density (float): The density of the fog (default: 0.5).
+
+        Returns:
+            ndarray: The foggy image.
+        """
+        height, width = image.shape
+        x, y = np.meshgrid(np.arange(width), np.arange(height))
+        x = (x - width/2) / (width/2)
+        y = (y - height/2) / (height/2)
+        dist = np.sqrt(x**2 + y**2)
+        fog_mask = np.exp(-((dist/fog_density)**2))
+        fog_mask = np.clip(fog_mask + np.random.normal(scale=0.1, size=(height, width)), 0, 1)
+        noisy_image = np.clip(image * (1 - fog_level) + fog_mask * fog_level, *self.pixel_range)
+        return noisy_image 
+
+    def add_frost(self, image, frost_level=0.1, frost_sigma=1.0, frost_threshold=0.1, blur_kernel_size=5, blur_sigma=1.0):
+        """
+        Add frost to a grayscale image.
+
+        Args:
+            image (ndarray): The grayscale image.
+            frost_level (float): The percentage of pixels to turn to frost (default: 0.1).
+            frost_sigma (float): The standard deviation of the Gaussian distribution used to generate the frost patterns (default: 1.0).
+            frost_threshold (float): The threshold for the frost patterns (default: 0.1).
+            blur_kernel_size (int): The size of the Gaussian blur kernel (default: 5).
+            blur_sigma (float): The standard deviation of the Gaussian blur (default: 1.0).
+
+        Returns:
+            ndarray: The frost-covered image.
+        """
+        height, width = image.shape
+        frost_mask = np.random.normal(loc=0.5, scale=frost_sigma, size=(height, width))
+        frost_mask[frost_mask < frost_threshold] = 0
+        frost_mask[frost_mask >= frost_threshold] = 1
+        frost_mask = np.clip(frost_mask + np.random.normal(scale=0.1, size=(height, width)), 0, 1)
+        frost_mask = cv2.GaussianBlur(frost_mask, (blur_kernel_size, blur_kernel_size), blur_sigma)
+        frost_image = np.where(frost_mask == 1, np.random.normal(scale=0.1, size=(height, width)), 0)
+        noisy_image = np.clip(image + frost_level * frost_image, *self.pixel_range)
+        return noisy_image    
 
     def add_frosted_glass_blur(self, image, kernel_size=3, sigma=1.0):
         """
@@ -113,8 +133,47 @@ class Perturbation:
         kernel = np.ones((kernel_size, kernel_size), dtype=np.float32) / kernel_size ** 2
         blurred_image = cv2.filter2D(image, -1, kernel + noisy_kernel)
         blurred_image = np.clip(blurred_image, *self.pixel_range)
-        return blurred_image   
+        return blurred_image 
+        
+    def add_gaussian_noise(self, image, mean=0, std=1):
+        """
+        Add Gaussian noise to a grayscale image.
 
+        Args:
+            image (ndarray): The grayscale image.
+            mean (float): The mean of the Gaussian distribution (default: 0).
+            std (float): The standard deviation of the Gaussian distribution (default: 1).
+
+        Returns:
+            ndarray: The noisy image.
+        """
+        h, w = image.shape
+        noise = np.random.normal(mean, std, (h, w))
+        noisy_image = image + noise
+        noisy_image = np.clip(noisy_image, *self.pixel_range)
+        return noisy_image
+    
+    def add_impulse_noise(self, image, density=0.1, intensity=1):
+        """
+        Add impulse noise to a grayscale image.
+
+        Args:
+            image (ndarray): The grayscale image.
+            density (float): The density of the impulse noise (default: 0.1).
+            intensity (int): The intensity of the impulse noise (default: 1).
+
+        Returns:
+            ndarray: The noisy image.
+        """
+        h, w = image.shape
+        noise = np.zeros((h, w), dtype=np.uint8)
+        num_pixels = int(density * h * w)
+        indices = np.random.choice(h * w, num_pixels, replace=False)
+        noise.flat[indices] = intensity
+        noisy_image = image + noise
+        noisy_image = np.clip(noisy_image, *self.pixel_range)
+        return noisy_image
+    
     def add_motion_blur(self, image, kernel_size=3, angle=0, direction=(1, 0)):
         """
         Add motion blur to a grayscale image.
@@ -138,8 +197,67 @@ class Perturbation:
             kernel = np.rot90(kernel)
         blurred_image = cv2.filter2D(image, -1, kernel)
         blurred_image = np.clip(blurred_image, *self.pixel_range)
-        return blurred_image               
+        return blurred_image  
 
+    def add_pixelation(self, image, factor=4):
+        """
+        Pixelate a grayscale image by replacing each pixel with the average of a square block of pixels.
+
+        Args:
+            image (ndarray): The grayscale image.
+            factor (int): The factor by which to reduce the size of the image (default: 4).
+
+        Returns:
+            ndarray: The pixelated image.
+        """
+        h, w = image.shape
+        h_new, w_new = h // factor, w // factor
+        image_small = cv2.resize(image, (w_new, h_new), interpolation=cv2.INTER_AREA)
+        image_large = cv2.resize(image_small, (w, h), interpolation=cv2.INTER_NEAREST)
+        pixelated_image = ((image_large - image_large.min()) / (image_large.max() - image_large.min())) * (self.pixel_range[1] - self.pixel_range[0]) + self.pixel_range[0]
+        return pixelated_image 
+       
+    def add_shot_noise(self, image, intensity=0.1):
+        """
+        Add shot noise to a grayscale image.
+
+        Args:
+            image (ndarray): The grayscale image.
+            intensity (float): The intensity of the shot noise (default: 0.1).
+
+        Returns:
+            ndarray: The noisy image.
+        """
+        h, w = image.shape
+        noise = np.random.poisson(intensity, (h, w))
+        noisy_image = image + noise
+        noisy_image = np.clip(noisy_image, *self.pixel_range)
+        return noisy_image
+
+    def add_snow(self, image, snow_level=0.1, snow_color=1, blur_kernel_size=5, blur_sigma=1.0):
+        """
+        Add random snow to a grayscale image.
+
+        Args:
+            image (ndarray): The grayscale image.
+            snow_level (float): The percentage of pixels to turn to snow (default: 0.1).
+            snow_color (float): The color of the snow (default: 1).
+            blur_kernel_size (int): The size of the Gaussian blur kernel (default: 5).
+            blur_sigma (float): The standard deviation of the Gaussian blur (default: 1.0).
+
+        Returns:
+            ndarray: The snow-covered image.
+        """
+        height, width = image.shape
+        snow_mask = np.zeros((height, width))
+        snow_mask[np.random.random((height, width)) < snow_level] = 1
+        snow_mask = cv2.GaussianBlur(snow_mask, (blur_kernel_size, blur_kernel_size), blur_sigma)
+        snow_mask = np.clip(snow_mask, 0, 1)
+        snow_image = np.zeros_like(image)
+        snow_image = np.where(snow_mask == 1, snow_color, snow_image)
+        noisy_image = np.clip(image + snow_image, *self.pixel_range)
+        return noisy_image   
+    
     def add_zoom_blur(self, image, kernel_size=3, strength=1.0):
         """
         Add zoom blur to a grayscale image.
@@ -166,107 +284,7 @@ class Perturbation:
         kernel = kernel / kernel.sum()
         blurred_image = cv2.filter2D(image, -1, kernel)
         blurred_image = np.clip(blurred_image, *self.pixel_range)
-        return blurred_image
-
-    def add_snow(self, image, snow_level=0.1, snow_color=1, blur_kernel_size=5, blur_sigma=1.0):
-        """
-        Add random snow to a grayscale image.
-
-        Args:
-            image (ndarray): The grayscale image.
-            snow_level (float): The percentage of pixels to turn to snow (default: 0.1).
-            snow_color (float): The color of the snow (default: 1).
-            blur_kernel_size (int): The size of the Gaussian blur kernel (default: 5).
-            blur_sigma (float): The standard deviation of the Gaussian blur (default: 1.0).
-
-        Returns:
-            ndarray: The snow-covered image.
-        """
-        height, width = image.shape
-        snow_mask = np.zeros((height, width))
-        snow_mask[np.random.random((height, width)) < snow_level] = 1
-        snow_mask = cv2.GaussianBlur(snow_mask, (blur_kernel_size, blur_kernel_size), blur_sigma)
-        snow_mask = np.clip(snow_mask, 0, 1)
-        snow_image = np.zeros_like(image)
-        snow_image = np.where(snow_mask == 1, snow_color, snow_image)
-        noisy_image = np.clip(image + snow_image, *self.pixel_range)
-        return noisy_image
-
-    def add_frost(self, image, frost_level=0.1, frost_sigma=1.0, frost_threshold=0.1, blur_kernel_size=5, blur_sigma=1.0):
-        """
-        Add frost to a grayscale image.
-
-        Args:
-            image (ndarray): The grayscale image.
-            frost_level (float): The percentage of pixels to turn to frost (default: 0.1).
-            frost_sigma (float): The standard deviation of the Gaussian distribution used to generate the frost patterns (default: 1.0).
-            frost_threshold (float): The threshold for the frost patterns (default: 0.1).
-            blur_kernel_size (int): The size of the Gaussian blur kernel (default: 5).
-            blur_sigma (float): The standard deviation of the Gaussian blur (default: 1.0).
-
-        Returns:
-            ndarray: The frost-covered image.
-        """
-        height, width = image.shape
-        frost_mask = np.random.normal(loc=0.5, scale=frost_sigma, size=(height, width))
-        frost_mask[frost_mask < frost_threshold] = 0
-        frost_mask[frost_mask >= frost_threshold] = 1
-        frost_mask = np.clip(frost_mask + np.random.normal(scale=0.1, size=(height, width)), 0, 1)
-        frost_mask = cv2.GaussianBlur(frost_mask, (blur_kernel_size, blur_kernel_size), blur_sigma)
-        frost_image = np.where(frost_mask == 1, np.random.normal(scale=0.1, size=(height, width)), 0)
-        noisy_image = np.clip(image + frost_level * frost_image, *self.pixel_range)
-        return noisy_image       
-
-    def add_fog(self, image, fog_level=0.1, fog_density=0.5):
-        """
-        Add fog to a grayscale image.
-
-        Args:
-            image (ndarray): The grayscale image.
-            fog_level (float): The amount of fog to add (default: 0.1).
-            fog_density (float): The density of the fog (default: 0.5).
-
-        Returns:
-            ndarray: The foggy image.
-        """
-        height, width = image.shape
-        x, y = np.meshgrid(np.arange(width), np.arange(height))
-        x = (x - width/2) / (width/2)
-        y = (y - height/2) / (height/2)
-        dist = np.sqrt(x**2 + y**2)
-        fog_mask = np.exp(-((dist/fog_density)**2))
-        fog_mask = np.clip(fog_mask + np.random.normal(scale=0.1, size=(height, width)), 0, 1)
-        noisy_image = np.clip(image * (1 - fog_level) + fog_mask * fog_level, *self.pixel_range)
-        return noisy_image        
-
-    def add_brightness(self, image, brightness = 0.1):
-        """
-        Add brightness to a grayscale image.
-
-        Args:
-            image (ndarray): The grayscale image.
-            brightness_level (float): The amount of brightness to add (default: 0.1).
-
-        Returns:
-            ndarray: The brighter image.
-        """
-        noisy_image = np.clip(image + brightness, *self.pixel_range)
-        return noisy_image  
-
-    def add_contrast(self, image, contrast_level=0.1):
-        """
-        Add contrast to a grayscale image.
-
-        Args:
-            image (ndarray): The grayscale image.
-            contrast_level (float): The amount of contrast to add (default: 0.1).
-
-        Returns:
-            ndarray: The image with added contrast.
-        """
-        mean_pixel = np.mean(image)
-        noisy_image = np.clip((image - mean_pixel) * (1 + contrast_level), *self.pixel_range)
-        return noisy_image    
+        return blurred_image        
 
     def add_elastic2(self, image, alpha=15, sigma=3, seed=None):
         """
@@ -318,25 +336,7 @@ class Perturbation:
         displacement_field /= displacement_field.max()
         warped_image = cv2.remap(image_rgb, displacement_field[..., 1], displacement_field[..., 0], cv2.INTER_LINEAR, borderMode=cv2.BORDER_REFLECT_101)
         warped_image = ((warped_image - warped_image.min()) / (warped_image.max() - warped_image.min())) * (self.pixel_range[1] - self.pixel_range[0]) + self.pixel_range[0]
-        return warped_image[..., 0]  # Convert back to grayscale
-
-    def pixelate(self, image, factor=4):
-        """
-        Pixelate a grayscale image by replacing each pixel with the average of a square block of pixels.
-
-        Args:
-            image (ndarray): The grayscale image.
-            factor (int): The factor by which to reduce the size of the image (default: 4).
-
-        Returns:
-            ndarray: The pixelated image.
-        """
-        h, w = image.shape
-        h_new, w_new = h // factor, w // factor
-        image_small = cv2.resize(image, (w_new, h_new), interpolation=cv2.INTER_AREA)
-        image_large = cv2.resize(image_small, (w, h), interpolation=cv2.INTER_NEAREST)
-        pixelated_image = ((image_large - image_large.min()) / (image_large.max() - image_large.min())) * (self.pixel_range[1] - self.pixel_range[0]) + self.pixel_range[0]
-        return pixelated_image                    
+        return warped_image[..., 0]  # Convert back to grayscale                   
 
     def add_jpeg_noise(self, image, quality=80):
         """
