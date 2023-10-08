@@ -1,4 +1,4 @@
-PERTURBATION_LEVELS = {
+PERTURBATION_LEVELS_OLD = {
     'gaussian_noise': [ [0.0, 0.1], 
                         [0.0, 0.2], 
                         [0.0, 0.3], 
@@ -15,3 +15,150 @@ PERTURBATION_LEVELS = {
     'jpeg_compression': [10, 20, 30, 40, 50, 60, 70, 80, 90, 100],
     # add more perturbation types and levels as needed
             }
+
+PERTURBATION_LEVELS = {
+    'brightness': [
+        {'brightness': 0.1},
+        {'brightness': 0.2},
+        {'brightness': 0.3},
+        {'brightness': 0.4},
+        {'brightness': 0.5},
+        {'brightness': 0.6},
+        {'brightness': 0.7},
+        {'brightness': 0.8},
+        {'brightness': 0.9},
+        {'brightness': 1.0}
+    ],
+    'contrast': [
+        {'contrast_level': 1.0},
+        {'contrast_level': 1.0},
+        {'contrast_level': 1.0},
+        {'contrast_level': 1.0},
+        {'contrast_level': 1.0},
+        {'contrast_level': 1.0},
+        {'contrast_level': 1.0},
+        {'contrast_level': 1.0},
+        {'contrast_level': 1.0},
+        {'contrast_level': 1.0} 
+    ],
+    'defocus_blur': [
+        {'kernel_size': 3, 'blur_amount': 1.0},
+        {'kernel_size': 3, 'blur_amount': 1.0},
+        {'kernel_size': 3, 'blur_amount': 1.0},
+        {'kernel_size': 3, 'blur_amount': 1.0},
+        {'kernel_size': 3, 'blur_amount': 1.0},
+        {'kernel_size': 3, 'blur_amount': 1.0},
+        {'kernel_size': 3, 'blur_amount': 1.0},
+        {'kernel_size': 3, 'blur_amount': 1.0},
+        {'kernel_size': 3, 'blur_amount': 1.0},
+        {'kernel_size': 3, 'blur_amount': 1.0}   
+    ],
+    'fog': [
+        {'fog_level': 1.0, 'fog_density': 1.0},
+        {'fog_level': 1.0, 'fog_density': 1.0},
+        {'fog_level': 1.0, 'fog_density': 1.0},
+        {'fog_level': 1.0, 'fog_density': 1.0},
+        {'fog_level': 1.0, 'fog_density': 1.0},
+        {'fog_level': 1.0, 'fog_density': 1.0},
+        {'fog_level': 1.0, 'fog_density': 1.0},
+        {'fog_level': 1.0, 'fog_density': 1.0},
+        {'fog_level': 1.0, 'fog_density': 1.0},
+        {'fog_level': 1.0, 'fog_density': 1.0}
+    ],
+    'frost': [
+        {'frost_level': 1.0, 'frost_sigma': 1.0, 'frost_threshold': 1.0, 'blur_kernel_size': 3, 'blur_sigma': 1.0},
+        {'frost_level': 1.0, 'frost_sigma': 1.0, 'frost_threshold': 1.0, 'blur_kernel_size': 3, 'blur_sigma': 1.0},
+        {'frost_level': 1.0, 'frost_sigma': 1.0, 'frost_threshold': 1.0, 'blur_kernel_size': 3, 'blur_sigma': 1.0},
+        {'frost_level': 1.0, 'frost_sigma': 1.0, 'frost_threshold': 1.0, 'blur_kernel_size': 3, 'blur_sigma': 1.0},
+        {'frost_level': 1.0, 'frost_sigma': 1.0, 'frost_threshold': 1.0, 'blur_kernel_size': 3, 'blur_sigma': 1.0},
+        {'frost_level': 1.0, 'frost_sigma': 1.0, 'frost_threshold': 1.0, 'blur_kernel_size': 3, 'blur_sigma': 1.0},
+        {'frost_level': 1.0, 'frost_sigma': 1.0, 'frost_threshold': 1.0, 'blur_kernel_size': 3, 'blur_sigma': 1.0},
+        {'frost_level': 1.0, 'frost_sigma': 1.0, 'frost_threshold': 1.0, 'blur_kernel_size': 3, 'blur_sigma': 1.0},
+        {'frost_level': 1.0, 'frost_sigma': 1.0, 'frost_threshold': 1.0, 'blur_kernel_size': 3, 'blur_sigma': 1.0},
+        {'frost_level': 1.0, 'frost_sigma': 1.0, 'frost_threshold': 1.0, 'blur_kernel_size': 3, 'blur_sigma': 1.0}
+    ],
+    'gaussian_noise': [
+        {'mean': 0.0, 'std': 1.0},
+        {'mean': 0.0, 'std': 1.0},
+        {'mean': 0.0, 'std': 1.0},
+        {'mean': 0.0, 'std': 1.0},
+        {'mean': 0.0, 'std': 1.0},
+        {'mean': 0.0, 'std': 1.0},
+        {'mean': 0.0, 'std': 1.0},
+        {'mean': 0.0, 'std': 1.0},
+        {'mean': 0.0, 'std': 1.0},
+        {'mean': 0.0, 'std': 1.0}
+    ],
+    'impulse_noise': [
+        {'density': 1.0, 'intensity': 1.0},
+        {'density': 1.0, 'intensity': 1.0},
+        {'density': 1.0, 'intensity': 1.0},
+        {'density': 1.0, 'intensity': 1.0},
+        {'density': 1.0, 'intensity': 1.0},
+        {'density': 1.0, 'intensity': 1.0},
+        {'density': 1.0, 'intensity': 1.0},
+        {'density': 1.0, 'intensity': 1.0},
+        {'density': 1.0, 'intensity': 1.0},
+        {'density': 1.0, 'intensity': 1.0}
+    ],
+    'motion_blur': [
+        {'kernel_size': 3, 'angle': 0.0, 'direction': 1.0},
+        {'kernel_size': 3, 'angle': 0.0, 'direction': 1.0},
+        {'kernel_size': 3, 'angle': 0.0, 'direction': 1.0},
+        {'kernel_size': 3, 'angle': 0.0, 'direction': 1.0},
+        {'kernel_size': 3, 'angle': 0.0, 'direction': 1.0},
+        {'kernel_size': 3, 'angle': 0.0, 'direction': 1.0},
+        {'kernel_size': 3, 'angle': 0.0, 'direction': 1.0},
+        {'kernel_size': 3, 'angle': 0.0, 'direction': 1.0},
+        {'kernel_size': 3, 'angle': 0.0, 'direction': 1.0},
+        {'kernel_size': 3, 'angle': 0.0, 'direction': 1.0}
+    ],
+    'pixelation': [
+        {'factor': 1.0},
+        {'factor': 1.0},
+        {'factor': 1.0},
+        {'factor': 1.0},
+        {'factor': 1.0},
+        {'factor': 1.0},
+        {'factor': 1.0},
+        {'factor': 1.0},
+        {'factor': 1.0},
+        {'factor': 1.0}
+    ],
+    'shot_noise': [
+        {'intensity': 1.0},
+        {'intensity': 1.0},
+        {'intensity': 1.0},
+        {'intensity': 1.0},
+        {'intensity': 1.0},
+        {'intensity': 1.0},
+        {'intensity': 1.0},
+        {'intensity': 1.0},
+        {'intensity': 1.0},
+        {'intensity': 1.0}
+    ],
+    'snow': [
+        {'snow_level': 1.0, 'snow_color': 1.0, 'blur_kernel_size': 3, 'blur_sigma': 1.0},
+        {'snow_level': 1.0, 'snow_color': 1.0, 'blur_kernel_size': 3, 'blur_sigma': 1.0},
+        {'snow_level': 1.0, 'snow_color': 1.0, 'blur_kernel_size': 3, 'blur_sigma': 1.0},
+        {'snow_level': 1.0, 'snow_color': 1.0, 'blur_kernel_size': 3, 'blur_sigma': 1.0},
+        {'snow_level': 1.0, 'snow_color': 1.0, 'blur_kernel_size': 3, 'blur_sigma': 1.0},
+        {'snow_level': 1.0, 'snow_color': 1.0, 'blur_kernel_size': 3, 'blur_sigma': 1.0},
+        {'snow_level': 1.0, 'snow_color': 1.0, 'blur_kernel_size': 3, 'blur_sigma': 1.0},
+        {'snow_level': 1.0, 'snow_color': 1.0, 'blur_kernel_size': 3, 'blur_sigma': 1.0},
+        {'snow_level': 1.0, 'snow_color': 1.0, 'blur_kernel_size': 3, 'blur_sigma': 1.0},
+        {'snow_level': 1.0, 'snow_color': 1.0, 'blur_kernel_size': 3, 'blur_sigma': 1.0}
+    ],
+    'zoom_blur': [
+        {'kernel_size': 3, 'strength': 1.0},
+        {'kernel_size': 3, 'strength': 1.0},
+        {'kernel_size': 3, 'strength': 1.0},
+        {'kernel_size': 3, 'strength': 1.0},
+        {'kernel_size': 3, 'strength': 1.0},
+        {'kernel_size': 3, 'strength': 1.0},
+        {'kernel_size': 3, 'strength': 1.0},
+        {'kernel_size': 3, 'strength': 1.0},
+        {'kernel_size': 3, 'strength': 1.0},
+        {'kernel_size': 3, 'strength': 1.0}
+    ]
+}

@@ -12,7 +12,21 @@ class Perturbation:
     def __init__(self, pixel_range=(-1, 1)):
         self.pixel_range = pixel_range
 
-    def add_brightness(self, image, brightness = 0.1):
+    # def brightness(self, image, brightness = 0.1):
+    #     """
+    #     Add brightness to a grayscale image.
+
+    #     Args:
+    #         image (ndarray): The grayscale image.
+    #         brightness_level (float): The amount of brightness to add (default: 0.1).
+
+    #     Returns:
+    #         ndarray: The brighter image.
+    #     """
+    #     noisy_image = np.clip(image + brightness, *self.pixel_range)
+    #     return noisy_image  
+    
+    def brightness(self, image, **kwargs):
         """
         Add brightness to a grayscale image.
 
@@ -23,10 +37,12 @@ class Perturbation:
         Returns:
             ndarray: The brighter image.
         """
+        # brightness = 0.1
+        brightness = kwargs.get('brightness', 0.1)
         noisy_image = np.clip(image + brightness, *self.pixel_range)
-        return noisy_image  
+        return noisy_image      
     
-    def add_contrast(self, image, contrast_level=0.1):
+    def contrast(self, image, contrast_level=0.1):
         """
         Add contrast to a grayscale image.
 
@@ -41,7 +57,7 @@ class Perturbation:
         noisy_image = np.clip((image - mean_pixel) * (1 + contrast_level), *self.pixel_range)
         return noisy_image    
 
-    def add_defocus_blur(self, image, kernel_size=3, blur_amount=1.0):
+    def defocus_blur(self, image, kernel_size=3, blur_amount=1.0):
         """
         Add defocus blur to a grayscale image.
 
@@ -59,7 +75,7 @@ class Perturbation:
         blurred_image = np.clip(blurred_image, *self.pixel_range)
         return blurred_image     
 
-    def add_fog(self, image, fog_level=0.1, fog_density=0.5):
+    def fog(self, image, fog_level=0.1, fog_density=0.5):
         """
         Add fog to a grayscale image.
 
@@ -81,7 +97,7 @@ class Perturbation:
         noisy_image = np.clip(image * (1 - fog_level) + fog_mask * fog_level, *self.pixel_range)
         return noisy_image 
 
-    def add_frost(self, image, frost_level=0.1, frost_sigma=1.0, frost_threshold=0.1, blur_kernel_size=5, blur_sigma=1.0):
+    def frost(self, image, frost_level=0.1, frost_sigma=1.0, frost_threshold=0.1, blur_kernel_size=5, blur_sigma=1.0):
         """
         Add frost to a grayscale image.
 
@@ -106,7 +122,7 @@ class Perturbation:
         noisy_image = np.clip(image + frost_level * frost_image, *self.pixel_range)
         return noisy_image    
 
-    def add_frosted_glass_blur(self, image, kernel_size=3, sigma=1.0):
+    def frosted_glass_blur(self, image, kernel_size=3, sigma=1.0):
         """
         Add frosted glass blur to a grayscale image.
 
@@ -135,7 +151,7 @@ class Perturbation:
         blurred_image = np.clip(blurred_image, *self.pixel_range)
         return blurred_image 
         
-    def add_gaussian_noise(self, image, mean=0, std=1):
+    def gaussian_noise(self, image, mean=0, std=1):
         """
         Add Gaussian noise to a grayscale image.
 
@@ -153,7 +169,7 @@ class Perturbation:
         noisy_image = np.clip(noisy_image, *self.pixel_range)
         return noisy_image
     
-    def add_impulse_noise(self, image, density=0.1, intensity=1):
+    def impulse_noise(self, image, density=0.1, intensity=1):
         """
         Add impulse noise to a grayscale image.
 
@@ -174,7 +190,7 @@ class Perturbation:
         noisy_image = np.clip(noisy_image, *self.pixel_range)
         return noisy_image
     
-    def add_motion_blur(self, image, kernel_size=3, angle=0, direction=(1, 0)):
+    def motion_blur(self, image, kernel_size=3, angle=0, direction=(1, 0)):
         """
         Add motion blur to a grayscale image.
 
@@ -199,7 +215,7 @@ class Perturbation:
         blurred_image = np.clip(blurred_image, *self.pixel_range)
         return blurred_image  
 
-    def add_pixelation(self, image, factor=4):
+    def pixelation(self, image, factor=4):
         """
         Pixelate a grayscale image by replacing each pixel with the average of a square block of pixels.
 
@@ -217,7 +233,7 @@ class Perturbation:
         pixelated_image = ((image_large - image_large.min()) / (image_large.max() - image_large.min())) * (self.pixel_range[1] - self.pixel_range[0]) + self.pixel_range[0]
         return pixelated_image 
        
-    def add_shot_noise(self, image, intensity=0.1):
+    def shot_noise(self, image, intensity=0.1):
         """
         Add shot noise to a grayscale image.
 
@@ -234,7 +250,7 @@ class Perturbation:
         noisy_image = np.clip(noisy_image, *self.pixel_range)
         return noisy_image
 
-    def add_snow(self, image, snow_level=0.1, snow_color=1, blur_kernel_size=5, blur_sigma=1.0):
+    def snow(self, image, snow_level=0.1, snow_color=1, blur_kernel_size=5, blur_sigma=1.0):
         """
         Add random snow to a grayscale image.
 
@@ -258,7 +274,7 @@ class Perturbation:
         noisy_image = np.clip(image + snow_image, *self.pixel_range)
         return noisy_image   
     
-    def add_zoom_blur(self, image, kernel_size=3, strength=1.0):
+    def zoom_blur(self, image, kernel_size=3, strength=1.0):
         """
         Add zoom blur to a grayscale image.
 
@@ -286,7 +302,7 @@ class Perturbation:
         blurred_image = np.clip(blurred_image, *self.pixel_range)
         return blurred_image        
 
-    def add_elastic2(self, image, alpha=15, sigma=3, seed=None):
+    def elastic2(self, image, alpha=15, sigma=3, seed=None):
         """
         Apply an elastic transformation to a grayscale image.
 
@@ -309,7 +325,7 @@ class Perturbation:
         noisy_image = cv2.remap(image, np.float32(indices[1]), np.float32(indices[0]), interpolation=cv2.INTER_LINEAR)
         return noisy_image  
         
-    def add_elastic(self, image, alpha=200, sigma=10, seed=None):
+    def elastic(self, image, alpha=200, sigma=10, seed=None):
         """
         Add elastic transformations to a grayscale image.
 
@@ -338,7 +354,7 @@ class Perturbation:
         warped_image = ((warped_image - warped_image.min()) / (warped_image.max() - warped_image.min())) * (self.pixel_range[1] - self.pixel_range[0]) + self.pixel_range[0]
         return warped_image[..., 0]  # Convert back to grayscale                   
 
-    def add_jpeg_noise(self, image, quality=80):
+    def jpeg_noise(self, image, quality=80):
         """
         Add JPEG compression artifacts to an image.
 

@@ -17,7 +17,7 @@ from utils.helper_functions import *
 from utils.perturbation_levels import PERTURBATION_LEVELS
 
 for i in range(0, len(PERTURBATION_LEVELS['gaussian_noise'])):
-  print(PERTURBATION_LEVELS['gaussian_noise'][i][0], PERTURBATION_LEVELS['gaussian_noise'][i][1])   
+  print(PERTURBATION_LEVELS['gaussian_noise'][i]['mean'], PERTURBATION_LEVELS['gaussian_noise'][i]['std'])   
 
 # Define transform to normalize data
 transform = transforms.Compose([
@@ -44,11 +44,59 @@ class Net(nn.Module):
         x = self.fc2(x)
         return F.log_softmax(x, dim=1)
 
+def evaluate_perturbed_images(testloader, perturbation_func, distortion_levels):
+    """
+    Evaluate the model on the test dataset for different values of noise
+
+    Args:
+    - testloader: DataLoader for the test dataset
+    - perturbation_func (str): Name of the perturbation function to use from the Perturbation class
+    - distortion_levels (list/np.array): List of distortion levels to use for the perturbation
+
+    """
+    # Initialize the Perturbation object
+    pt = Perturbation()
+    # Instantiate the DistanceMetric class
+    dm = DistanceMetric(num_channels=1, num_bins=50, val_range=(-1,1))
+
+    for value in distortion_levels:
+        # Reset the accuracy counters
+        correct = 0
+        total = 0
+
+        # Test the model on the test dataset with added "value"
+        with torch.no_grad():
+            bd = 0
+            kl = 0
+            hi = 0
+            for inputs, labels in testloader:
+                inputs_copy = inputs.clone()
+                # Loop through each image in the batch
+                for i in range(inputs.shape[0]):
+                    # Dynamically call the desired perturbation function
+                    inputs[i] = getattr(pt, perturbation_func)(inputs[i].squeeze(0), value)
+                    # Calculate distances
+                    bd += dm.BhattacharyaDistance(inputs_copy[i].squeeze().numpy(), inputs[i].squeeze().numpy())
+                    kl += dm.KLDivergence(inputs_copy[i].squeeze().numpy(), inputs[i].squeeze().numpy())
+                    hi += dm.HistogramIntersection(inputs_copy[i].squeeze().numpy(), inputs[i].squeeze().numpy())
+                outputs = net(inputs)
+                _, predicted = torch.max(outputs.data, 1)
+                total += labels.size(0)
+                correct += (predicted == labels).sum().item()
+
+        # Compute and print the accuracy and distances for the current "value"
+        accuracy = 100 * correct / total
+        bd /= total
+        kl /= total
+        hi /= total
+        print('Accuracy with {} value = {:.1f}: {:.2f}%, Bhattacharyya Distance: {:.4f}, KL Divergence: {:.4f}, Histogram Intersection: {:.4f}'.format(perturbation_func, value, accuracy, bd, kl, hi))
+
+
 # our evaluate function
-def evaluate_perturbed_images(testloader):
+def evaluate_perturbed_images_old(testloader):
     # Evaluate the model on the test dataset for different values of noise
     pt = Perturbation()
-    # Instanciate the DistanceMetric class
+    # Note, (-1, 1) is the range of values for the MNIST dataset
     dm = DistanceMetric(num_channels=1, num_bins=50, val_range=(-1,1))
 
     for value in np.arange(0.0, 1.1, 0.1):
@@ -66,7 +114,7 @@ def evaluate_perturbed_images(testloader):
                 inputs_copy = inputs.clone()
                 # loop through each image in the batch
                 for i in range(inputs.shape[0]):
-                    inputs[i] = pt.add_shot_noise(inputs[i].squeeze(0), value)
+                    inputs[i] = pt.shot_noise(inputs[i].squeeze(0), value)
                     # calculate distances
                     bd += dm.BhattacharyaDistance(inputs_copy[i].squeeze().numpy(), inputs[i].squeeze().numpy())
                     kl += dm.KLDivergence(inputs_copy[i].squeeze().numpy(), inputs[i].squeeze().numpy())
@@ -100,15 +148,12 @@ def evaluate_perturbed_images(testloader):
 
 # Create a network instance
 net = Net()
-
 # Load the saved model from a file
 # PATH = 'mnist_vanilla_cnn_hyperion_20230426110500.pth' # trained on hyperion, Accuracy on test dataset: 98.35%
 PATH = 'models/mnist_vanilla_cnn_local_202306241859.pth' # trained on google colab, 
 # prepend current_dir to PATH
 PATH = os.path.join(current_dir, PATH)
-net = Net()
 net.load_state_dict(torch.load(PATH))
-
 # Load the test data
 # data path current_dir plus 'data/'
 datapath = os.path.join(current_dir, 'data/')
@@ -130,7 +175,52 @@ with torch.no_grad():
 # Print the accuracy of the model on the test dataset
 accuracy = 100 * correct / total # 98.38
 print('Accuracy on test dataset: %.2f%%' % accuracy)
-evaluate_perturbed_images(testloader)
+# evaluate_perturbed_images(testloader)
+
+# Evaluate the model on the test dataset for different values of noise
+pt = Perturbation()
+# Note, (-1, 1) is the range of values for the MNIST dataset
+dm = DistanceMetric(num_channels=1, num_bins=50, val_range=(-1,1))
+
+# 1. Iterate through the perturbation types
+for key in PERTURBATION_LEVELS.keys():
+    # 2. Iterate through the perturbation parameters
+    for k in range(0, len(PERTURBATION_LEVELS[key])):
+    # 3. Iterate through the perturbation levels
+    #for value in PERTURBATION_LEVELS[key][k]:
+        # Reset the accuracy counters
+        correct = 0
+        total = 0
+
+        # Test the model on the test dataset with added "value"
+        with torch.no_grad():
+            # running averages for battacharya distance, kl divergence, and histogram intersection
+            bd = 0
+            kl = 0
+            hi = 0
+            for inputs, labels in testloader:
+                inputs_copy = inputs.clone()
+                # loop through each image in the batch
+                for i in range(inputs.shape[0]):
+                    # Dynamically call the desired perturbation function
+                    kwargs = PERTURBATION_LEVELS[key][k]
+                    inputs[i] = getattr(pt, key)(inputs[i].squeeze(0), **kwargs)
+                    # calculate distances
+                    bd += dm.BhattacharyaDistance(inputs_copy[i].squeeze().numpy(), inputs[i].squeeze().numpy())
+                    kl += dm.KLDivergence(inputs_copy[i].squeeze().numpy(), inputs[i].squeeze().numpy())
+                    hi += dm.HistogramIntersection(inputs_copy[i].squeeze().numpy(), inputs[i].squeeze().numpy())
+                outputs = net(inputs)
+                _, predicted = torch.max(outputs.data, 1)
+                total += labels.size(0)
+                correct += (predicted == labels).sum().item()
+
+        # Compute and print the accuracy and distances for the current "value"
+        accuracy = 100 * correct / total
+        bd /= total
+        kl /= total
+        hi /= total
+        print('Accuracy with {} value = {:.1f}: {:.2f}%, Bhattacharyya Distance: {:.4f}, KL Divergence: {:.4f}, Histogram Intersection: {:.4f}'.format(key, value, accuracy, bd, kl, hi))
+
 
 # # with modified inputs
 # correct = 0

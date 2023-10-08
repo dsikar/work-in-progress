@@ -31,3 +31,28 @@ def find_max_value(tensor):
     return index.item(), value.item()
 
 
+def initialise_data(model_desc, weights_path, commit_hash, repo_url, script_name):
+    """
+    Initialize the data dictionary with metadata.
+    
+    Args:
+    - model_desc (str): Description or name of the model.
+    - weights_path (str): Path to the model's weights file.
+    - commit_hash (str): Git commit hash.
+    - repo_url (str): URL of the git repository.
+    
+    Returns:
+    - dict: Initialized data dictionary.
+    """
+    data = {
+        'metadata': {
+            'model': model_desc,
+            'weights_filepath': weights_path,
+            'git_commit_hash': commit_hash,
+            'git_repository': repo_url,
+            'script_name': script_name
+        },
+        'results': []  # This is an empty list that will hold the results later
+    }
+    
+    return data
