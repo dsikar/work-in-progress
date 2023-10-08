@@ -56,3 +56,52 @@ def initialise_data(model_desc, weights_path, commit_hash, repo_url, script_name
     }
     
     return data
+
+def append_results(data, index, bd, kl, hi, noise_type, accuracy):
+    """
+    Append a dictionary of results to the 'results' list in the data.
+    
+    Args:
+    - data (dict): The main data dictionary.
+    - index (int): Index representing the "level" of noise.
+    - bd (float): BD metric value.
+    - kl (float): KL metric value.
+    - hi (float): HI metric value.
+    - noise_type (str): Type of noise.
+    - accuracy (float): Model's accuracy on perturbed data.
+    """
+    result = {
+        'index': index,
+        'bd': bd,
+        'kl': kl,
+        'hi': hi,
+        'noise_type': noise_type,
+        'accuracy': accuracy
+    }
+    
+    data['results'].append(result)
+
+import pickle
+from datetime import datetime
+
+def save_to_pickle(data, filename_prefix):
+    """
+    Save data to a pickle file with a timestamp suffix.
+    
+    Args:
+    - data (dict): Data to be saved.
+    - filename_prefix (str): Prefix for the filename.
+    
+    Returns:
+    - str: The path to the saved file.
+    """
+    # Generate the timestamp suffix
+    timestamp = datetime.now().strftime("_%Y%m%d%H%M%S")
+    filename = filename_prefix + timestamp + ".pkl"
+    
+    # Save data to pickle file
+    with open(filename, 'wb') as file:
+        pickle.dump(data, file)
+    
+    return filename
+

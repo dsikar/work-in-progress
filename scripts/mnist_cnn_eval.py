@@ -151,6 +151,9 @@ net = Net()
 # Load the saved model from a file
 # PATH = 'mnist_vanilla_cnn_hyperion_20230426110500.pth' # trained on hyperion, Accuracy on test dataset: 98.35%
 PATH = 'models/mnist_vanilla_cnn_local_202306241859.pth' # trained on google colab, 
+# log TODO save original accuracy, KL, BD, HI
+data_instance = initialise_data('Vanilla_CNN', PATH, '2e85eda', 'https://github.com/dsikar/ecai2023')
+
 # prepend current_dir to PATH
 PATH = os.path.join(current_dir, PATH)
 net.load_state_dict(torch.load(PATH))
@@ -220,8 +223,10 @@ for key in PERTURBATION_LEVELS.keys():
         kl /= total
         hi /= total
         print('Accuracy with {} value = {:.1f}: {:.2f}%, Bhattacharyya Distance: {:.4f}, KL Divergence: {:.4f}, Histogram Intersection: {:.4f}'.format(key, value, accuracy, bd, kl, hi))
+        append_results(data_instance, k, bd, kl, hi, key, accuracy)
 
-
+saved_filename = save_to_pickle(data_instance, "vanilla_cnn_mnist")
+print("Saved to file:", saved_filename)
 # # with modified inputs
 # correct = 0
 # total = 0
