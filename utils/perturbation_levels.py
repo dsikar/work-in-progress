@@ -30,16 +30,16 @@ PERTURBATION_LEVELS = {
         {'brightness': 1.0}
     ],
     'contrast': [
-        {'contrast_level': 1.0},
-        {'contrast_level': 1.0},
-        {'contrast_level': 1.0},
-        {'contrast_level': 1.0},
-        {'contrast_level': 1.0},
-        {'contrast_level': 1.0},
-        {'contrast_level': 1.0},
-        {'contrast_level': 1.0},
-        {'contrast_level': 1.0},
-        {'contrast_level': 1.0} 
+        {'contrast_level': 0.1},
+        {'contrast_level': 0.2},
+        {'contrast_level': 0.3},
+        {'contrast_level': 0.4},
+        {'contrast_level': 0.5},
+        {'contrast_level': 0.6},
+        {'contrast_level': 0.7},
+        {'contrast_level': 0.8},
+        {'contrast_level': 0.9},
+        {'contrast_level': 1.0}
     ],
     'defocus_blur': [
         {'kernel_size': 3, 'blur_amount': 1.0},

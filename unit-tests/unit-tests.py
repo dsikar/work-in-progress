@@ -17,7 +17,7 @@ from utils.perturbation_levels import PERTURBATION_LEVELS
 # Evaluate the model on the test dataset for different values of noise
 pt = Perturbation()
 # Note, (-1, 1) is the range of values for the MNIST dataset
-dm = DistanceMetric(num_channels=1, num_bins=21, val_range=(-1,1))
+dm = DistanceMetric(num_channels=1, num_bins=30, val_range=(-1,1))
 
 # show image
 from PIL import Image
@@ -40,7 +40,7 @@ with open(current_dir + '/images/original_array.pkl', 'rb') as f:
     original_array = pickle.load(f)
 
 # the histogram of the data
-n, bins, patches = plt.hist(original_array.flatten(), 21, density=True, facecolor='g', alpha=0.75)
+n, bins, patches = plt.hist(original_array.flatten(), 30, density=True, facecolor='g', alpha=0.75)
 n = n / (original_array.shape[0] * original_array.shape[1]) # normalize the histogram values
 plt.gca().yaxis.set_major_locator(MaxNLocator(integer=True)) # set y axis values as integers
 #plot the histogram
@@ -91,5 +91,5 @@ for k in range(0, len(PERTURBATION_LEVELS[key])):
 plt.tight_layout()  # Reduce spacing and adjust borders    
 plt.show()
 # save the plot
-fig.savefig(current_dir + '/images/brightness_perturbations.png', bbox_inches='tight')
+fig.savefig(current_dir + '/images/brightness_perturbations_30_bins.png', bbox_inches='tight')
 
