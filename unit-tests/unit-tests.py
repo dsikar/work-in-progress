@@ -90,4 +90,7 @@ for k in range(0, len(PERTURBATION_LEVELS[key])):
 
 plt.tight_layout()  # Reduce spacing and adjust borders    
 plt.show()
+# save the plot
+fig.savefig(current_dir + '/images/constrast_perturbations.png', bbox_inches='tight')
+
 print('here')
