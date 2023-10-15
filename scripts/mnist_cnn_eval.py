@@ -16,8 +16,8 @@ from utils.perturbations import *
 from utils.helper_functions import *
 from utils.perturbation_levels import PERTURBATION_LEVELS
 
-for i in range(0, len(PERTURBATION_LEVELS['gaussian_noise'])):
-  print(PERTURBATION_LEVELS['gaussian_noise'][i]['mean'], PERTURBATION_LEVELS['gaussian_noise'][i]['std'])   
+# for i in range(0, len(PERTURBATION_LEVELS['gaussian_noise'])):
+#   print(PERTURBATION_LEVELS['gaussian_noise'][i]['mean'], PERTURBATION_LEVELS['gaussian_noise'][i]['std'])   
 
 # Define transform to normalize data
 transform = transforms.Compose([
@@ -152,7 +152,7 @@ net = Net()
 # PATH = 'mnist_vanilla_cnn_hyperion_20230426110500.pth' # trained on hyperion, Accuracy on test dataset: 98.35%
 PATH = 'models/mnist_vanilla_cnn_local_202306241859.pth' # trained on google colab, 
 # log TODO save original accuracy, KL, BD, HI
-data_instance = initialise_data('Vanilla_CNN', PATH, '8729958', 'https://github.com/dsikar/ecai2023', 'mnist_cnn_eval.py')
+data_instance = initialise_data('Vanilla_CNN', PATH, '9d2611b', 'https://github.com/dsikar/ecai2023', 'mnist_cnn_eval.py')
 
 # prepend current_dir to PATH
 PATH = os.path.join(current_dir, PATH)
@@ -187,6 +187,7 @@ dm = DistanceMetric(num_channels=1, num_bins=50, val_range=(-1,1))
 
 # 1. Iterate through the perturbation types
 for key in PERTURBATION_LEVELS.keys():
+    print("Perturbation type:", key)
     # 2. Iterate through the perturbation parameters
     for k in range(0, len(PERTURBATION_LEVELS[key])):
     # 3. Iterate through the perturbation levels
@@ -222,7 +223,7 @@ for key in PERTURBATION_LEVELS.keys():
         bd /= total
         kl /= total
         hi /= total
-        print('Accuracy with {} value = {}%, Bhattacharyya Distance: {:.4f}, KL Divergence: {:.4f}, Histogram Intersection: {:.4f}'.format(key, kwargs, accuracy, bd, kl, hi))
+        print('Accuracy: {:.4f}, with perturbation type {} values = {}, Bhattacharyya Distance: {:.4f}, KL Divergence: {:.4f}, Histogram Intersection: {:.4f}'.format(accuracy, key, kwargs, bd, kl, hi))
         append_results(data_instance, k, bd, kl, hi, key, accuracy)
 
 saved_filename = save_to_pickle(data_instance, "vanilla_cnn_mnist")

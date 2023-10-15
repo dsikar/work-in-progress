@@ -17,18 +17,6 @@ PERTURBATION_LEVELS_OLD = {
             }
 
 PERTURBATION_LEVELS = {
-    'brightness': [
-        {'brightness': 0.1},
-        {'brightness': 0.2},
-        {'brightness': 0.3},
-        {'brightness': 0.4},
-        {'brightness': 0.5},
-        {'brightness': 0.6},
-        {'brightness': 0.7},
-        {'brightness': 0.8},
-        {'brightness': 0.9},
-        {'brightness': 1.0}
-    ],
     'contrast': [
         {'contrast_level': 0.1},
         {'contrast_level': 0.2},
@@ -40,6 +28,18 @@ PERTURBATION_LEVELS = {
         {'contrast_level': 0.8},
         {'contrast_level': 0.9},
         {'contrast_level': 1.0}
+    ],
+    'brightness': [
+        {'brightness': 0.1},
+        {'brightness': 0.2},
+        {'brightness': 0.3},
+        {'brightness': 0.4},
+        {'brightness': 0.5},
+        {'brightness': 0.6},
+        {'brightness': 0.7},
+        {'brightness': 0.8},
+        {'brightness': 0.9},
+        {'brightness': 1.0}
     ],
     'defocus_blur': [
         {'kernel_size': 3, 'blur_amount': 1.0},

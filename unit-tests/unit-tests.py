@@ -17,7 +17,7 @@ from utils.perturbation_levels import PERTURBATION_LEVELS
 # Evaluate the model on the test dataset for different values of noise
 pt = Perturbation()
 # Note, (-1, 1) is the range of values for the MNIST dataset
-dm = DistanceMetric(num_channels=1, num_bins=30, val_range=(-1,1))
+dm = DistanceMetric(num_channels=1, num_bins=40, val_range=(-1,1))
 
 # show image
 from PIL import Image
@@ -38,18 +38,6 @@ from matplotlib.ticker import MaxNLocator
 
 with open(current_dir + '/images/original_array.pkl', 'rb') as f:
     original_array = pickle.load(f)
-
-# the histogram of the data
-n, bins, patches = plt.hist(original_array.flatten(), 30, density=True, facecolor='g', alpha=0.75)
-n = n / (original_array.shape[0] * original_array.shape[1]) # normalize the histogram values
-plt.gca().yaxis.set_major_locator(MaxNLocator(integer=True)) # set y axis values as integers
-#plot the histogram
-plt.xlabel('Pixel Value')
-plt.ylabel('Probability')
-plt.title('Histogram of Pixel Values')
-plt.grid(True)
-plt.show()
-
 
 fig, axs = plt.subplots(1, 11, figsize=(20, 20))
 #for i in range(11):

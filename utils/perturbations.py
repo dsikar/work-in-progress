@@ -42,7 +42,7 @@ class Perturbation:
         noisy_image = np.clip(image + brightness, *self.pixel_range)
         return noisy_image      
     
-    def contrast(self, image, contrast_level=0.1):
+    def contrast(self, image, **kwargs):
         """
         Add contrast to a grayscale image.
 
@@ -53,7 +53,8 @@ class Perturbation:
         Returns:
             ndarray: The image with added contrast.
         """
-        mean_pixel = np.mean(image)
+        contrast_level = kwargs.get('contrast_level', 0.1)
+        mean_pixel = np.mean(image.numpy())
         noisy_image = np.clip((image - mean_pixel) * (1 + contrast_level), *self.pixel_range)
         return noisy_image    
 
