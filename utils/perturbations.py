@@ -54,7 +54,7 @@ class Perturbation:
             ndarray: The image with added contrast.
         """
         contrast_level = kwargs.get('contrast_level', 0.1)
-        mean_pixel = np.mean(image.numpy())
+        mean_pixel = np.mean(image)
         noisy_image = np.clip((image - mean_pixel) * (1 + contrast_level), *self.pixel_range)
         return noisy_image    
 
@@ -114,12 +114,13 @@ class Perturbation:
             ndarray: The frost-covered image.
         """
         height, width = image.shape
-        frost_mask = np.random.normal(loc=0.5, scale=frost_sigma, size=(height, width))
+        frost_mask = np.random.normal(loc=0.0, scale=frost_sigma, size=(height, width))
         frost_mask[frost_mask < frost_threshold] = 0
         frost_mask[frost_mask >= frost_threshold] = 1
         frost_mask = np.clip(frost_mask + np.random.normal(scale=0.1, size=(height, width)), 0, 1)
         frost_mask = cv2.GaussianBlur(frost_mask, (blur_kernel_size, blur_kernel_size), blur_sigma)
-        frost_image = np.where(frost_mask == 1, np.random.normal(scale=0.1, size=(height, width)), 0)
+        # print(np.round(np.unique(frost_mask), decimals=2)) frost_mask < 0.45 should be about 50% of the pixels
+        frost_image = np.where(frost_mask < 0.45, np.random.normal(scale=0.1, size=(height, width)), 0)
         noisy_image = np.clip(image + frost_level * frost_image, *self.pixel_range)
         return noisy_image    
 
@@ -229,6 +230,7 @@ class Perturbation:
         """
         h, w = image.shape
         h_new, w_new = h // factor, w // factor
+        h_new, w_new = int(h_new), int(w_new) # convert to integers
         image_small = cv2.resize(image, (w_new, h_new), interpolation=cv2.INTER_AREA)
         image_large = cv2.resize(image_small, (w, h), interpolation=cv2.INTER_NEAREST)
         pixelated_image = ((image_large - image_large.min()) / (image_large.max() - image_large.min())) * (self.pixel_range[1] - self.pixel_range[0]) + self.pixel_range[0]
@@ -268,6 +270,8 @@ class Perturbation:
         height, width = image.shape
         snow_mask = np.zeros((height, width))
         snow_mask[np.random.random((height, width)) < snow_level] = 1
+        if blur_kernel_size % 2 == 0:
+            blur_kernel_size += 1
         snow_mask = cv2.GaussianBlur(snow_mask, (blur_kernel_size, blur_kernel_size), blur_sigma)
         snow_mask = np.clip(snow_mask, 0, 1)
         snow_image = np.zeros_like(image)

@@ -17,7 +17,10 @@ from utils.perturbation_levels import PERTURBATION_LEVELS
 # Evaluate the model on the test dataset for different values of noise
 pt = Perturbation()
 # Note, (-1, 1) is the range of values for the MNIST dataset
-dm = DistanceMetric(num_channels=1, num_bins=40, val_range=(-1,1))
+# perturbation type
+key = 'snow'
+num_bins = 10
+dm = DistanceMetric(num_channels=1, num_bins=num_bins, val_range=(-1,1))
 
 # show image
 from PIL import Image
@@ -39,7 +42,9 @@ from matplotlib.ticker import MaxNLocator
 with open(current_dir + '/images/original_array.pkl', 'rb') as f:
     original_array = pickle.load(f)
 
+# plt.suptitle('Perturbations type: ' + key, fontsize=16)
 fig, axs = plt.subplots(1, 11, figsize=(20, 20))
+# fig.suptitle('Perturbations type: {}, number of bins: {}'.format(key, num_bins), fontsize=16)
 #for i in range(11):
 axs[0].imshow(original_array, cmap='gray')
 axs[0].axis('off')
@@ -56,7 +61,7 @@ axs[0].text(0.5, -0.3, f'HI: {hi:.2f}', ha='center', va='center', transform=axs[
 
 perturbed_arrays= []
 
-key = 'brightness'
+
 for k in range(0, len(PERTURBATION_LEVELS[key])):
     kwargs = PERTURBATION_LEVELS[key][k]
     print(kwargs)
@@ -79,5 +84,5 @@ for k in range(0, len(PERTURBATION_LEVELS[key])):
 plt.tight_layout()  # Reduce spacing and adjust borders    
 plt.show()
 # save the plot
-fig.savefig(current_dir + '/images/brightness_perturbations_30_bins.png', bbox_inches='tight')
+fig.savefig(current_dir + f'/images/{key}_perturbations_{num_bins}_bins.png', bbox_inches='tight')
 
