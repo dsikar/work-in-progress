@@ -18,8 +18,8 @@ from utils.perturbation_levels import PERTURBATION_LEVELS
 pt = Perturbation()
 # Note, (-1, 1) is the range of values for the MNIST dataset
 # perturbation type
-key = 'snow'
-num_bins = 10
+key = 'zoom_blur'
+num_bins = 60
 dm = DistanceMetric(num_channels=1, num_bins=num_bins, val_range=(-1,1))
 
 # show image

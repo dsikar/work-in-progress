@@ -150,15 +150,15 @@ PERTURBATION_LEVELS = {
             {'snow_level': 0.9, 'snow_color': 1.0, 'blur_kernel_size': 2, 'blur_sigma': 1.0}
         ],
     'zoom_blur': [
+        {'kernel_size': 1, 'strength': 1.0},
+        {'kernel_size': 2, 'strength': 1.0},
         {'kernel_size': 3, 'strength': 1.0},
-        {'kernel_size': 3, 'strength': 1.0},
-        {'kernel_size': 3, 'strength': 1.0},
-        {'kernel_size': 3, 'strength': 1.0},
-        {'kernel_size': 3, 'strength': 1.0},
-        {'kernel_size': 3, 'strength': 1.0},
-        {'kernel_size': 3, 'strength': 1.0},
-        {'kernel_size': 3, 'strength': 1.0},
-        {'kernel_size': 3, 'strength': 1.0},
-        {'kernel_size': 3, 'strength': 1.0}
+        {'kernel_size': 4, 'strength': 1.0},
+        {'kernel_size': 5, 'strength': 1.0},
+        {'kernel_size': 6, 'strength': 1.0},
+        {'kernel_size': 7, 'strength': 1.0},
+        {'kernel_size': 8, 'strength': 1.0},
+        {'kernel_size': 9, 'strength': 1.0},
+        {'kernel_size': 10, 'strength': 1.0}
     ]
 }
