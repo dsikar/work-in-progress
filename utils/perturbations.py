@@ -1,5 +1,6 @@
 import numpy as np
 import cv2
+import torch
 
 class Perturbation:
     """
@@ -51,11 +52,15 @@ class Perturbation:
             contrast_level (float): The amount of contrast to add (default: 0.1).
 
         Returns:
-            ndarray: The image with added contrast.
+            tensor: The image with added contrast.
         """
         contrast_level = kwargs.get('contrast_level', 0.1)
+        #if not isinstance(image, np.ndarray):
+        #    image = np.array(image)
         mean_pixel = np.mean(image)
         noisy_image = np.clip((image - mean_pixel) * (1 + contrast_level), *self.pixel_range)
+        # convert back to tensor
+        # noisy_image = torch.from_numpy(noisy_image)
         return noisy_image    
 
     def defocus_blur(self, image, kernel_size=3, blur_amount=1.0):
@@ -88,6 +93,7 @@ class Perturbation:
         Returns:
             ndarray: The foggy image.
         """
+        
         height, width = image.shape
         x, y = np.meshgrid(np.arange(width), np.arange(height))
         x = (x - width/2) / (width/2)

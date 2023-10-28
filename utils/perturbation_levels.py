@@ -1,34 +1,4 @@
-PERTURBATION_LEVELS_OLD = {
-    'gaussian_noise': [ [0.0, 0.1], 
-                        [0.0, 0.2], 
-                        [0.0, 0.3], 
-                        [0.0, 0.4], 
-                        [0.0, 0.5],
-                        [0.0, 0.6], 
-                        [0.0, 0.7], 
-                        [0.0, 0.8], 
-                        [0.0, 0.9], 
-                        [0.0, 1.0]],
-    'salt_and_pepper_noise': [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0],
-    'speckle_noise': [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0],
-    'pixelate': [2, 4, 6, 8, 10, 12, 14, 16, 18, 20],
-    'jpeg_compression': [10, 20, 30, 40, 50, 60, 70, 80, 90, 100],
-    # add more perturbation types and levels as needed
-            }
-
 PERTURBATION_LEVELS = {
-    'contrast': [
-        {'contrast_level': 0.1},
-        {'contrast_level': 0.2},
-        {'contrast_level': 0.3},
-        {'contrast_level': 0.4},
-        {'contrast_level': 0.5},
-        {'contrast_level': 0.6},
-        {'contrast_level': 0.7},
-        {'contrast_level': 0.8},
-        {'contrast_level': 0.9},
-        {'contrast_level': 1.0}
-    ],
     'brightness': [
         {'brightness': 0.1},
         {'brightness': 0.2},
@@ -40,6 +10,18 @@ PERTURBATION_LEVELS = {
         {'brightness': 0.8},
         {'brightness': 0.9},
         {'brightness': 1.0}
+    ],
+    'contrast': [
+        {'contrast_level': 0.1},
+        {'contrast_level': 0.2},
+        {'contrast_level': 0.3},
+        {'contrast_level': 0.4},
+        {'contrast_level': 0.5},
+        {'contrast_level': 0.6},
+        {'contrast_level': 0.7},
+        {'contrast_level': 0.8},
+        {'contrast_level': 0.9},
+        {'contrast_level': 1.0}
     ],
     'defocus_blur': [
         {'kernel_size': 3, 'blur_amount': 0.1},

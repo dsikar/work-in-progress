@@ -208,7 +208,12 @@ for key in PERTURBATION_LEVELS.keys():
                 for i in range(inputs.shape[0]):
                     # Dynamically call the desired perturbation function
                     kwargs = PERTURBATION_LEVELS[key][k]
-                    inputs[i] = getattr(pt, key)(inputs[i].squeeze(0), **kwargs)
+                    # pass numpy array to perturbation function
+                    tmp_img = np.array(inputs[i].squeeze().numpy())
+                    tmp_img = getattr(pt, key)(tmp_img, **kwargs)
+                    # convert back to tensor
+                    inputs[i] = torch.from_numpy(tmp_img)
+                    # inputs[i] = getattr(pt, key)(tmp_img, **kwargs)
                     # calculate distances
                     bd += dm.BhattacharyaDistance(inputs_copy[i].squeeze().numpy(), inputs[i].squeeze().numpy())
                     kl += dm.KLDivergence(inputs_copy[i].squeeze().numpy(), inputs[i].squeeze().numpy())
