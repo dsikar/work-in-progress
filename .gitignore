@@ -40,11 +40,12 @@ Thumbs.db
 # Output directory
 outputs/
 
+# let's keep these two in version control to work on them elsewhere
 # Data
-data/
+#data/
 
 # Models
-models/
+# models/
 
 
 
