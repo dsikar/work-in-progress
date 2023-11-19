@@ -15,6 +15,7 @@ from utils.distance_metrics import DistanceMetric
 from utils.perturbations import *
 from utils.helper_functions import *
 from utils.perturbation_levels import PERTURBATION_LEVELS
+from utils.perturbation_levels_single import PERTURBATION_LEVELS
 
 # for i in range(0, len(PERTURBATION_LEVELS['gaussian_noise'])):
 #   print(PERTURBATION_LEVELS['gaussian_noise'][i]['mean'], PERTURBATION_LEVELS['gaussian_noise'][i]['std'])   
@@ -104,7 +105,7 @@ for key in PERTURBATION_LEVELS.keys():
                 # loop through each image in the batch
                 for i in range(inputs.shape[0]):
                     # Dynamically call the desired perturbation function
-                    kwargs = PERTURBATION_LEVELS[key][k]
+                    kwargs = PERTURBATION_LEVELS[key][k]                    
                     # pass numpy array to perturbation function
                     tmp_img = np.array(inputs[i].squeeze().numpy())
                     tmp_img = getattr(pt, key)(tmp_img, **kwargs)
@@ -126,6 +127,6 @@ for key in PERTURBATION_LEVELS.keys():
         hi /= total
         print('Accuracy: {:.4f}, with perturbation type {} values = {}, Bhattacharyya Distance: {:.4f}, KL Divergence: {:.4f}, Histogram Intersection: {:.4f}'.format(accuracy, key, kwargs, bd, kl, hi))
         append_results(data_instance, k, bd, kl, hi, key, accuracy)
-
+# level 3.0 0.9050, 
 saved_filename = save_to_pickle(data_instance, "vanilla_cnn_mnist")
 print("Saved to file:", saved_filename)

@@ -1,8 +1,11 @@
 import sys
 import os
 import matplotlib.pyplot as plt
+from matplotlib.ticker import MaxNLocator
 import pickle
 import numpy as np
+from PIL import Image
+
 # Get the parent directory of the current script
 current_dir = os.path.dirname(os.path.abspath(__file__))
 # Add the parent directory to the module search path
@@ -18,37 +21,17 @@ from utils.perturbation_levels import PERTURBATION_LEVELS
 pt = Perturbation()
 # Note, (-1, 1) is the range of values for the MNIST dataset
 # perturbation type
-key = 'zoom_blur'
-num_bins = 60
+key = 'contrast'
+num_bins = 50
 dm = DistanceMetric(num_channels=1, num_bins=num_bins, val_range=(-1,1))
-
-# show image
-from PIL import Image
-import numpy as np
-#img = Image.open(current_dir + '/images/mnist_nine_grayscale.png')
-#img_arr = np.array(img)
-#plt.imshow(img_arr, cmap='gray')
-#plt.show()
-
-# with open(current_dir + '/images/original_array.pkl', 'rb') as f:
-#     original_array = pickle.load(f)
-# # plt.imshow(original_array, cmap='gray')
-# # plt.show()
-
-import matplotlib.pyplot as plt
-import pickle
-from matplotlib.ticker import MaxNLocator
 
 with open(current_dir + '/images/original_array.pkl', 'rb') as f:
     original_array = pickle.load(f)
 
-# plt.suptitle('Perturbations type: ' + key, fontsize=16)
 fig, axs = plt.subplots(1, 11, figsize=(20, 20))
-# fig.suptitle('Perturbations type: {}, number of bins: {}'.format(key, num_bins), fontsize=16)
-#for i in range(11):
 axs[0].imshow(original_array, cmap='gray')
 axs[0].axis('off')
-axs[0].set_title("0")  # Add label "0" to every image
+axs[0].set_title("0")
 
 bd = dm.BhattacharyaDistance(original_array, original_array)
 kl = dm.KLDivergence(original_array, original_array)
