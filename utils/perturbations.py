@@ -39,7 +39,7 @@ class Perturbation:
             ndarray: The brighter image.
         """
         # brightness = 0.1
-        brightness = kwargs.get('brightness', 0.1)
+        brightness = kwargs.get('brightness_level', 0.1)
         noisy_image = np.clip(image + brightness, *self.pixel_range)
         return noisy_image      
     
