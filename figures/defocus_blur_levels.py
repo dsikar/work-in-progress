@@ -13,7 +13,7 @@ parent_dir = "/home/daniel/git/work-in-progress/"
 sys.path.append(parent_dir)
 from utils.perturbation_levels_single import PERTURBATION_LEVELS
 base_dir = "/home/daniel/git/work-in-progress/scripts/data"
-file_path = "/home/daniel/git/work-in-progress/scripts/data/vanilla_cnn_mnist_20231217172454_defocus_blur_k2_5_amount_0.1_2.pkl"
+file_path = "/home/daniel/git/work-in-progress/scripts/data/vanilla_cnn_mnist_20231217185425_defocus_blur.pkl"
 
 with open(file_path, 'rb') as file:
     data = pickle.load(file)

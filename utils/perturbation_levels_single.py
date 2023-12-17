@@ -70,26 +70,86 @@ PERTURBATION_LEVELS = {
     # ]
 
     'defocus_blur': [
-        {'kernel_size': 3, 'blur_amount': 0.1},
-        {'kernel_size': 3, 'blur_amount': 0.2},
-        {'kernel_size': 3, 'blur_amount': 0.3},
-        {'kernel_size': 3, 'blur_amount': 0.4},
-        {'kernel_size': 3, 'blur_amount': 0.5},
-        {'kernel_size': 3, 'blur_amount': 0.6},
-        {'kernel_size': 3, 'blur_amount': 0.7},
-        {'kernel_size': 3, 'blur_amount': 0.8},
-        {'kernel_size': 3, 'blur_amount': 0.9},
-        {'kernel_size': 3, 'blur_amount': 1.0},
-        {'kernel_size': 5, 'blur_amount': 1.1},
-        {'kernel_size': 5, 'blur_amount': 1.2},
-        {'kernel_size': 5, 'blur_amount': 1.3},
-        {'kernel_size': 5, 'blur_amount': 1.4},
-        {'kernel_size': 5, 'blur_amount': 1.5},
-        {'kernel_size': 5, 'blur_amount': 1.6},
-        {'kernel_size': 5, 'blur_amount': 1.7},
-        {'kernel_size': 5, 'blur_amount': 1.8},
-        {'kernel_size': 5, 'blur_amount': 1.9},
-        {'kernel_size': 5, 'blur_amount': 2.0}
+        {'kernel_size': 3, 'blur_amount': 0.1}, # * 98
+        {'kernel_size': 7, 'blur_amount': 0.6}, # * 94        
+        {'kernel_size': 7, 'blur_amount': 0.7}, # * 90         
+        {'kernel_size': 6, 'blur_amount': 0.8}, # * 85 
+        {'kernel_size': 6, 'blur_amount': 1.5}, # * 80        
+        {'kernel_size': 6, 'blur_amount': 0.9}, # * 76 
+        {'kernel_size': 6, 'blur_amount': 1.0}, # * 69      
+        {'kernel_size': 7, 'blur_amount': 1.2}, # * 65
+        {'kernel_size': 7, 'blur_amount': 1.0}, # * 57     
+        {'kernel_size': 8, 'blur_amount': 1.2}, # * 51
+        # {'kernel_size': 3, 'blur_amount': 0.1}, # * 98
+        # {'kernel_size': 3, 'blur_amount': 0.2},
+        # {'kernel_size': 3, 'blur_amount': 0.3},
+        # {'kernel_size': 3, 'blur_amount': 0.4},
+        # {'kernel_size': 3, 'blur_amount': 0.5},
+        # {'kernel_size': 3, 'blur_amount': 0.6},
+        # {'kernel_size': 3, 'blur_amount': 0.7},
+        # {'kernel_size': 3, 'blur_amount': 0.8},
+        # {'kernel_size': 3, 'blur_amount': 0.9},
+        # {'kernel_size': 3, 'blur_amount': 1.0},
+        # {'kernel_size': 6, 'blur_amount': 0.1},
+        # {'kernel_size': 6, 'blur_amount': 0.2},
+        # {'kernel_size': 6, 'blur_amount': 0.3},
+        # {'kernel_size': 6, 'blur_amount': 0.4},
+        # {'kernel_size': 6, 'blur_amount': 0.5},
+        # {'kernel_size': 6, 'blur_amount': 0.6}, # * 
+        # {'kernel_size': 6, 'blur_amount': 0.7}, # * 
+        # {'kernel_size': 6, 'blur_amount': 0.8}, # * 85 
+        # {'kernel_size': 6, 'blur_amount': 0.9}, # * 76 
+        # {'kernel_size': 6, 'blur_amount': 1.0}, # * 69      
+        # {'kernel_size': 6, 'blur_amount': 1.1}, # * 66
+        # {'kernel_size': 6, 'blur_amount': 1.2},
+        # {'kernel_size': 6, 'blur_amount': 1.3},
+        # {'kernel_size': 6, 'blur_amount': 1.4},
+        # {'kernel_size': 6, 'blur_amount': 1.5}, # * 80
+        # {'kernel_size': 6, 'blur_amount': 1.6},
+        # {'kernel_size': 6, 'blur_amount': 1.7},
+        # {'kernel_size': 6, 'blur_amount': 1.8},
+        # {'kernel_size': 6, 'blur_amount': 1.9},
+        # {'kernel_size': 6, 'blur_amount': 2.0}
+        # {'kernel_size': 7, 'blur_amount': 0.1},
+        # {'kernel_size': 7, 'blur_amount': 0.2},
+        # {'kernel_size': 7, 'blur_amount': 0.3},
+        # {'kernel_size': 7, 'blur_amount': 0.4},
+        # {'kernel_size': 7, 'blur_amount': 0.5},
+        # {'kernel_size': 7, 'blur_amount': 0.6},  # * 94
+        # {'kernel_size': 7, 'blur_amount': 0.7}, # * 90
+        # {'kernel_size': 7, 'blur_amount': 0.8},  
+        # {'kernel_size': 7, 'blur_amount': 0.9}, 
+        # {'kernel_size': 7, 'blur_amount': 1.0}, # * 57     
+        # {'kernel_size': 7, 'blur_amount': 1.1},
+        # {'kernel_size': 7, 'blur_amount': 1.2}, # * 65
+        # {'kernel_size': 7, 'blur_amount': 1.3},
+        # {'kernel_size': 7, 'blur_amount': 1.4},
+        # {'kernel_size': 7, 'blur_amount': 1.5},
+        # {'kernel_size': 7, 'blur_amount': 1.6},
+        # {'kernel_size': 7, 'blur_amount': 1.7},
+        # {'kernel_size': 7, 'blur_amount': 1.8},
+        # {'kernel_size': 7, 'blur_amount': 1.9},
+        # {'kernel_size': 7, 'blur_amount': 2.0}    
+        # {'kernel_size': 8, 'blur_amount': 0.1},
+        # {'kernel_size': 8, 'blur_amount': 0.2},
+        # {'kernel_size': 8, 'blur_amount': 0.3},
+        # {'kernel_size': 8, 'blur_amount': 0.4},
+        # {'kernel_size': 8, 'blur_amount': 0.5},
+        # {'kernel_size': 8, 'blur_amount': 0.6},  
+        # {'kernel_size': 8, 'blur_amount': 0.7}, 
+        # {'kernel_size': 8, 'blur_amount': 0.8},  
+        # {'kernel_size': 8, 'blur_amount': 0.9}, 
+        # {'kernel_size': 8, 'blur_amount': 1.0},     
+        # {'kernel_size': 8, 'blur_amount': 1.1},
+        # {'kernel_size': 8, 'blur_amount': 1.2}, # * 51
+        # {'kernel_size': 8, 'blur_amount': 1.3},
+        # {'kernel_size': 8, 'blur_amount': 1.4},
+        # {'kernel_size': 8, 'blur_amount': 1.5},
+        # {'kernel_size': 8, 'blur_amount': 1.6},
+        # {'kernel_size': 8, 'blur_amount': 1.7},
+        # {'kernel_size': 8, 'blur_amount': 1.8},
+        # {'kernel_size': 8, 'blur_amount': 1.9},
+        # {'kernel_size': 7, 'blur_amount': 2.0}              
     ],
     # 'fog': [
     #     {'fog_level': 0.1, 'fog_density': 0.1},
