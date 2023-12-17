@@ -69,17 +69,17 @@ PERTURBATION_LEVELS = {
     #     {'contrast_level': -1.0}
     # ]
 
-    'defocus_blur': [
-        {'kernel_size': 3, 'blur_amount': 0.1}, # * 98
-        {'kernel_size': 7, 'blur_amount': 0.6}, # * 94        
-        {'kernel_size': 7, 'blur_amount': 0.7}, # * 90         
-        {'kernel_size': 6, 'blur_amount': 0.8}, # * 85 
-        {'kernel_size': 6, 'blur_amount': 1.5}, # * 80        
-        {'kernel_size': 6, 'blur_amount': 0.9}, # * 76 
-        {'kernel_size': 6, 'blur_amount': 1.0}, # * 69      
-        {'kernel_size': 7, 'blur_amount': 1.2}, # * 65
-        {'kernel_size': 7, 'blur_amount': 1.0}, # * 57     
-        {'kernel_size': 8, 'blur_amount': 1.2}, # * 51
+    # 'defocus_blur': [
+    #     {'kernel_size': 3, 'blur_amount': 0.1}, # * 98
+    #     {'kernel_size': 7, 'blur_amount': 0.6}, # * 94        
+    #     {'kernel_size': 7, 'blur_amount': 0.7}, # * 90         
+    #     {'kernel_size': 6, 'blur_amount': 0.8}, # * 85 
+    #     {'kernel_size': 6, 'blur_amount': 1.5}, # * 80        
+    #     {'kernel_size': 6, 'blur_amount': 0.9}, # * 76 
+    #     {'kernel_size': 6, 'blur_amount': 1.0}, # * 69      
+    #     {'kernel_size': 7, 'blur_amount': 1.2}, # * 65
+    #     {'kernel_size': 7, 'blur_amount': 1.0}, # * 57     
+    #     {'kernel_size': 8, 'blur_amount': 1.2}, # * 51
         # {'kernel_size': 3, 'blur_amount': 0.1}, # * 98
         # {'kernel_size': 3, 'blur_amount': 0.2},
         # {'kernel_size': 3, 'blur_amount': 0.3},
@@ -150,19 +150,32 @@ PERTURBATION_LEVELS = {
         # {'kernel_size': 8, 'blur_amount': 1.8},
         # {'kernel_size': 8, 'blur_amount': 1.9},
         # {'kernel_size': 7, 'blur_amount': 2.0}              
-    ],
-    # 'fog': [
-    #     {'fog_level': 0.1, 'fog_density': 0.1},
-    #     {'fog_level': 0.2, 'fog_density': 0.2},
-    #     {'fog_level': 0.3, 'fog_density': 0.3},
-    #     {'fog_level': 0.4, 'fog_density': 0.4},
-    #     {'fog_level': 0.5, 'fog_density': 0.5},
-    #     {'fog_level': 0.6, 'fog_density': 0.6},
-    #     {'fog_level': 0.7, 'fog_density': 0.7},
-    #     {'fog_level': 0.8, 'fog_density': 0.8},
-    #     {'fog_level': 0.9, 'fog_density': 0.9},
-    #     {'fog_level': 1.0, 'fog_density': 1.0}
     # ],
+    'fog': [
+        {'fog_level': 0.1, 'fog_density': 0.1}, # 98.5
+        # {'fog_level': 0.2, 'fog_density': 0.2},
+        # {'fog_level': 0.3, 'fog_density': 0.3},
+        # {'fog_level': 0.4, 'fog_density': 0.4}, # * 94.8
+        {'fog_level': 0.43, 'fog_density': 0.43}, # * 94
+        {'fog_level': 0.45, 'fog_density': 0.45}, # * 92
+        {'fog_level': 0.48, 'fog_density': 0.48}, # * 87
+        # {'fog_level': 0.5, 'fog_density': 0.1},
+        # {'fog_level': 0.5, 'fog_density': 0.3},
+
+        {'fog_level': 0.5, 'fog_density': 0.5}, # * 81
+
+        {'fog_level': 0.52, 'fog_density': 0.52}, # * 76
+        {'fog_level': 0.54, 'fog_density': 0.54}, # * 71
+        {'fog_level': 0.56, 'fog_density': 0.56}, # * 65
+        {'fog_level': 0.58, 'fog_density': 0.58}, # * 58
+
+        {'fog_level': 0.6, 'fog_density': 0.6}, # * 50
+        
+        # {'fog_level': 0.7, 'fog_density': 0.7},
+        # {'fog_level': 0.8, 'fog_density': 0.8},
+        # {'fog_level': 0.9, 'fog_density': 0.9},
+        # {'fog_level': 1.0, 'fog_density': 1.0}
+    ],
     # 'frost': [
     #     {'frost_level': 0.1, 'frost_sigma': 0.5, 'frost_threshold': 0.5, 'blur_kernel_size': 3, 'blur_sigma': 0.5},
     #     {'frost_level': 0.2, 'frost_sigma': 0.5, 'frost_threshold': 0.5, 'blur_kernel_size': 3, 'blur_sigma': 0.5},
