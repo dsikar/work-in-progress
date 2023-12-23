@@ -127,6 +127,5 @@ for key in PERTURBATION_LEVELS.keys():
         hi /= total
         print('Accuracy: {:.4f}, with perturbation type {} values = {}, Bhattacharyya Distance: {:.4f}, KL Divergence: {:.4f}, Histogram Intersection: {:.4f}'.format(accuracy, key, kwargs, bd, kl, hi))
         append_results(data_instance, k, bd, kl, hi, key, accuracy)
-# level 3.0 0.9050, 
 saved_filename = save_to_pickle(data_instance, "vanilla_cnn_mnist")
 print("Saved to file:", saved_filename)

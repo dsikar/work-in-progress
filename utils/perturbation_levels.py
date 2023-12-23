@@ -73,7 +73,6 @@ PERTURBATION_LEVELS = {
     ],
     'impulse_noise': [
         {'density': 0.25, 'intensity': 1},
-        {'density': 0.3, 'intensity': 1},
         {'density': 0.35, 'intensity': 1},
         {'density': 0.4, 'intensity': 1},
         {'density': 0.45, 'intensity': 1},
@@ -82,6 +81,7 @@ PERTURBATION_LEVELS = {
         {'density': 0.6, 'intensity': 1},
         {'density': 0.65, 'intensity': 1},
         {'density': 0.7, 'intensity': 1},
+        {'density': 0.75, 'intensity': 1},
     ],
     'motion_blur': [
         {'kernel_size': 1, 'angle': 0.0, 'direction': (1.0, 0.0)},

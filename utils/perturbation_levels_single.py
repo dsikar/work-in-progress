@@ -188,41 +188,41 @@ PERTURBATION_LEVELS = {
     #     {'frost_level': 0.9, 'frost_sigma': 0.5, 'frost_threshold': 0.5, 'blur_kernel_size': 3, 'blur_sigma': 0.5},
     #     {'frost_level': 1.0, 'frost_sigma': 0.5, 'frost_threshold': 0.5, 'blur_kernel_size': 3, 'blur_sigma': 0.5}
     # ],
-    'gaussian_noise': [
-        {'mean': 0.05, 'std': 0.25},  #98.31
+    # 'gaussian_noise': [
+    #     {'mean': 0.05, 'std': 0.25},  #98.31
         # {'mean': 0.15, 'std': 0.25},
         # {'mean': 0.2, 'std': 0.25},
         # {'mean': 0.25, 'std': 0.25},
         # {'mean': 0.3, 'std': 0.25},
         # {'mean': 0.35, 'std': 0.25},
         # {'mean': 0.4, 'std': 0.25},
-        {'mean': 0.45, 'std': 0.25}, # 93.78
+        # {'mean': 0.45, 'std': 0.25}, # 93.78
         # {'mean': 0.5, 'std': 0.25}, 
         #{'mean': 0.5, 'std': 0.25}, # 90.68 
-        {'mean': 0.55, 'std': 0.25}, # 85.74
-        {'mean': 0.6, 'std': 0.25}, # 80
-        {'mean': 0.65, 'std': 0.25}, # 76.1
-        {'mean': 0.7, 'std': 0.25}, # 71
-        {'mean': 0.75, 'std': 0.25},  # 66.1
-        {'mean': 0.8, 'std': 0.25}, # 61
-        {'mean': 0.835, 'std': 0.25}, # 55.3
-        {'mean': 0.87, 'std': 0.25}, # 50
+        # {'mean': 0.55, 'std': 0.25}, # 85.74
+        # {'mean': 0.6, 'std': 0.25}, # 80
+        # {'mean': 0.65, 'std': 0.25}, # 76.1
+        # {'mean': 0.7, 'std': 0.25}, # 71
+        # {'mean': 0.75, 'std': 0.25},  # 66.1
+        # {'mean': 0.8, 'std': 0.25}, # 61
+        # {'mean': 0.835, 'std': 0.25}, # 55.3
+        # {'mean': 0.87, 'std': 0.25}, # 50
         #{'mean': 0.9, 'std': 0.25}, # 46
         #{'mean': 1.0, 'std': 0.25}, # 31.23
         #{'mean': 1.5, 'std': 0.25}, # 10.33
-    ],
-    # 'impulse_noise': [
-    #     {'density': 0.25, 'intensity': 1},
-    #     {'density': 0.3, 'intensity': 1},
-    #     {'density': 0.35, 'intensity': 1},
-    #     {'density': 0.4, 'intensity': 1},
-    #     {'density': 0.45, 'intensity': 1},
-    #     {'density': 0.5, 'intensity': 1},
-    #     {'density': 0.55, 'intensity': 1},
-    #     {'density': 0.6, 'intensity': 1},
-    #     {'density': 0.65, 'intensity': 1},
-    #     {'density': 0.7, 'intensity': 1},
     # ],
+    'impulse_noise': [
+        {'density': 0.25, 'intensity': 1},
+        {'density': 0.35, 'intensity': 1},
+        {'density': 0.4, 'intensity': 1},
+        {'density': 0.45, 'intensity': 1},
+        {'density': 0.5, 'intensity': 1},
+        {'density': 0.55, 'intensity': 1},
+        {'density': 0.6, 'intensity': 1},
+        {'density': 0.65, 'intensity': 1},
+        {'density': 0.7, 'intensity': 1},
+        {'density': 0.75, 'intensity': 1},
+    ],
     # 'motion_blur': [
     #     {'kernel_size': 1, 'angle': 0.0, 'direction': (1.0, 0.0)},
     #     {'kernel_size': 2, 'angle': 0.0, 'direction': (2.0, 0.0)},
