@@ -151,31 +151,31 @@ PERTURBATION_LEVELS = {
         # {'kernel_size': 8, 'blur_amount': 1.9},
         # {'kernel_size': 7, 'blur_amount': 2.0}              
     # ],
-    'fog': [
-        {'fog_level': 0.1, 'fog_density': 0.1}, # 98.5
+    # 'fog': [
+    #     {'fog_level': 0.1, 'fog_density': 0.1}, # 98.5
         # {'fog_level': 0.2, 'fog_density': 0.2},
         # {'fog_level': 0.3, 'fog_density': 0.3},
         # {'fog_level': 0.4, 'fog_density': 0.4}, # * 94.8
-        {'fog_level': 0.43, 'fog_density': 0.43}, # * 94
-        {'fog_level': 0.45, 'fog_density': 0.45}, # * 92
-        {'fog_level': 0.48, 'fog_density': 0.48}, # * 87
+        # {'fog_level': 0.43, 'fog_density': 0.43}, # * 94
+        # {'fog_level': 0.45, 'fog_density': 0.45}, # * 92
+        # {'fog_level': 0.48, 'fog_density': 0.48}, # * 87
         # {'fog_level': 0.5, 'fog_density': 0.1},
         # {'fog_level': 0.5, 'fog_density': 0.3},
 
-        {'fog_level': 0.5, 'fog_density': 0.5}, # * 81
+        # {'fog_level': 0.5, 'fog_density': 0.5}, # * 81
 
-        {'fog_level': 0.52, 'fog_density': 0.52}, # * 76
-        {'fog_level': 0.54, 'fog_density': 0.54}, # * 71
-        {'fog_level': 0.56, 'fog_density': 0.56}, # * 65
-        {'fog_level': 0.58, 'fog_density': 0.58}, # * 58
+        # {'fog_level': 0.52, 'fog_density': 0.52}, # * 76
+        # {'fog_level': 0.54, 'fog_density': 0.54}, # * 71
+        # {'fog_level': 0.56, 'fog_density': 0.56}, # * 65
+        # {'fog_level': 0.58, 'fog_density': 0.58}, # * 58
 
-        {'fog_level': 0.6, 'fog_density': 0.6}, # * 50
+        # {'fog_level': 0.6, 'fog_density': 0.6}, # * 50
         
         # {'fog_level': 0.7, 'fog_density': 0.7},
         # {'fog_level': 0.8, 'fog_density': 0.8},
         # {'fog_level': 0.9, 'fog_density': 0.9},
         # {'fog_level': 1.0, 'fog_density': 1.0}
-    ],
+    #],
     # 'frost': [
     #     {'frost_level': 0.1, 'frost_sigma': 0.5, 'frost_threshold': 0.5, 'blur_kernel_size': 3, 'blur_sigma': 0.5},
     #     {'frost_level': 0.2, 'frost_sigma': 0.5, 'frost_threshold': 0.5, 'blur_kernel_size': 3, 'blur_sigma': 0.5},
@@ -188,18 +188,29 @@ PERTURBATION_LEVELS = {
     #     {'frost_level': 0.9, 'frost_sigma': 0.5, 'frost_threshold': 0.5, 'blur_kernel_size': 3, 'blur_sigma': 0.5},
     #     {'frost_level': 1.0, 'frost_sigma': 0.5, 'frost_threshold': 0.5, 'blur_kernel_size': 3, 'blur_sigma': 0.5}
     # ],
-    # 'gaussian_noise': [
-    #     {'mean': 0.05, 'std': 0.25},
-    #     {'mean': 0.1, 'std': 0.25},
-    #     {'mean': 0.15, 'std': 0.25},
-    #     {'mean': 0.2, 'std': 0.25},
-    #     {'mean': 0.25, 'std': 0.25},
-    #     {'mean': 0.3, 'std': 0.25},
-    #     {'mean': 0.35, 'std': 0.25},
-    #     {'mean': 0.4, 'std': 0.25},
-    #     {'mean': 0.45, 'std': 0.25},
-    #     {'mean': 0.5, 'std': 0.25}
-    # ],
+    'gaussian_noise': [
+        {'mean': 0.05, 'std': 0.25},  #98.31
+        # {'mean': 0.15, 'std': 0.25},
+        # {'mean': 0.2, 'std': 0.25},
+        # {'mean': 0.25, 'std': 0.25},
+        # {'mean': 0.3, 'std': 0.25},
+        # {'mean': 0.35, 'std': 0.25},
+        # {'mean': 0.4, 'std': 0.25},
+        {'mean': 0.45, 'std': 0.25}, # 93.78
+        # {'mean': 0.5, 'std': 0.25}, 
+        #{'mean': 0.5, 'std': 0.25}, # 90.68 
+        {'mean': 0.55, 'std': 0.25}, # 85.74
+        {'mean': 0.6, 'std': 0.25}, # 80
+        {'mean': 0.65, 'std': 0.25}, # 76.1
+        {'mean': 0.7, 'std': 0.25}, # 71
+        {'mean': 0.75, 'std': 0.25},  # 66.1
+        {'mean': 0.8, 'std': 0.25}, # 61
+        {'mean': 0.835, 'std': 0.25}, # 55.3
+        {'mean': 0.87, 'std': 0.25}, # 50
+        #{'mean': 0.9, 'std': 0.25}, # 46
+        #{'mean': 1.0, 'std': 0.25}, # 31.23
+        #{'mean': 1.5, 'std': 0.25}, # 10.33
+    ],
     # 'impulse_noise': [
     #     {'density': 0.25, 'intensity': 1},
     #     {'density': 0.3, 'intensity': 1},
