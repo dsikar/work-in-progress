@@ -96,28 +96,28 @@ PERTURBATION_LEVELS = {
         {'kernel_size': 10, 'angle': 0.0, 'direction': (10.0, 0.0)}
     ],
     'pixelation': [
-            {'factor': 0.7},
-            {'factor': 0.81},
-            {'factor': 0.84},
-            {'factor': 1.1},
-            {'factor': 1.2},
-            {'factor': 1.3},
-            {'factor': 1.4},
-            {'factor': 1.41},
-            {'factor': 1.5},
-            {'factor': 1.6}
+            {'factor': 0.7}, # 97.15 *
+            {'factor': 2}, # 98.09 *
+            {'factor': 2.5}, # 95.0 *
+            {'factor': 3}, # 93.84 *
+            {'factor': 3.5}, # 89.76 *
+            {'factor': 3.55}, # 84.01 *
+            {'factor': 3.75}, # 84.01 *
+            {'factor': 4.25}, # 72.800 * 
+            {'factor': 4.7}, # 55.5000 *
+            {'factor': 5.7}, # 43.21 *
     ],
     'shot_noise': [
-        {'intensity': 0.1},
-        {'intensity': 0.2},
-        {'intensity': 0.3},
-        {'intensity': 0.4},
-        {'intensity': 0.5},
-        {'intensity': 0.6},
-        {'intensity': 0.7},
-        {'intensity': 0.8},
-        {'intensity': 0.9},
-        {'intensity': 1.0}
+        {'intensity': 0.1}, # 97
+        {'intensity': 0.2}, # 95
+        {'intensity': 0.25}, # 79
+        {'intensity': 0.3}, #87
+        {'intensity': 0.35}, # 80
+        {'intensity': 0.4}, # 74
+        {'intensity': 0.42}, # 71
+        {'intensity': 0.46}, # 66
+        {'intensity': 0.5}, # 60
+        {'intensity': 0.57}, # 51
     ],
     'snow': [
             {'snow_level': 0.81, 'snow_color': 1.0, 'blur_kernel_size': 5, 'blur_sigma': 1.0},
