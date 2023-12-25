@@ -45,7 +45,7 @@ def main(func_name, func_label, pkl_file):
     plt.ylabel('Accuracy %')
     plt.xticks(range(11))
     plt.grid(True)
-    plt.savefig(f'{func_name}_vs_accuracy.png')
+    plt.savefig(f'{data_dir}/{func_name}_vs_accuracy.png')
     plt.show()
 
     df = pd.DataFrame(data['results'])
@@ -66,9 +66,9 @@ if __name__ == "__main__":
     # func_name = sys.argv[1]
     # func_label = sys.argv[2]
     # pkl_file_path = sys.argv[3]
-    func_name = sys.argv[1]
-    func_label = sys.argv[2]
-    pkl_file = sys.argv[3]
+    func_name = 'pixelation'
+    func_label = 'Pixelation'
+    pkl_file = 'vanilla_cnn_mnist_20231225182153_pixelate.pkl'
     print("Running with args {}, {}, {}".format(func_name, func_label, pkl_file))
     main(func_name, func_label, pkl_file)        
 
