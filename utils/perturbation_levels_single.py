@@ -211,32 +211,32 @@ PERTURBATION_LEVELS = {
         #{'mean': 1.0, 'std': 0.25}, # 31.23
         #{'mean': 1.5, 'std': 0.25}, # 10.33
     # ],
-    'impulse_noise': [
-        {'density': 0.25, 'intensity': 1},
-        {'density': 0.35, 'intensity': 1},
-        {'density': 0.4, 'intensity': 1},
-        {'density': 0.45, 'intensity': 1},
-        {'density': 0.5, 'intensity': 1},
-        {'density': 0.55, 'intensity': 1},
-        {'density': 0.6, 'intensity': 1},
-        {'density': 0.65, 'intensity': 1},
-        {'density': 0.7, 'intensity': 1},
-        {'density': 0.75, 'intensity': 1},
-    ],
-    # 'motion_blur': [
-    #     {'kernel_size': 1, 'angle': 0.0, 'direction': (1.0, 0.0)},
-    #     {'kernel_size': 2, 'angle': 0.0, 'direction': (2.0, 0.0)},
-    #     {'kernel_size': 3, 'angle': 0.0, 'direction': (3.0, 0.0)},
-    #     {'kernel_size': 4, 'angle': 0.0, 'direction': (4.0, 0.0)},
-    #     {'kernel_size': 5, 'angle': 0.0, 'direction': (5.0, 0.0)},
-    #     {'kernel_size': 6, 'angle': 0.0, 'direction': (6.0, 0.0)},
-    #     {'kernel_size': 7, 'angle': 0.0, 'direction': (7.0, 0.0)},
-    #     {'kernel_size': 8, 'angle': 0.0, 'direction': (8.0, 0.0)},
-    #     {'kernel_size': 9, 'angle': 0.0, 'direction': (9.0, 0.0)},
-    #     {'kernel_size': 10, 'angle': 0.0, 'direction': (10.0, 0.0)}
+    # 'impulse_noise': [
+    #     {'density': 0.25, 'intensity': 1},
+    #     {'density': 0.35, 'intensity': 1},
+    #     {'density': 0.4, 'intensity': 1},
+    #     {'density': 0.45, 'intensity': 1},
+    #     {'density': 0.5, 'intensity': 1},
+    #     {'density': 0.55, 'intensity': 1},
+    #     {'density': 0.6, 'intensity': 1},
+    #     {'density': 0.65, 'intensity': 1},
+    #     {'density': 0.7, 'intensity': 1},
+    #     {'density': 0.75, 'intensity': 1},
     # ],
+    'motion_blur': [
+        {'kernel_size': 1, 'angle': 0.0, 'direction': (1.0, 0.0)},
+        {'kernel_size': 2, 'angle': 0.0, 'direction': (2.0, 0.0)},
+        {'kernel_size': 3, 'angle': 0.0, 'direction': (3.0, 0.0)},
+        {'kernel_size': 4, 'angle': 0.0, 'direction': (4.0, 0.0)},
+        {'kernel_size': 5, 'angle': 0.0, 'direction': (5.0, 0.0)},
+        {'kernel_size': 6, 'angle': 0.0, 'direction': (6.0, 0.0)},
+        {'kernel_size': 7, 'angle': 0.0, 'direction': (7.0, 0.0)},
+        {'kernel_size': 8, 'angle': 0.0, 'direction': (8.0, 0.0)},
+        {'kernel_size': 9, 'angle': 0.0, 'direction': (9.0, 0.0)},
+        {'kernel_size': 10, 'angle': 0.0, 'direction': (10.0, 0.0)}
+    ],
     # 'pixelation': [
-    #         {'factor': 0.7},
+    #         {'factor': 0.7}, # 97.15
     #         {'factor': 0.81},
     #         {'factor': 0.84},
     #         {'factor': 1.1},
@@ -245,7 +245,7 @@ PERTURBATION_LEVELS = {
     #         {'factor': 1.4},
     #         {'factor': 1.41},
     #         {'factor': 1.5},
-    #         {'factor': 1.6}
+    #         {'factor': 1.6} # 96.35
     # ],
     # 'shot_noise': [
     #     {'intensity': 0.1},
