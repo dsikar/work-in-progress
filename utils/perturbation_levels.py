@@ -120,16 +120,16 @@ PERTURBATION_LEVELS = {
         {'intensity': 0.57}, # 51
     ],
     'snow': [
-            {'snow_level': 0.81, 'snow_color': 1.0, 'blur_kernel_size': 5, 'blur_sigma': 1.0},
-            {'snow_level': 0.82, 'snow_color': 1.0, 'blur_kernel_size': 5, 'blur_sigma': 1.0},
-            {'snow_level': 0.83, 'snow_color': 1.0, 'blur_kernel_size': 4, 'blur_sigma': 1.0},
-            {'snow_level': 0.84, 'snow_color': 1.0, 'blur_kernel_size': 3, 'blur_sigma': 1.0},
-            {'snow_level': 0.85, 'snow_color': 1.0, 'blur_kernel_size': 2, 'blur_sigma': 1.0},
-            {'snow_level': 0.86, 'snow_color': 1.0, 'blur_kernel_size': 2, 'blur_sigma': 1.0},
-            {'snow_level': 0.87, 'snow_color': 1.0, 'blur_kernel_size': 2, 'blur_sigma': 1.0},
-            {'snow_level': 0.88, 'snow_color': 1.0, 'blur_kernel_size': 2, 'blur_sigma': 1.0},
-            {'snow_level': 0.89, 'snow_color': 1.0, 'blur_kernel_size': 2, 'blur_sigma': 1.0},
-            {'snow_level': 0.9, 'snow_color': 1.0, 'blur_kernel_size': 2, 'blur_sigma': 1.0}
+            {'snow_level': 0.81, 'snow_color': 1.0, 'blur_kernel_size': 5, 'blur_sigma': 1.0}, # 98 *
+            {'snow_level': 0.84, 'snow_color': 1.0, 'blur_kernel_size': 3, 'blur_sigma': 1.0}, # 92 *
+            {'snow_level': 0.86, 'snow_color': 1.0, 'blur_kernel_size': 2, 'blur_sigma': 1.0}, # 89 *
+            {'snow_level': 0.88, 'snow_color': 1.0, 'blur_kernel_size': 2, 'blur_sigma': 1.0}, # 85 *
+            {'snow_level': 0.9, 'snow_color': 1.0, 'blur_kernel_size': 2, 'blur_sigma': 1.0}, # 83 *
+            {'snow_level': 0.91, 'snow_color': 1.0, 'blur_kernel_size': 2, 'blur_sigma': 1.0}, # 80 *
+            {'snow_level': 0.93, 'snow_color': 1.0, 'blur_kernel_size': 2, 'blur_sigma': 1.0}, # 73 *
+            {'snow_level': 0.94, 'snow_color': 1.0, 'blur_kernel_size': 2, 'blur_sigma': 1.0}, # 69 *
+            {'snow_level': 0.95, 'snow_color': 1.0, 'blur_kernel_size': 2, 'blur_sigma': 1.0}, # 66 *
+            {'snow_level': 1.0, 'snow_color': 1.0, 'blur_kernel_size': 2, 'blur_sigma': 1.0}, # 49 *
         ],
     'zoom_blur': [
         {'kernel_size': 1, 'strength': 1.0},

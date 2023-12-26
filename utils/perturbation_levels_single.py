@@ -271,36 +271,42 @@ PERTURBATION_LEVELS = {
     #         # {'factor': 5.85}, # 43.21
     #         # {'factor': 6}, # 43.21
     # ],
-    'shot_noise': [
-        {'intensity': 0.1}, # 97
-        {'intensity': 0.2}, # 95
-        {'intensity': 0.25}, # 79
-        {'intensity': 0.3}, #87
-        {'intensity': 0.35}, # 80
-        {'intensity': 0.4}, # 74
-        {'intensity': 0.42}, # 71
-        {'intensity': 0.46}, # 66
-        {'intensity': 0.5}, # 60
-        {'intensity': 0.57}, # 51
-        # {'intensity': 0.59},  # 47
-        # {'intensity': 0.6}, # 47
-        # {'intensity': 0.7}, # 35
-        # {'intensity': 0.8}, #25
-        # {'intensity': 0.9}, # 19
-        # {'intensity': 1.0} # 15
-    ],
-    # 'snow': [
-    #         {'snow_level': 0.81, 'snow_color': 1.0, 'blur_kernel_size': 5, 'blur_sigma': 1.0},
-    #         {'snow_level': 0.82, 'snow_color': 1.0, 'blur_kernel_size': 5, 'blur_sigma': 1.0},
-    #         {'snow_level': 0.83, 'snow_color': 1.0, 'blur_kernel_size': 4, 'blur_sigma': 1.0},
-    #         {'snow_level': 0.84, 'snow_color': 1.0, 'blur_kernel_size': 3, 'blur_sigma': 1.0},
-    #         {'snow_level': 0.85, 'snow_color': 1.0, 'blur_kernel_size': 2, 'blur_sigma': 1.0},
-    #         {'snow_level': 0.86, 'snow_color': 1.0, 'blur_kernel_size': 2, 'blur_sigma': 1.0},
-    #         {'snow_level': 0.87, 'snow_color': 1.0, 'blur_kernel_size': 2, 'blur_sigma': 1.0},
-    #         {'snow_level': 0.88, 'snow_color': 1.0, 'blur_kernel_size': 2, 'blur_sigma': 1.0},
-    #         {'snow_level': 0.89, 'snow_color': 1.0, 'blur_kernel_size': 2, 'blur_sigma': 1.0},
-    #         {'snow_level': 0.9, 'snow_color': 1.0, 'blur_kernel_size': 2, 'blur_sigma': 1.0}
-    #     ],
+    # 'shot_noise': [
+    #     {'intensity': 0.1}, # 97
+    #     {'intensity': 0.2}, # 95
+    #     {'intensity': 0.25}, # 79
+    #     {'intensity': 0.3}, #87
+    #     {'intensity': 0.35}, # 80
+    #     {'intensity': 0.4}, # 74
+    #     {'intensity': 0.42}, # 71
+    #     {'intensity': 0.46}, # 66
+    #     {'intensity': 0.5}, # 60
+    #     {'intensity': 0.57}, # 51
+    #     # {'intensity': 0.59},  # 47
+    #     # {'intensity': 0.6}, # 47
+    #     # {'intensity': 0.7}, # 35
+    #     # {'intensity': 0.8}, #25
+    #     # {'intensity': 0.9}, # 19
+    #     # {'intensity': 1.0} # 15
+    # ],
+    'snow': [
+            {'snow_level': 0.81, 'snow_color': 1.0, 'blur_kernel_size': 5, 'blur_sigma': 1.0}, # 98 *
+            # {'snow_level': 0.82, 'snow_color': 1.0, 'blur_kernel_size': 5, 'blur_sigma': 1.0}, # 98
+            # {'snow_level': 0.83, 'snow_color': 1.0, 'blur_kernel_size': 4, 'blur_sigma': 1.0}, # 98
+            {'snow_level': 0.84, 'snow_color': 1.0, 'blur_kernel_size': 3, 'blur_sigma': 1.0}, # 92 *
+            # {'snow_level': 0.85, 'snow_color': 1.0, 'blur_kernel_size': 2, 'blur_sigma': 1.0}, # 91
+            {'snow_level': 0.86, 'snow_color': 1.0, 'blur_kernel_size': 2, 'blur_sigma': 1.0}, # 89 *
+            # {'snow_level': 0.87, 'snow_color': 1.0, 'blur_kernel_size': 2, 'blur_sigma': 1.0}, # 87
+            {'snow_level': 0.88, 'snow_color': 1.0, 'blur_kernel_size': 2, 'blur_sigma': 1.0}, # 85 *
+            # {'snow_level': 0.89, 'snow_color': 1.0, 'blur_kernel_size': 2, 'blur_sigma': 1.0}, # 82
+            {'snow_level': 0.9, 'snow_color': 1.0, 'blur_kernel_size': 2, 'blur_sigma': 1.0}, # 83 *
+            {'snow_level': 0.91, 'snow_color': 1.0, 'blur_kernel_size': 2, 'blur_sigma': 1.0}, # 80 *
+            #{'snow_level': 0.92, 'snow_color': 1.0, 'blur_kernel_size': 2, 'blur_sigma': 1.0}, # 76
+            {'snow_level': 0.93, 'snow_color': 1.0, 'blur_kernel_size': 2, 'blur_sigma': 1.0}, # 73 *
+            {'snow_level': 0.94, 'snow_color': 1.0, 'blur_kernel_size': 2, 'blur_sigma': 1.0}, # 69 *
+            {'snow_level': 0.95, 'snow_color': 1.0, 'blur_kernel_size': 2, 'blur_sigma': 1.0}, # 66 *
+            {'snow_level': 1.0, 'snow_color': 1.0, 'blur_kernel_size': 2, 'blur_sigma': 1.0}, # 49 *
+        ],
     # 'zoom_blur': [
     #     {'kernel_size': 1, 'strength': 1.0},
     #     {'kernel_size': 2, 'strength': 1.0},
