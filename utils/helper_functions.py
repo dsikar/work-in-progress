@@ -108,3 +108,37 @@ def save_to_pickle(data, filename_prefix):
     
     return filename
 
+def frost_mask_plot(image, frost_image, noisy_image):
+    """
+    Plot original image, frost mask and Noisy image.
+    """
+
+    fig, axs = plt.subplots(1, 6, figsize=(18, 3))
+
+    # Plot original image
+    axs[0].imshow(image, cmap='gray')
+    axs[0].set_title('Original Image')
+
+    # Plot histogram of original image
+    axs[1].hist(image.flatten(), bins=20)
+    axs[1].set_title('Original Image Histogram')
+
+    # Plot frost_image
+    axs[2].imshow(frost_image, cmap='gray')
+    axs[2].set_title('Frost Image')
+
+    # Plot histogram of frost_image
+    axs[3].hist(frost_image.flatten(), bins=20)
+    axs[3].set_title('Frost Image Histogram')
+
+    # Plot noisy_image
+    axs[4].imshow(noisy_image, cmap='gray')
+    axs[4].set_title('Noisy Image')
+
+    # Plot histogram of noisy_image
+    axs[5].hist(noisy_image.flatten(), bins=20)
+    axs[5].set_title('Noisy Image Histogram')
+
+    plt.tight_layout()
+    plt.show()    
+

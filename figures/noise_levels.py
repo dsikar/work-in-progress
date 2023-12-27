@@ -66,9 +66,9 @@ if __name__ == "__main__":
     # func_name = sys.argv[1]
     # func_label = sys.argv[2]
     # pkl_file_path = sys.argv[3]
-    func_name = 'zoom_blur'
-    func_label = 'Zoom Blur'
-    pkl_file = 'vanilla_cnn_mnist_20231226132724_zoom_blur.pkl'
+    func_name = 'frost'
+    func_label = 'Frost'
+    pkl_file = 'vanilla_cnn_mnist_20231227165202_frost.pkl'
     print("Running with args {}, {}, {}".format(func_name, func_label, pkl_file))
     main(func_name, func_label, pkl_file)        
 

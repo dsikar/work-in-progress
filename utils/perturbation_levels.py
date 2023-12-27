@@ -48,16 +48,16 @@ PERTURBATION_LEVELS = {
         {'fog_level': 0.6, 'fog_density': 0.6}, # * 50
     ],
     'frost': [
-        {'frost_level': 0.1, 'frost_sigma': 0.5, 'frost_threshold': 0.5, 'blur_kernel_size': 3, 'blur_sigma': 0.5},
-        {'frost_level': 0.2, 'frost_sigma': 0.5, 'frost_threshold': 0.5, 'blur_kernel_size': 3, 'blur_sigma': 0.5},
-        {'frost_level': 0.3, 'frost_sigma': 0.5, 'frost_threshold': 0.5, 'blur_kernel_size': 3, 'blur_sigma': 0.5},
-        {'frost_level': 0.4, 'frost_sigma': 0.5, 'frost_threshold': 0.5, 'blur_kernel_size': 3, 'blur_sigma': 0.5},
-        {'frost_level': 0.5, 'frost_sigma': 0.5, 'frost_threshold': 0.5, 'blur_kernel_size': 3, 'blur_sigma': 0.5},
-        {'frost_level': 0.6, 'frost_sigma': 0.5, 'frost_threshold': 0.5, 'blur_kernel_size': 3, 'blur_sigma': 0.5},
-        {'frost_level': 0.7, 'frost_sigma': 0.5, 'frost_threshold': 0.5, 'blur_kernel_size': 3, 'blur_sigma': 0.5},
-        {'frost_level': 0.8, 'frost_sigma': 0.5, 'frost_threshold': 0.5, 'blur_kernel_size': 3, 'blur_sigma': 0.5},
-        {'frost_level': 0.9, 'frost_sigma': 0.5, 'frost_threshold': 0.5, 'blur_kernel_size': 3, 'blur_sigma': 0.5},
-        {'frost_level': 1.0, 'frost_sigma': 0.5, 'frost_threshold': 0.5, 'blur_kernel_size': 3, 'blur_sigma': 0.5}
+        {'frost_level': 6, 'frost_sigma': 1.0, 'frost_threshold': 0.1, 'blur_kernel_size': 5, 'blur_sigma': 1.0}, # 97 *
+        {'frost_level': 8, 'frost_sigma': 1.0, 'frost_threshold': 0.1, 'blur_kernel_size': 5, 'blur_sigma': 1.0}, # 93 *
+        {'frost_level': 10, 'frost_sigma': 1.0, 'frost_threshold': 0.1, 'blur_kernel_size': 5, 'blur_sigma': 1.0}, # 85 *
+        {'frost_level': 11, 'frost_sigma': 1.0, 'frost_threshold': 0.1, 'blur_kernel_size': 5, 'blur_sigma': 1.0}, # 80 *
+        {'frost_level': 12, 'frost_sigma': 1.0, 'frost_threshold': 0.1, 'blur_kernel_size': 5, 'blur_sigma': 1.0}, # 75 *
+        {'frost_level': 13, 'frost_sigma': 1.0, 'frost_threshold': 0.1, 'blur_kernel_size': 5, 'blur_sigma': 1.0}, # 69 *
+        {'frost_level': 14, 'frost_sigma': 1.0, 'frost_threshold': 0.1, 'blur_kernel_size': 5, 'blur_sigma': 1.0}, # 65 *
+        {'frost_level': 16, 'frost_sigma': 1.0, 'frost_threshold': 0.1, 'blur_kernel_size': 5, 'blur_sigma': 1.0}, # 58 *
+        {'frost_level': 17, 'frost_sigma': 1.0, 'frost_threshold': 0.1, 'blur_kernel_size': 5, 'blur_sigma': 1.0}, # 54 *
+        {'frost_level': 18, 'frost_sigma': 1.0, 'frost_threshold': 0.1, 'blur_kernel_size': 5, 'blur_sigma': 1.0}, # 50 *
     ],
     'gaussian_noise': [
         {'mean': 0.05, 'std': 0.25},  #98.31
@@ -96,16 +96,16 @@ PERTURBATION_LEVELS = {
         {'kernel_size': 10, 'angle': 0.0, 'direction': (10.0, 0.0)}
     ],
     'pixelation': [
-            {'factor': 0.7}, # 97.15 *
-            {'factor': 2}, # 98.09 *
-            {'factor': 2.5}, # 95.0 *
-            {'factor': 3}, # 93.84 *
-            {'factor': 3.5}, # 89.76 *
-            {'factor': 3.55}, # 84.01 *
-            {'factor': 3.75}, # 84.01 *
-            {'factor': 4.25}, # 72.800 * 
-            {'factor': 4.7}, # 55.5000 *
-            {'factor': 5.7}, # 43.21 *
+        {'factor': 0.7}, # 97.15 *
+        {'factor': 2}, # 98.09 *
+        {'factor': 2.5}, # 95.0 *
+        {'factor': 3}, # 93.84 *
+        {'factor': 3.5}, # 89.76 *
+        {'factor': 3.55}, # 84.01 *
+        {'factor': 3.75}, # 84.01 *
+        {'factor': 4.25}, # 72.800 * 
+        {'factor': 4.7}, # 55.5000 *
+        {'factor': 5.7}, # 43.21 *
     ],
     'shot_noise': [
         {'intensity': 0.1}, # 97
@@ -120,16 +120,16 @@ PERTURBATION_LEVELS = {
         {'intensity': 0.57}, # 51
     ],
     'snow': [
-            {'snow_level': 0.81, 'snow_color': 1.0, 'blur_kernel_size': 5, 'blur_sigma': 1.0}, # 98 *
-            {'snow_level': 0.84, 'snow_color': 1.0, 'blur_kernel_size': 3, 'blur_sigma': 1.0}, # 92 *
-            {'snow_level': 0.86, 'snow_color': 1.0, 'blur_kernel_size': 2, 'blur_sigma': 1.0}, # 89 *
-            {'snow_level': 0.88, 'snow_color': 1.0, 'blur_kernel_size': 2, 'blur_sigma': 1.0}, # 85 *
-            {'snow_level': 0.9, 'snow_color': 1.0, 'blur_kernel_size': 2, 'blur_sigma': 1.0}, # 83 *
-            {'snow_level': 0.91, 'snow_color': 1.0, 'blur_kernel_size': 2, 'blur_sigma': 1.0}, # 80 *
-            {'snow_level': 0.93, 'snow_color': 1.0, 'blur_kernel_size': 2, 'blur_sigma': 1.0}, # 73 *
-            {'snow_level': 0.94, 'snow_color': 1.0, 'blur_kernel_size': 2, 'blur_sigma': 1.0}, # 69 *
-            {'snow_level': 0.95, 'snow_color': 1.0, 'blur_kernel_size': 2, 'blur_sigma': 1.0}, # 66 *
-            {'snow_level': 1.0, 'snow_color': 1.0, 'blur_kernel_size': 2, 'blur_sigma': 1.0}, # 49 *
+        {'snow_level': 0.81, 'snow_color': 1.0, 'blur_kernel_size': 5, 'blur_sigma': 1.0}, # 98 *
+        {'snow_level': 0.84, 'snow_color': 1.0, 'blur_kernel_size': 3, 'blur_sigma': 1.0}, # 92 *
+        {'snow_level': 0.86, 'snow_color': 1.0, 'blur_kernel_size': 2, 'blur_sigma': 1.0}, # 89 *
+        {'snow_level': 0.88, 'snow_color': 1.0, 'blur_kernel_size': 2, 'blur_sigma': 1.0}, # 85 *
+        {'snow_level': 0.9, 'snow_color': 1.0, 'blur_kernel_size': 2, 'blur_sigma': 1.0}, # 83 *
+        {'snow_level': 0.91, 'snow_color': 1.0, 'blur_kernel_size': 2, 'blur_sigma': 1.0}, # 80 *
+        {'snow_level': 0.93, 'snow_color': 1.0, 'blur_kernel_size': 2, 'blur_sigma': 1.0}, # 73 *
+        {'snow_level': 0.94, 'snow_color': 1.0, 'blur_kernel_size': 2, 'blur_sigma': 1.0}, # 69 *
+        {'snow_level': 0.95, 'snow_color': 1.0, 'blur_kernel_size': 2, 'blur_sigma': 1.0}, # 66 *
+        {'snow_level': 1.0, 'snow_color': 1.0, 'blur_kernel_size': 2, 'blur_sigma': 1.0}, # 49 *
         ],
     'zoom_blur': [
         {'kernel_size': 1, 'strength': 1.0}, # 98

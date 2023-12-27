@@ -104,6 +104,32 @@ class Perturbation:
         noisy_image = np.clip(image * (1 - fog_level) + fog_mask * fog_level, *self.pixel_range)
         return noisy_image 
 
+    def frost2(self, image, frost_mean=0.0, frost_level=0.1, frost_sigma=1.0, frost_threshold=0.1, blur_kernel_size=5, blur_sigma=1.0):
+        """
+        Add frost to a grayscale image.
+
+        Args:
+            image (ndarray): The grayscale image.
+            frost_level (float): The percentage of pixels to turn to frost (default: 0.1).
+            frost_sigma (float): The standard deviation of the Gaussian distribution used to generate the frost patterns (default: 1.0).
+            frost_threshold (float): The threshold for the frost patterns (default: 0.1).
+            blur_kernel_size (int): The size of the Gaussian blur kernel (default: 5).
+            blur_sigma (float): The standard deviation of the Gaussian blur (default: 1.0).
+
+        Returns:
+            ndarray: The frost-covered image.
+        """
+        height, width = image.shape
+        frost_mask = np.random.normal(loc=frost_mean, scale=frost_sigma, size=(height, width))
+        frost_mask[frost_mask < frost_threshold] = self.pixel_range[0]
+        frost_mask[frost_mask >= frost_threshold] = self.pixel_range[1]
+        frost_mask = np.clip(frost_mask + np.random.normal(scale=0.1, size=(height, width)), self.pixel_range[0], self.pixel_range[1])
+        frost_mask = cv2.GaussianBlur(frost_mask, (blur_kernel_size, blur_kernel_size), blur_sigma)
+        # print(np.round(np.unique(frost_mask), decimals=2)) frost_mask < 0.45 should be about 50% of the pixels
+        frost_image = np.where(frost_mask < 0.45, np.random.normal(scale=0.1, size=(height, width)), 0)
+        noisy_image = np.clip(image + frost_level * frost_image, *self.pixel_range)
+        return noisy_image  
+
     def frost(self, image, frost_level=0.1, frost_sigma=1.0, frost_threshold=0.1, blur_kernel_size=5, blur_sigma=1.0):
         """
         Add frost to a grayscale image.
@@ -120,16 +146,15 @@ class Perturbation:
             ndarray: The frost-covered image.
         """
         height, width = image.shape
-        frost_mask = np.random.normal(loc=0.0, scale=frost_sigma, size=(height, width))
-        frost_mask[frost_mask < frost_threshold] = 0
+        frost_mask = np.random.normal(loc=0, scale=frost_sigma, size=(height, width))
+        frost_mask[frost_mask < frost_threshold] = -1
         frost_mask[frost_mask >= frost_threshold] = 1
-        frost_mask = np.clip(frost_mask + np.random.normal(scale=0.1, size=(height, width)), 0, 1)
+        frost_mask = np.clip(frost_mask + np.random.normal(scale=0.1, size=(height, width)), -1, 1)
         frost_mask = cv2.GaussianBlur(frost_mask, (blur_kernel_size, blur_kernel_size), blur_sigma)
-        # print(np.round(np.unique(frost_mask), decimals=2)) frost_mask < 0.45 should be about 50% of the pixels
-        frost_image = np.where(frost_mask < 0.45, np.random.normal(scale=0.1, size=(height, width)), 0)
-        noisy_image = np.clip(image + frost_level * frost_image, *self.pixel_range)
-        return noisy_image    
-
+        frost_image = np.where(frost_mask < 0, np.random.normal(scale=0.1, size=(height, width)), 0)
+        noisy_image = np.clip(image + frost_level * frost_image, -1, 1)
+        return noisy_image      
+        # helper_functions.frost_mask_plot(image, frost_image, noisy_image)
     def frosted_glass_blur(self, image, kernel_size=3, sigma=1.0):
         """
         Add frosted glass blur to a grayscale image.
