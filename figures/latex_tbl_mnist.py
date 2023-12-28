@@ -49,7 +49,9 @@ for index, row in results_df.iterrows():
     # The 'index' from the results_df corresponds to the 'Level' in our new DataFrame, with 1 added to it
     level = row['index'] + 1
     noise_type = row['noise_type']
-    accuracy = row['accuracy']
+    # accuracy to 2 decimal places
+    accuracy = round(row['accuracy'], 2)
+    # accuracy = row['accuracy']
     
     # Set the accuracy value in the correct place in the noise_types_df
     noise_types_df.loc[noise_types_df['Level'] == level, noise_type] = accuracy
