@@ -86,3 +86,163 @@ plt.show()
 # save as png
 bar_plot.figure.savefig(f'{data_dir}/vanilla_cnn_mnist_20231227192341_all_correlations.png')
 
+##########################
+# plot HI vs Noise Level #
+##########################
+
+# Adjusting the 'index' (noise level) by 1 and rounding 'hi' to two decimal places
+data['index_adjusted'] = data['index'] + 1
+data['hi_rounded'] = data['hi'].round(2)
+
+# Re-importing numpy and using plt.cm.viridis for the plot
+plt.figure(figsize=(15, 8))
+
+# Getting the viridis color map
+colors = plt.cm.viridis(np.linspace(0, 1, len(data['noise_type'].unique())))
+
+# Looping through each noise type to plot with colors from viridis
+for i, noise_type in enumerate(data['noise_type'].unique()):
+    subset = data[data['noise_type'] == noise_type]
+    sns.lineplot(data=subset, x='index_adjusted', y='hi_rounded', label=noise_type, color=colors[i])
+
+plt.title('HI Distance vs Noise Level (Adjusted) for All Noise Types')
+plt.xlabel('Noise Level (Adjusted)')
+plt.ylabel('HI Distance (Rounded to Two Decimal Places)')
+plt.legend(title='Noise Type')
+plt.grid(True)
+plt.show()
+
+# save as png
+plt.savefig(f'{data_dir}/vanilla_cnn_mnist_20231227192341_all_HI_vs_noise_level.png')
+
+##########################
+# plot BD vs Noise Level #
+##########################
+
+# Adjusting the 'bd' data to two decimal places for the plot
+data['bd_rounded'] = data['bd'].round(2)
+
+# Plotting BD vs adjusted level for all noise types using the Viridis color map
+plt.figure(figsize=(15, 8))
+
+# Looping through each noise type to plot
+for i, noise_type in enumerate(data['noise_type'].unique()):
+    subset = data[data['noise_type'] == noise_type]
+    sns.lineplot(data=subset, x='index_adjusted', y='bd_rounded', label=noise_type, color=colors[i])
+
+plt.title('Bhattacharyya Distance vs Noise Level for All Noise Types')
+plt.xlabel('Noise Level (Adjusted)')
+plt.ylabel('Bhattacharyya Distance (Rounded to Two Decimal Places)')
+plt.legend(title='Noise Type')
+plt.grid(True)
+plt.show()
+
+# save as png
+plt.savefig(f'{data_dir}/vanilla_cnn_mnist_20231227192341_all_BD_vs_noise_level.png')
+
+##########################
+# plot KL vs Noise Level #
+##########################
+
+# Adjusting the 'kl' data to two decimal places for the plot
+data['kl_rounded'] = data['kl'].round(2)
+
+# Plotting KL vs adjusted level for all noise types using the Viridis color map
+plt.figure(figsize=(15, 8))
+
+# Looping through each noise type to plot
+for i, noise_type in enumerate(data['noise_type'].unique()):
+    subset = data[data['noise_type'] == noise_type]
+    sns.lineplot(data=subset, x='index_adjusted', y='kl_rounded', label=noise_type, color=colors[i])
+
+plt.title('KL Divergence vs Noise Level (Adjusted) for All Noise Types')
+plt.xlabel('Noise Level (Adjusted)')
+plt.ylabel('KL Divergence (Rounded to Two Decimal Places)')
+plt.legend(title='Noise Type')
+plt.grid(True)
+plt.show()
+
+# save as png
+plt.savefig(f'{data_dir}/vanilla_cnn_mnist_20231227192341_all_KL_vs_noise_level.png')
+
+###############################
+# SIDE BY SIDE
+###############################
+
+# Creating subplots for HI, BD, and KL
+fig, axes = plt.subplots(1, 3, figsize=(21, 7))
+
+# Plotting HI
+for i, noise_type in enumerate(data['noise_type'].unique()):
+    subset = data[data['noise_type'] == noise_type]
+    sns.lineplot(ax=axes[0], data=subset, x='index_adjusted', y='hi_rounded', label=noise_type, color=colors[i])
+axes[0].set_title('Histogram Intersection vs Noise Level')
+axes[0].set_xlabel('Noise Level')
+axes[0].set_ylabel('Histogram Intersection')
+axes[0].legend().remove()
+axes[0].grid(True)
+
+# Plotting BD
+for i, noise_type in enumerate(data['noise_type'].unique()):
+    subset = data[data['noise_type'] == noise_type]
+    sns.lineplot(ax=axes[1], data=subset, x='index_adjusted', y='bd_rounded', label=noise_type, color=colors[i])
+axes[1].set_title('Bhattacharyya Distance vs Noise Level')
+axes[1].set_xlabel('Noise Level')
+axes[1].set_ylabel('Bhattacharyya Distance Distance')
+axes[1].legend().remove()
+axes[1].grid(True)
+
+# Plotting KL
+for i, noise_type in enumerate(data['noise_type'].unique()):
+    subset = data[data['noise_type'] == noise_type]
+    sns.lineplot(ax=axes[2], data=subset, x='index_adjusted', y='kl_rounded', label=noise_type, color=colors[i])
+axes[2].set_title('KL Divergence vs Noise Level')
+axes[2].set_xlabel('Noise Level')
+axes[2].set_ylabel('KL Divergence')
+axes[2].legend(title='Noise Type', loc='upper right')
+axes[2].grid(True)
+
+# Adjust layout
+plt.tight_layout()
+plt.show()
+
+# save as png
+plt.savefig(f'{data_dir}/vanilla_cnn_mnist_20231227192341_all_HI_BD_KL_vs_noise_level.png')
+
+#########################
+# Accuracy vs Distance
+#########################
+
+# Creating subplots for Accuracy vs HI, BD, and KL
+fig, axes = plt.subplots(1, 3, figsize=(21, 7))
+
+# Plotting Accuracy vs HI
+for i, noise_type in enumerate(data['noise_type'].unique()):
+    subset = data[data['noise_type'] == noise_type]
+    sns.scatterplot(ax=axes[0], data=subset, x='hi_rounded', y='accuracy', label=noise_type, color=colors[i])
+axes[0].set_title('Accuracy vs HI Distance')
+axes[0].set_xlabel('HI Distance (Rounded)')
+axes[0].set_ylabel('Accuracy')
+axes[0].legend(title='Noise Type', loc='upper right')
+
+# Plotting Accuracy vs BD
+for i, noise_type in enumerate(data['noise_type'].unique()):
+    subset = data[data['noise_type'] == noise_type]
+    sns.scatterplot(ax=axes[1], data=subset, x='bd_rounded', y='accuracy', label=noise_type, color=colors[i])
+axes[1].set_title('Accuracy vs BD Distance')
+axes[1].set_xlabel('BD Distance (Rounded)')
+axes[1].set_ylabel('Accuracy')
+axes[1].legend().remove()
+
+# Plotting Accuracy vs KL
+for i, noise_type in enumerate(data['noise_type'].unique()):
+    subset = data[data['noise_type'] == noise_type]
+    sns.scatterplot(ax=axes[2], data=subset, x='kl_rounded', y='accuracy', label=noise_type, color=colors[i])
+axes[2].set_title('Accuracy vs KL Divergence')
+axes[2].set_xlabel('KL Divergence (Rounded)')
+axes[2].set_ylabel('Accuracy')
+axes[2].legend().remove()
+
+# Adjust layout
+plt.tight_layout()
+plt.show()
