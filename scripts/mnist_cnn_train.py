@@ -5,6 +5,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
 import datetime
+import os
 
 # vanilla CNN
 class Net(nn.Module):
@@ -25,6 +26,19 @@ class Net(nn.Module):
         x = self.fc2(x)
         return F.log_softmax(x, dim=1)
 
+def learning_rate(t, s):
+    """
+    Calculate the learning rate based on the total number of steps (t) and the current step number (s).
+
+    Parameters:
+    t (int): Total number of steps.
+    s (int): Current step number.
+
+    Returns:
+    float: The calculated learning rate.
+    """
+    return max(t**-2 - (s - 1) * (2 * t**3)**-1, 0.5 * t**-2)
+
 # Function to calculate and print shape and number of parameters
 def print_parameters(model):
     total_params = 0
@@ -40,12 +54,15 @@ transform = transforms.Compose([
     transforms.Normalize((0.5,), (0.5,))
 ])
 
+# get path
+current_dir = os.path.dirname(os.path.abspath(__file__))
+
 # Download, if required, and load the training data
-trainset = datasets.MNIST('data/', train=True, download=True, transform=transform)
+trainset = datasets.MNIST(f'{current_dir}/data/', train=True, download=False, transform=transform)
 trainloader = torch.utils.data.DataLoader(trainset, batch_size=64, shuffle=True)
 
 # Download, if required, and load the test data
-testset = datasets.MNIST('data/', train=False, download=True, transform=transform)
+testset = datasets.MNIST(f'{current_dir}/data/', train=False, download=False, transform=transform)
 testloader = torch.utils.data.DataLoader(testset, batch_size=64, shuffle=True)
 
 # Create a network instance
@@ -55,13 +72,22 @@ net = Net()
 print_parameters(net)
 
 # Train the model
+epoch = 1
 num_epochs = 10
+lr = learning_rate(num_epochs, epoch)
 optimizer = optim.SGD(net.parameters(), lr=0.01) 
+# scheduler = optim.lr_scheduler.LambdaLR(optimizer, lambda lr: learning_rate(num_epochs, epoch)) # NB 0.01 works just as well
 criterion = nn.CrossEntropyLoss()
+
+# print start time
+start_datetime = datetime.datetime.now()
+print(start_datetime.strftime("%Y-%m-%d %H:%M:%S"))
 
 for epoch in range(num_epochs):
     running_loss = 0.0
     running_corrects = 0.0
+    # Update the learning rate
+    # scheduler.step()    
     for i, (inputs, labels) in enumerate(trainloader):
         # Zero the parameter gradients
         optimizer.zero_grad()
@@ -86,6 +112,11 @@ for epoch in range(num_epochs):
             running_corrects = 0.0
 
 print('Finished Training')
+
+# print training time
+end_datetime = datetime.datetime.now()
+total_time = end_datetime - start_datetime
+print(f'Total training time: {total_time}')
 
 # Save the trained model weights to a file
 current_datetime = datetime.datetime.now()
