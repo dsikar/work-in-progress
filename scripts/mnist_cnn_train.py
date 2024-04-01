@@ -77,7 +77,7 @@ num_epochs = 10
 lr = learning_rate(num_epochs, epoch)
 optimizer = optim.SGD(net.parameters(), lr=0.01) 
 # scheduler = optim.lr_scheduler.LambdaLR(optimizer, lambda lr: learning_rate(num_epochs, epoch)) # NB 0.01 works just as well
-criterion = nn.CrossEntropyLoss()
+criterion = nn.CrossEntropyLoss() # nn.CrossEntropyLoss() combines nn.LogSoftmax() and nn.NLLLoss() in one single class.
 
 # print start time
 start_datetime = datetime.datetime.now()
