@@ -1780,7 +1780,7 @@ def plot_digit_averages(train_correct_predictions):
         # Set the title and labels for the current subplot
         axs[i].set_title(f'Digit {label}')
         axs[i].set_xlabel('Digit Index')
-        axs[i].set_ylabel('Average Value (Logarithmic)')
+        axs[i].set_ylabel('Average Value (Logarithmic) CORRECT')
         
         # Set the x-tick positions and labels
         axs[i].set_xticks(np.arange(10))
@@ -1792,70 +1792,61 @@ def plot_digit_averages(train_correct_predictions):
     # Display the plot
     plt.show()
 
-import numpy as np
-import matplotlib.pyplot as plt
-
-def plot_digit_averages(train_correct_predictions, train_incorrect_predictions, color1='skyblue', color2='lightcoral'):
+# TODO: more descriptive function name, docstring and save file option
+# training data color1='skyblue', color2='lightcoral'
+# testing data color1='lightgreen', color2='lightcoral'
+def plot_digit_averages(train_correct_predictions, train_incorrect_predictions, color1='skyblue', color2='lightcoral', data="Training Data"):
     # Get the unique labels (digits) from column 11
     labels = np.unique(train_correct_predictions[:, 10]).astype(int)
 
     # Create a figure and subplots for each digit (2 rows: correct and incorrect predictions)
     fig, axs = plt.subplots(2, len(labels), figsize=(20, 10))
+    fig.suptitle(f'{data} - Softmax Average Distributions for Correct and Incorrect Digit Predictions', fontsize=16)
 
     # Plot correct predictions
     for i, label in enumerate(labels):
         # Get the predictions for the current digit
         digit_predictions = train_correct_predictions[train_correct_predictions[:, 10] == label, :10]
-
         # Calculate the average value for each index
         averages = np.mean(digit_predictions, axis=0)
-
         # Plot the bar graph for the current digit
         axs[0, i].bar(np.arange(10), averages, color=color1)
-
         # Set the y-axis to logarithmic scale
         axs[0, i].set_yscale('log')
-
         # Set the y-axis limits to start from 10^-4
         axs[0, i].set_ylim(bottom=1e-4)
-
-        # Set the title and labels for the current subplot
-        axs[0, i].set_title(f'Digit {label} (Correct)')
-        axs[0, i].set_xlabel('Digit Index')
-        axs[0, i].set_ylabel('Average Softmax Value (Logarithmic)')
-
+        # Set the title for the current subplot
+        axs[0, i].set_title(f'Digit {label} (Correct)', fontsize=12)
         # Set the x-tick positions and labels
         axs[0, i].set_xticks(np.arange(10))
-        axs[0, i].set_xticklabels(np.arange(10))
+        axs[0, i].set_xticklabels(np.arange(10), fontsize=10)
 
     # Plot incorrect predictions
     for i, label in enumerate(labels):
         # Get the predictions for the current digit
         digit_predictions = train_incorrect_predictions[train_incorrect_predictions[:, 11] == label, :10]
-
         # Calculate the average value for each index
         averages = np.mean(digit_predictions, axis=0)
-
         # Plot the bar graph for the current digit
         axs[1, i].bar(np.arange(10), averages, color=color2)
-
         # Set the y-axis to logarithmic scale
         axs[1, i].set_yscale('log')
-
         # Set the y-axis limits to start from 10^-4
         axs[1, i].set_ylim(bottom=1e-4)
-
-        # Set the title and labels for the current subplot
-        axs[1, i].set_title(f'Digit {label} (Incorrect)')
-        axs[1, i].set_xlabel('Digit Index')
-        axs[1, i].set_ylabel('Average Softmax Value (Logarithmic)')
-
+        # Set the title for the current subplot
+        axs[1, i].set_title(f'Digit {label} (Incorrect)', fontsize=12)
         # Set the x-tick positions and labels
         axs[1, i].set_xticks(np.arange(10))
-        axs[1, i].set_xticklabels(np.arange(10))
+        axs[1, i].set_xticklabels(np.arange(10), fontsize=10)
+
+    # Set x-axis label at the bottom of the figure
+    fig.text(0.5, 0.04, 'Digit Index', ha='center', fontsize=14)
+    # Set y-axis label on the left side of the figure
+    fig.text(0.04, 0.5, 'Average Softmax Value (Logarithmic)', va='center', rotation='vertical', fontsize=14)
 
     # Adjust the spacing between subplots
-    plt.tight_layout()
+    plt.tight_layout(rect=[0.05, 0.05, 0.95, 0.95])
+    fig.subplots_adjust(top=0.9)  # Adjust the top spacing for the main title
 
     # Display the plot
-    plt.show()
+    plt.show() 
