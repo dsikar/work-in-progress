@@ -485,1368 +485,189 @@ def plot_mean_distances(mean_distances):
     
     plt.show()
 
-def plot_mean_distances_x2(training_mean_distances, testing_mean_distances, predictions_type="Correct", save=False):
+def plot_accuracy_decrements(results, results_overall, save=True):
     """
-    Plots bar charts of mean distances to centroids for training and testing datasets side by side.
+    Plots the accuracy vs threshold decrement for each digit class and the overall accuracy.
 
     Parameters:
-    - training_mean_distances: A numpy array containing the mean distances to centroids for each cluster in the training dataset.
-    - testing_mean_distances: A numpy array containing the mean distances to centroids for each cluster in the testing dataset.
-    - predictions_type: A string indicating the type of predictions (e.g., "Correct" or "Incorrect"). Default is "Correct".
-    - save: Boolean, if True, saves the plot. Defaults to False.
-    """
-    # Plot the mean distances side by side
-    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(20, 6))
+        results (numpy.ndarray): The results array obtained from the calculate_accuracy_decrements function.
+                                 Expected columns:
+                                 - Column 0: Total number of values below the threshold
+                                 - Column 1: Current threshold
+                                 - Column 2: Decrement
+                                 - Column 3: Digit class
+                                 - Column 4: Digit class prediction accuracy
+                                 - Column 5: Total values (correct + incorrect) for the digit class
 
-    clusters = range(len(training_mean_distances))  # Assuming both arrays have the same size
-
-    # Plot training mean distances
-    ax1.bar(clusters, training_mean_distances, color='skyblue')
-    ax1.set_xlabel('Cluster (Digit)')
-    ax1.set_ylabel('Mean Distance to Centroid')
-    ax1.set_title(f'Training Data - {predictions_type} Predictions\nMean Distance to Centroid for Each Cluster')
-    ax1.set_xticks(clusters)
-    ax1.set_xticklabels([str(i) for i in clusters])
-
-    # Annotate each bar with the mean distance value for training data
-    for i, distance in enumerate(training_mean_distances):
-        ax1.text(i, distance, f'{distance:.4f}', ha='center', va='bottom')
-
-    # Plot testing mean distances
-    ax2.bar(clusters, testing_mean_distances, color='lightgreen')
-    ax2.set_xlabel('Cluster (Digit)')
-    ax2.set_ylabel('Mean Distance to Centroid')
-    ax2.set_title(f'Testing Data - {predictions_type} Predictions\nMean Distance to Centroid for Each Cluster')
-    ax2.set_xticks(clusters)
-    ax2.set_xticklabels([str(i) for i in clusters])
-
-    # Annotate each bar with the mean distance value for testing data
-    for i, distance in enumerate(testing_mean_distances):
-        ax2.text(i, distance, f'{distance:.4f}', ha='center', va='bottom')
-
-    plt.tight_layout()
-    plt.show()
-
-    if save:
-        plt.savefig('Combined_mean_distances.png')
-
-    import numpy as np
-
-def calculate_distances_to_centroids(train_np, equal=True, debug=False):
-    """
-    Calculates the distances to centroids for correct or incorrect predictions in the training dataset.
-
-    Parameters:
-    - train_np: A numpy array containing the training data.
-    - equal: A boolean indicating whether to consider equal or not equal predictions and labels.
-             If True (default), considers correct predictions (labels == predictions).
-             If False, considers incorrect predictions (labels != predictions).
-    -debug: A boolean indicating whether to print debug information. Defaults to False.
+        results_overall (numpy.ndarray): The results array obtained from the calculate_accuracy_decrements_overall function.
+                                         Expected columns:
+                                         - Column 0: Total number of values below the threshold (overall)
+                                         - Column 1: Decrement
+                                         - Column 2: Overall accuracy
+                                         - Column 3: Total correct predictions (overall)
+                                         - Column 4: Total values (overall)
 
     Returns:
-    - distances_to_centroids: A numpy array containing the mean distances to centroids for each cluster, for each MNIST class.
+        None
     """
-    if equal:
-        # Consider correct predictions (labels == predictions)
-        match_condition = train_np[:, 10] == train_np[:, 11]
-    else:
-        # Consider incorrect predictions (labels != predictions)
-        match_condition = train_np[:, 10] != train_np[:, 11]
+    # Define column indices
+    COL_DECREMENT = 2
+    COL_DIGIT_CLASS = 3
+    COL_ACCURACY = 4
 
-    # Filter the train_np array based on the match condition
-    filtered_preds = train_np[match_condition]
+    COL_OVERALL_DECREMENT = 1
+    COL_OVERALL_ACCURACY = 2
 
-    # Get the centroids and cluster labels using the get_kmeans_centroids function
-    centroids, cluster_labels = get_kmeans_centroids(filtered_preds, debug=debug)
+    # Get the unique digit classes
+    digit_classes = np.unique(results[:, COL_DIGIT_CLASS])
 
-    # Calculate the distances to centroids using the mean_distance_to_centroids function
-    distances_to_centroids = mean_distance_to_centroids(filtered_preds, centroids)
+    # Create a figure and subplots for each digit class and overall accuracy
+    fig, axs = plt.subplots(1, len(digit_classes) + 1, figsize=(24, 5))
 
-    return distances_to_centroids
+    # Iterate over each unique digit class
+    for i, digit_class in enumerate(digit_classes):
+        # Find the rows corresponding to the current digit class
+        digit_rows = results[results[:, COL_DIGIT_CLASS] == digit_class]
 
-import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d import Axes3D  # For 3D plotting
-import pandas as pd
+        # Extract the accuracy and decrement values for the current digit class
+        accuracy = digit_rows[:, COL_ACCURACY]
+        decrement = digit_rows[:, COL_DECREMENT]
 
-def plot_centroids(centroids):
-  """
-  Plots the centroids based on their dimensionality.
+        # Plot the accuracy vs decrement for the current digit class
+        axs[i].plot(decrement, accuracy, marker='o', color='lightgreen')
+        axs[i].set_title(f'{int(digit_class)}')
+        axs[i].set_ylim(0.8, 1)
+        axs[i].grid(True)
 
-  Args:
-      centroids (numpy.ndarray): An array containing the centroids.
-  """
-  num_centroids, num_features = centroids.shape
+        # Add vertical lines for each decrement
+        for dec in decrement:
+            axs[i].axvline(x=dec, color='gray', linestyle='--', linewidth=0.5)
 
-  if num_features == 2:
-      # Scatter plot for 2D data
-      plt.scatter(centroids[:, 0], centroids[:, 1])
-      for i, centroid in enumerate(centroids):
-          plt.text(centroid[0], centroid[1], str(i))
-      plt.xlabel("Dimension 1")
-      plt.ylabel("Dimension 2")
-      plt.title("Visualization of Centroids in 2D")
-      plt.show()
-  elif num_features == 3:
-      # 3D scatter plot
-      fig = plt.figure(figsize=(8, 6))
-      ax = fig.add_subplot(111, projection='3d')
-      ax.scatter(centroids[:, 0], centroids[:, 1], centroids[:, 2])
-      for i, centroid in enumerate(centroids):
-          ax.text(centroid[0], centroid[1], centroid[2], str(i))
-      ax.set_xlabel('X Label')
-      ax.set_ylabel('Y Label')
-      ax.set_zlabel('Z Label')
-      plt.title("Visualization of Centroids in 3D")
-      plt.show()
-  elif num_features > 3:
-      # Use parallel coordinates for higher dimensions
-      from pandas.plotting import parallel_coordinates
-      df = pd.DataFrame(centroids)
-      parallel_coordinates(df, class_column=None, marker='o')
-      plt.title("Parallel Coordinates Visualization of Centroids")
-      plt.show()
-  else:
-      print("Centroids have invalid dimensionality for plotting. Choose a suitable visualization technique.")
-
-def plot_mean_distances_double_bars(training_correct_distances, training_incorrect_distances,
-                           testing_correct_distances, testing_incorrect_distances, save=False):
-    """
-    Plots bar charts of mean distances to centroids for training and testing datasets.
-    Each class is represented by two bars side by side: correct and incorrect predictions.
-
-    Parameters:
-    - training_correct_distances: A numpy array containing the mean distances to centroids for correct predictions in the training dataset.
-    - training_incorrect_distances: A numpy array containing the mean distances to centroids for incorrect predictions in the training dataset.
-    - testing_correct_distances: A numpy array containing the mean distances to centroids for correct predictions in the testing dataset.
-    - testing_incorrect_distances: A numpy array containing the mean distances to centroids for incorrect predictions in the testing dataset.
-    - save: Boolean, if True, saves the plot. Defaults to False.
-    """
-    # Set up the figure and axes
-    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(20, 5))
-    clusters = range(len(training_correct_distances))
-
-    # Plot training data
-    bar_width = 0.35
-    ax1.bar(np.arange(len(clusters)) - bar_width/2, training_correct_distances, bar_width, color='skyblue', label='Correctly classified')
-    ax1.bar(np.arange(len(clusters)) + bar_width/2, training_incorrect_distances, bar_width, color='lightcoral', label='Incorrectly classified')
-    ax1.set_xlabel('Digit Class Prediction')
-    ax1.set_ylabel('Mean Distance to Centroid')
-    ax1.set_title('Training Data - Softmax Output Mean Distance to Centroid')
-    ax1.set_xticks(np.arange(len(clusters)))
-    ax1.set_xticklabels([str(i) for i in clusters])
-    ax1.legend(loc='center left') # ax1.legend()
-
-    # Annotate each bar with the mean distance value for training data
-    for i, (correct_distance, incorrect_distance) in enumerate(zip(training_correct_distances, training_incorrect_distances)):
-        ax1.text(i - bar_width/2, correct_distance, f'{correct_distance:.4f}', ha='center', va='bottom')
-        ax1.text(i + bar_width/2, incorrect_distance, f'{incorrect_distance:.4f}', ha='center', va='bottom')
-
-    # Plot testing data
-    ax2.bar(np.arange(len(clusters)) - bar_width/2, testing_correct_distances, bar_width, color='lightgreen', label='Correctly classified')
-    ax2.bar(np.arange(len(clusters)) + bar_width/2, testing_incorrect_distances, bar_width, color='lightcoral', label='Incorrectly classified')
-    ax2.set_xlabel('Digit Class Prediction')
-    ax2.set_ylabel('Mean Distance to Centroid')
-    ax2.set_title('Testing Data - Softmax Output Mean Distance to Centroid')
-    ax2.set_xticks(np.arange(len(clusters)))
-    ax2.set_xticklabels([str(i) for i in clusters])
-    ax2.legend(loc='center left') # ax2.legend()
-
-    # Annotate each bar with the mean distance value for testing data
-    for i, (correct_distance, incorrect_distance) in enumerate(zip(testing_correct_distances, testing_incorrect_distances)):
-        ax2.text(i - bar_width/2, correct_distance, f'{correct_distance:.4f}', ha='center', va='bottom')
-        ax2.text(i + bar_width/2, incorrect_distance, f'{incorrect_distance:.4f}', ha='center', va='bottom')
-
-    plt.tight_layout()
-    plt.show()
-
-    if save:
-        plt.savefig('Combined_mean_distances_double_bars.png')
-
-
-def mean_distance_to_centroids_boxplots(train_np, centroids, plot=False):
-    """
-    Calculates the mean distance of data points in each cluster to their corresponding centroid.
-    
-    Parameters:
-    - train_np: Numpy array of training data, with the last column (index 10) as the label.
-    - centroids: Numpy array of centroids.
-    - plot: Boolean, if True, plots a box plot of the distances for each class. Default is False.
-    
-    Returns:
-    - A numpy array containing the mean distance of data points to their corresponding centroid for each cluster.
-    """
-    num_clusters = centroids.shape[0]
-    distances = np.zeros(num_clusters)
-    counts = np.zeros(num_clusters)
-    
-    # Create a list to store distances for each class
-    class_distances = [[] for _ in range(num_clusters)]
-    
-    # Iterate through each cluster
-    for i in range(num_clusters):
-        # Extract rows for the current cluster based on the label
-        cluster_data = train_np[train_np[:, 10] == i][:, :10]  # Exclude the label column
-        
-        # Calculate the Euclidean distance from each point in the cluster to the centroid
-        if len(cluster_data) > 0:
-            dist = np.sqrt(np.sum((cluster_data - centroids[i])**2, axis=1))
-            # Sum distances and count points for the current cluster
-            distances[i] = np.mean(dist)
-            # Append distances to the corresponding class list
-            class_distances[i].extend(dist)
+        # Show y-axis labels only on the first subplot
+        if i == 0:
+            axs[i].set_ylabel('Accuracy')
         else:
-            distances[i] = np.nan  # Handle empty clusters if any
-    
-    if plot:
-        # Create a box plot of distances for each class
-        plt.figure(figsize=(10, 6))
-        plt.boxplot(class_distances, labels=[str(i) for i in range(num_clusters)])
-        plt.xlabel('Class')
-        plt.ylabel('Distance to Centroid')
-        plt.title('Distribution of Distances to Centroids')
-        plt.show()
-    
-    return distances        
-
-def calculate_class_accuracies(data):
-    """
-    Calculate the accuracy for each class (digit 0 to 9) based on the comparison of true labels and predictions.
-
-    Parameters:
-    - data: Numpy array with 12 columns, where column 11 (index 10) contains the true labels
-            and column 12 (index 11) contains the predicted labels.
-
-    Returns:
-    - accuracies: Numpy array with one row and 10 columns, where each column represents a class (digit 0 to 9)
-                  and the value is the accuracy for that class.
-    """
-    num_classes = 10
-    accuracies = np.zeros((1, num_classes))
-
-    for class_label in range(num_classes):
-        # Get the rows where the true label (column 11) matches the current class label
-        class_mask = data[:, 10] == class_label
-        class_rows = data[class_mask]
-
-        if len(class_rows) > 0:
-            # Count the number of rows where the true label (column 11) matches the prediction (column 12)
-            correct_predictions = np.sum(class_rows[:, 10] == class_rows[:, 11])
-            
-            # Calculate the accuracy for the current class
-            accuracy = correct_predictions / len(class_rows)
-            accuracies[0, class_label] = accuracy
-
-    return accuracies
-
-import numpy as np
-
-def calculate_class_accuracies_2(data):
-    """
-    Calculates the accuracy for each class based on the comparison between true labels and predictions.
-
-    Parameters:
-    - data: A numpy array with 12 columns, where the last two columns are the true label and the prediction, respectively.
-
-    Returns:
-    - A numpy array of size 10, containing the accuracy for each class from 0 to 9.
-    """
-    # Initialize an array to hold the accuracy for each class
-    accuracies = np.zeros(10)
-    
-    # Iterate through each class (digit)
-    for i in range(10):
-        # Select rows for the current class
-        class_rows = data[data[:, 10] == i]
-        # Count the correct predictions for the current class
-        correct_predictions = np.sum(class_rows[:, 10] == class_rows[:, 11])
-        # Calculate accuracy as the number of correct predictions divided by the number of rows for the class
-        if len(class_rows) > 0:
-            accuracies[i] = correct_predictions / len(class_rows)
-        else:
-            accuracies[i] = np.nan  # Avoid division by zero if no rows for the current class
-
-    return accuracies
-
-# Example usage:
-# Assume 'data' is a numpy array with 12 columns, where column 10 is the true class and column 11 is the prediction
-# data = np.array([...])  # Replace with actual data
-# class_accuracies = calculate_class_accuracies(data)
-
-import numpy as np
-import matplotlib.pyplot as plt
-
-def plot_accuracy_vs_distance(distance, accuracy):
-    """
-    Plot the accuracy on the Y-axis and the distance on the X-axis.
-
-    Parameters:
-    - distance: Numpy array of shape (10,) representing the mean class distance to the centroid.
-    - accuracy: Numpy array of shape (1, 10) representing the accuracy for each class.
-
-    Returns:
-    - None
-    """
-    # Reshape the arrays if necessary
-    distance = distance.reshape(-1)
-    accuracy = accuracy.reshape(-1)
-
-    # Calculate the minimum and maximum values for each array
-    min_distance = np.min(distance)
-    max_distance = np.max(distance)
-    min_accuracy = np.min(accuracy)
-    max_accuracy = np.max(accuracy)
-
-    # Create a new figure and axis
-    fig, ax = plt.subplots(figsize=(10, 6))
-
-    # Plot the accuracy vs. distance
-    ax.plot(distance, accuracy, marker='o', linestyle='-', linewidth=2, markersize=8)
-
-    # Set the X-axis label and scale
-    ax.set_xlabel("Mean Class Distance to Centroid")
-    ax.set_xlim(min_distance * 0.9, max_distance * 1.1)  # Adjust the limits for better visibility
-    ax.set_xscale('log')  # Use logarithmic scaling for the X-axis
-
-    # Set the Y-axis label and scale
-    ax.set_ylabel("Accuracy")
-    ax.set_ylim(min_accuracy * 0.9, max_accuracy * 1.1)  # Adjust the limits for better visibility
-
-    # Set the title
-    ax.set_title("MNIST Classification Softmax Output, Accuracy vs. Mean Distance to Centroid")
-
-    # Display the plot
-    plt.tight_layout()
-    plt.show()
-
-import numpy as np
-import matplotlib.pyplot as plt
-
-def plot_accuracy_vs_distance_combined(train_distance, train_accuracy, test_distance, test_accuracy):
-    """
-    Plot the accuracy on the Y-axis and the distance on the X-axis as dots without connecting them,
-    for both training and testing data.
-
-    Parameters:
-    - train_distance: Numpy array of shape (10,) representing the mean class distance to the centroid for training data.
-    - train_accuracy: Numpy array of shape (1, 10) representing the accuracy for each class for training data.
-    - test_distance: Numpy array of shape (10,) representing the mean class distance to the centroid for testing data.
-    - test_accuracy: Numpy array of shape (1, 10) representing the accuracy for each class for testing data.
-
-    Returns:
-    - None
-    """
-    # Reshape the arrays if necessary
-    train_distance = train_distance.reshape(-1)
-    train_accuracy = train_accuracy.reshape(-1)
-    test_distance = test_distance.reshape(-1)
-    test_accuracy = test_accuracy.reshape(-1)
-
-    # Calculate the minimum and maximum values for each array
-    min_distance = np.min(np.concatenate((train_distance, test_distance)))
-    max_distance = np.max(np.concatenate((train_distance, test_distance)))
-
-    # Create a new figure and axis
-    fig, ax = plt.subplots(figsize=(10, 6))
-
-    # Plot the training accuracy vs. distance as blue dots without connecting them
-    ax.plot(train_distance, train_accuracy, marker='o', linestyle='', markersize=8, color='blue', label='Training')
-
-    # Plot the testing accuracy vs. distance as red dots without connecting them
-    ax.plot(test_distance, test_accuracy, marker='o', linestyle='', markersize=8, color='red', label='Testing')
-
-    # Set the X-axis label and scale
-    ax.set_xlabel("Mean Class Distance to Centroid")
-    ax.set_xlim(min_distance * 0.9, max_distance * 1.1)  # Adjust the limits for better visibility
-    ax.set_xscale('log')  # Use logarithmic scaling for the X-axis
-
-    # Set the Y-axis label and limits
-    ax.set_ylabel("Accuracy")
-    ax.set_ylim(0.94, 1.0)  # Set the Y-axis limits between 0.94 and 1
-
-    # Set the title
-    ax.set_title("MNIST Classification Softmax Output, Accuracy vs. Mean Distance to Centroid")
-
-    # Add a grid
-    ax.grid(True, which='both', linestyle='--', alpha=0.7)
-
-    # Add a legend
-    ax.legend()
-
-    # Display the plot
-    plt.tight_layout()
-    plt.show()    
-
-def linear_func(x, a, b):
-    return a * x + b
-
-def plot_accuracy_vs_distance_linear(train_distance, train_accuracy, test_distance, test_accuracy):
-    """
-    Plot the accuracy on the Y-axis and the distance on the X-axis as dots without connecting them,
-    for both training and testing data. Fit a linear function to the data and plot the functions.
-
-    Parameters:
-    - train_distance: Numpy array of shape (10,) representing the mean class distance to the centroid for training data.
-    - train_accuracy: Numpy array of shape (1, 10) representing the accuracy for each class for training data.
-    - test_distance: Numpy array of shape (10,) representing the mean class distance to the centroid for testing data.
-    - test_accuracy: Numpy array of shape (1, 10) representing the accuracy for each class for testing data.
-
-    Returns:
-    - None
-    """
-    # Reshape the arrays if necessary
-    train_distance = train_distance.reshape(-1)
-    train_accuracy = train_accuracy.reshape(-1)
-    test_distance = test_distance.reshape(-1)
-    test_accuracy = test_accuracy.reshape(-1)
-
-    # Calculate the minimum and maximum values for each array
-    min_distance = np.min(np.concatenate((train_distance, test_distance)))
-    max_distance = np.max(np.concatenate((train_distance, test_distance)))
-
-    # Fit a linear function to the training data
-    train_popt, _ = np.polyfit(train_distance, train_accuracy, 1, full=True)
-    train_func = lambda x: linear_func(x, train_popt[0], train_popt[1])
-
-    # Fit a linear function to the testing data
-    test_popt, _ = np.polyfit(test_distance, test_accuracy, 1, full=True)
-    test_func = lambda x: linear_func(x, test_popt[0], test_popt[1])
-
-    # Create a new figure and axis
-    fig, ax = plt.subplots(figsize=(10, 6))
-
-    # Plot the training accuracy vs. distance as blue dots without connecting them
-    ax.plot(train_distance, train_accuracy, marker='o', linestyle='', markersize=8, color='blue', label='Training')
-
-    # Plot the testing accuracy vs. distance as red dots without connecting them
-    ax.plot(test_distance, test_accuracy, marker='o', linestyle='', markersize=8, color='red', label='Testing')
-
-    # Plot the fitted functions
-    x_vals = np.linspace(min_distance, max_distance, 100)
-    ax.plot(x_vals, train_func(x_vals), color='blue', linestyle='-', label='Training Fit')
-    ax.plot(x_vals, test_func(x_vals), color='red', linestyle='-', label='Testing Fit')
-
-    # Set the X-axis label and scale
-    ax.set_xlabel("Mean Class Distance to Centroid")
-    ax.set_xlim(min_distance * 0.9, max_distance * 1.1)  # Adjust the limits for better visibility
-    ax.set_xscale('log')  # Use logarithmic scaling for the X-axis
-
-    # Set the Y-axis label and limits
-    ax.set_ylabel("Accuracy")
-    ax.set_ylim(0.94, 1.0)  # Set the Y-axis limits between 0.94 and 1
-
-    # Set the title
-    ax.set_title("MNIST Classification Softmax Output, Accuracy vs. Mean Distance to Centroid")
-
-    # Add a grid
-    ax.grid(True, which='both', linestyle='--', alpha=0.7)
-
-    # Add a legend
-    ax.legend()
-
-    # Add the function equations inside the plot on the bottom left
-    train_eq = f"$acc_{{train}} = {train_popt[0]:.3e} * dist + {train_popt[1]:.3f}$"
-    test_eq = f"$acc_{{test}} = {test_popt[0]:.3e} * dist + {test_popt[1]:.3f}$"
-    ax.text(0.02, 0.02, train_eq + '\n' + test_eq, transform=ax.transAxes, fontsize=12, verticalalignment='bottom')
-
-    # Display the plot
-    plt.tight_layout()
-    plt.show()
-
-from scipy.optimize import curve_fit
-
-def exponential_fit(x, a, b, c):
-    return a * np.exp(b * x) + c
-
-def plot_accuracy_vs_distance_fitted(train_distance, train_accuracy, test_distance, test_accuracy):
-    """
-    Plots accuracy against mean class distance to centroid for both training and testing data,
-    with an exponential fit for the trend in the data.
-
-    Parameters:
-    - train_distance: A numpy array with shape (10,) containing mean distances to centroid for each class in the training set.
-    - train_accuracy: A numpy array with shape (1,10) containing accuracies for each class in the training set.
-    - test_distance: A numpy array with shape (10,) containing mean distances to centroid for each class in the testing set.
-    - test_accuracy: A numpy array with shape (1,10) containing accuracies for each class in the testing set.
-    """
-    # Ensure the arrays are correctly shaped
-    train_distance = np.reshape(train_distance, (10,))
-    train_accuracy = np.reshape(train_accuracy, (10,))
-    test_distance = np.reshape(test_distance, (10,))
-    test_accuracy = np.reshape(test_accuracy, (10,))
-
-    # Fit an exponential decay function to the data
-    params_train, _ = curve_fit(exponential_fit, train_distance, train_accuracy, maxfev=10000)
-    params_test, _ = curve_fit(exponential_fit, test_distance, test_accuracy, maxfev=10000)
-
-    # Generate a sequence of distances for plotting the fit function
-    distance_plot = np.linspace(min(train_distance.min(), test_distance.min()), max(train_distance.max(), test_distance.max()), 100)
-
-    # Calculate the fitted values
-    fit_train = exponential_fit(distance_plot, *params_train)
-    fit_test = exponential_fit(distance_plot, *params_test)
-
-    # Create the plot
-    plt.figure(figsize=(12, 8))
-    
-    # Plot train data and fit function
-    plt.scatter(train_distance, train_accuracy, c='blue', label='Train Data')
-    plt.plot(distance_plot, fit_train, 'b--', label='Train Fit: {:.3f}*exp({:.3f}*x)+{:.3f}'.format(*params_train))
-
-    # Plot test data and fit function
-    plt.scatter(test_distance, test_accuracy, c='green', label='Test Data')
-    plt.plot(distance_plot, fit_test, 'g--', label='Test Fit: {:.3f}*exp({:.3f}*x)+{:.3f}'.format(*params_test))
-
-    # Set the axis labels
-    plt.xlabel('Mean Class Distance to Centroid')
-    plt.ylabel('Accuracy')
-
-    # Set the y-axis limits between 0.94 and 1
-    plt.ylim(0.94, 1)
-
-    # Set the title
-    plt.title('MNIST Classification: Train vs Test Accuracy and Mean Distance to Centroid with Exponential Fit')
-
-    # Show the grid
-    plt.grid(True)
-
-    # Show the legend with fit functions
-    plt.legend(loc='lower left')
-
-    # Show the plot
-    plt.show()
-
-# Example usage with dummy data
-# train_distance = np.array([...])
-# train_accuracy = np.array([...])
-# test_distance = np.array([...])
-# test_accuracy = np.array([...])
-# plot_accuracy_vs_distance_fitted(train_distance, train_accuracy, test_distance, test_accuracy)
-    
-def linear_fit(x, m, c):
-    return m * x + c
-
-def plot_accuracy_vs_distance_linear_fit(train_distance, train_accuracy, test_distance, test_accuracy):
-    """
-    Plots accuracy against mean class distance to centroid for both training and testing data,
-    with a linear fit for the trend in the data.
-
-    Parameters:
-    - train_distance: A numpy array with shape (10,) containing mean distances to centroid for each class in the training set.
-    - train_accuracy: A numpy array with shape (1,10) containing accuracies for each class in the training set.
-    - test_distance: A numpy array with shape (10,) containing mean distances to centroid for each class in the testing set.
-    - test_accuracy: A numpy array with shape (1,10) containing accuracies for each class in the testing set.
-    """
-    # Ensure the arrays are correctly shaped
-    train_distance = np.reshape(train_distance, (10,))
-    train_accuracy = np.reshape(train_accuracy, (10,))
-    test_distance = np.reshape(test_distance, (10,))
-    test_accuracy = np.reshape(test_accuracy, (10,))
-
-    # Fit a linear function to the data
-    params_train, _ = curve_fit(linear_fit, train_distance, train_accuracy)
-    params_test, _ = curve_fit(linear_fit, test_distance, test_accuracy)
-
-    # Generate a sequence of distances for plotting the fit function
-    distance_plot = np.linspace(min(train_distance.min(), test_distance.min()), max(train_distance.max(), test_distance.max()), 100)
-
-    # Calculate the fitted values
-    fit_train = linear_fit(distance_plot, *params_train)
-    fit_test = linear_fit(distance_plot, *params_test)
-
-    # Create the plot
-    plt.figure(figsize=(12, 8))
-    
-    # Plot train data and fit function
-    plt.scatter(train_distance, train_accuracy, c='blue', label='Train Data')
-    plt.plot(distance_plot, fit_train, 'b--', label=f'Train Fit: {params_train[0]:.3f}*x + {params_train[1]:.3f}')
-
-    # Plot test data and fit function
-    plt.scatter(test_distance, test_accuracy, c='green', label='Test Data')
-    plt.plot(distance_plot, fit_test, 'g--', label=f'Test Fit: {params_test[0]:.3f}*x + {params_test[1]:.3f}')
-
-    # Set the axis labels
-    plt.xlabel('Mean Class Distance to Centroid')
-    plt.ylabel('Accuracy')
-
-    # Set the y-axis limits between 0.94 and 1
-    plt.ylim(0.95, 1)
-
-    # Set the title
-    plt.title('MNIST Classification: Train vs Test Accuracy and Mean Distance to Centroid with Linear Fit')
-
-    # Show the grid
-    plt.grid(True)
-
-    # Show the legend with fit functions
-    plt.legend(loc='lower left')
-
-    # Show the plot
-    plt.show()
-
-import numpy as np
-
-def calculate_distances_to_centroids(train_correct_predictions, centroids):
-    """
-    Calculate the distances between the softmax outputs and their corresponding centroids.
-
-    Args:
-        train_correct_predictions (numpy.ndarray): Array of shape (59074, 12) containing softmax outputs
-            and correct predictions for MNIST training images. Indexes 0 to 9 are the predictions,
-            and index 10 is the correct prediction.
-        centroids (numpy.ndarray): Array of shape (10, 10) containing cluster centroids. Row indexes
-            correspond to the digit represented by the centroid.
-
-    Returns:
-        numpy.ndarray: Array of shape (59074, 2) where the first column contains the calculated distances,
-            and the second column contains the correct predictions.
-    """
-    results = np.zeros((train_correct_predictions.shape[0], 2))
-
-    for i, row in enumerate(train_correct_predictions):
-        # Get the correct prediction (label) for this row
-        correct_prediction = int(row[10])
-
-        # Calculate the distance between the softmax outputs (row[:10]) and the corresponding centroid
-        distance = np.linalg.norm(row[:10] - centroids[correct_prediction])
-
-        # Store the distance and correct prediction in the results array
-        results[i, 0] = distance
-        results[i, 1] = correct_prediction
-
-    return results
-
-def plot_centroid_mean_distance_boxplots(data, save=False):
-    # Extract unique labels from the second column
-    labels = np.unique(data[:, 1])
-
-    # Create a list to store the distances for each label
-    distances_by_label = [data[data[:, 1] == label, 0] for label in labels]
-
-    # Create a figure and axes
-    fig, ax = plt.subplots(figsize=(10, 6))
-
-    # Create the box plots
-    ax.boxplot(distances_by_label, labels=labels)
-
-    # Set the title and labels
-    ax.set_title('Distribution of Distances to Centroids for MNIST Digits')
-    ax.set_xlabel('Digit')
-    ax.set_ylabel('Distance')
-
-    # Adjust the spacing between box plots
-    plt.tight_layout()
-
-    # Save the plot if save is set to True
-    if save:
-        plt.savefig('centroid_distances.png')
-
-    # Display the plot
-    plt.show()
-
-def plot_centroid_mean_distance_boxplots_2(data, save=False, debug=False):
-    # Extract unique labels from the second column
-    labels = np.unique(data[:, 1]).astype(int) 
-
-    # Create a list to store the distances for each label
-    distances_by_label = [data[data[:, 1] == label, 0] for label in labels]
-
-    if debug:
-        analyze_lists_by_label(distances_by_label)
-    
-    # Boxplot Creation with Styling
-    fig, ax = plt.subplots(figsize=(10, 6))
-
-    bp = ax.boxplot(distances_by_label, labels=labels, patch_artist=True,
-                    showmeans=True, meanline=True, medianprops={'linewidth': 2},
-                    showfliers=False) 
-
-    # Customize Colors (simpler than cycling through list)
-    colors = ['lightblue', 'lightgreen', 'pink', 'peachpuff', 'lavender', 
-              'salmon', 'skyblue', 'khaki', 'mediumpurple', 'hotpink']
-    for patch, color in zip(bp['boxes'], colors):
-        patch.set_facecolor(color)
-
-    # Tweak Line Styles
-    for element in ['whiskers', 'caps', 'medians']:
-        plt.setp(bp[element], color='gray', linewidth=1.5) 
-
-    # Customize Outlier ('flier') Style 
-    plt.setp(bp['fliers'], marker='o', markerfacecolor='none', markeredgecolor='gray', markersize=6)
-
-    # Customize Mean Marker (diamond)
-    plt.setp(bp['means'], marker='D', markerfacecolor='white', markeredgecolor='black', markersize=8)
-
-    # Labels, Title, and Layout (Modified)
-    ax.set_yscale('log')  # Set y-axis to logarithmic scale
-    ax.set_title('Distribution of Distances to Centroids for MNIST Digits', fontsize=14)
-    ax.set_xlabel('Digit', fontsize=12)
-    ax.set_ylabel('Distance (Logarithmic Scale)', fontsize=12)  # Update y label
-    ax.tick_params(axis='both', labelsize=10)
-    plt.tight_layout()
-
-    # Saving and Displaying
-    if save:
-        plt.savefig('centroid_distances_styled.png', dpi=300)
-    plt.show()
-
-def plot_side_by_side_boxplots_gemini(data1, data2, save=False, debug=False):
-    """
-    Plots boxplots for two datasets side by side for comparison.
-
-    Args:
-        data1 (numpy.ndarray): Array of shape (N, 2) containing distances and labels for the first dataset.
-        data2 (numpy.ndarray): Array of shape (N, 2) containing distances and labels for the second dataset.
-        save (bool, optional): If True, saves the plot. Defaults to False.
-        debug (bool, optional): If True, prints descriptive statistics. Defaults to False.
-    """
-
-    def extract_data(data):
-        labels = np.unique(data[:, 1]).astype(int)
-        distances_by_label = [data[data[:, 1] == label, 0] for label in labels]
-        return labels, distances_by_label
-
-    # Extract data for both datasets
-    labels1, distances_by_label1 = extract_data(data1)
-    labels2, distances_by_label2 = extract_data(data2)
-
-    if debug:
-        analyze_lists_by_label(distances_by_label1)
-        analyze_lists_by_label(distances_by_label2)
-
-    # Creating two side-by-side boxplots
-    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(15, 6))
-
-    # Boxplot for data1
-    ax1.boxplot(distances_by_label1, labels=labels1, patch_artist=True,
-                showmeans=True, meanline=True, medianprops={'linewidth': 2}, showfliers=False)
-    # Customize colors & styles (see previous explanations) ... 
-
-    # Boxplot for data2
-    ax2.boxplot(distances_by_label2, labels=labels2, patch_artist=True,
-                showmeans=True, meanline=True, medianprops={'linewidth': 2}, showfliers=False)
-    # Customize colors & styles (see previous explanations) ... 
-
-    # Common settings and labels
-    fig.suptitle('Comparison of Distance Distributions to Centroids', fontsize=14)
-    for ax in (ax1, ax2):
-        ax.set_yscale('log') 
-        ax.set_xlabel('Digit', fontsize=12)
-        ax.set_ylabel('Distance (Logarithmic Scale)', fontsize=12) 
-        ax.tick_params(axis='both', labelsize=10)
-    plt.tight_layout() 
-
-    # Saving and displaying
-    if save:
-        plt.savefig('centroid_distances_comparison.png', dpi=300)
-    plt.show()
-
-def plot_side_by_side_claude(data1, data2, save=False, debug=False):
-    # Extract unique labels from the second column of data1 and data2
-    labels1 = np.unique(data1[:, 1]).astype(int)
-    labels2 = np.unique(data2[:, 1]).astype(int)
-
-    # Create lists to store the distances for each label in data1 and data2
-    distances_by_label1 = [data1[data1[:, 1] == label, 0] for label in labels1]
-    distances_by_label2 = [data2[data2[:, 1] == label, 0] for label in labels2]
-
-    if debug:
-        analyze_lists_by_label(distances_by_label1)
-        analyze_lists_by_label(distances_by_label2)
-
-    # Boxplot Creation with Styling
-    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(16, 6))
-
-    # Plot boxplots for data1
-    bp1 = ax1.boxplot(distances_by_label1, labels=labels1, patch_artist=True,
-                      showmeans=True, meanline=True, medianprops={'linewidth': 2},
-                      showfliers=False)
-
-    # Plot boxplots for data2
-    bp2 = ax2.boxplot(distances_by_label2, labels=labels2, patch_artist=True,
-                      showmeans=True, meanline=True, medianprops={'linewidth': 2},
-                      showfliers=False)
-
-    # Customize Colors (simpler than cycling through list)
-    colors = ['lightblue', 'lightgreen', 'pink', 'peachpuff', 'lavender',
-              'salmon', 'skyblue', 'khaki', 'mediumpurple', 'hotpink']
-
-    for patch, color in zip(bp1['boxes'], colors):
-        patch.set_facecolor(color)
-
-    for patch, color in zip(bp2['boxes'], colors):
-        patch.set_facecolor(color)
-
-    # Tweak Line Styles
-    for element in ['whiskers', 'caps', 'medians']:
-        plt.setp(bp1[element], color='gray', linewidth=1.5)
-        plt.setp(bp2[element], color='gray', linewidth=1.5)
-
-    # Customize Outlier ('flier') Style
-    plt.setp(bp1['fliers'], marker='o', markerfacecolor='none', markeredgecolor='gray', markersize=6)
-    plt.setp(bp2['fliers'], marker='o', markerfacecolor='none', markeredgecolor='gray', markersize=6)
-
-    # Customize Mean Marker (diamond)
-    plt.setp(bp1['means'], marker='D', markerfacecolor='white', markeredgecolor='black', markersize=8)
-    plt.setp(bp2['means'], marker='D', markerfacecolor='white', markeredgecolor='black', markersize=8)
-
-    # Labels, Title, and Layout (Modified)
-    ax1.set_yscale('log')  # Set y-axis to logarithmic scale
-    ax2.set_yscale('log')  # Set y-axis to logarithmic scale
-
-    ax1.set_title('Data 1: Distribution of Distances to Centroids', fontsize=14)
-    ax2.set_title('Data 2: Distribution of Distances to Centroids', fontsize=14)
-
-    ax1.set_xlabel('Digit', fontsize=12)
-    ax2.set_xlabel('Digit', fontsize=12)
-
-    ax1.set_ylabel('Distance (Logarithmic Scale)', fontsize=12)  # Update y label
-    ax2.set_ylabel('Distance (Logarithmic Scale)', fontsize=12)  # Update y label
-
-    ax1.tick_params(axis='both', labelsize=10)
-    ax2.tick_params(axis='both', labelsize=10)
-
-    plt.tight_layout()
-
-    # Saving and Displaying
-    if save:
-        plt.savefig('centroid_distances_styled_comparison.png', dpi=300)
-
-    plt.show()
-
-def boxplots_side_by_side(data1, data2, save=False, debug=False, **kwargs):
-    # Extract unique labels from the second column of data1 and data2
-    labels1 = np.unique(data1[:, 1]).astype(int)
-    labels2 = np.unique(data2[:, 1]).astype(int)
-
-    # Create lists to store the distances for each label in data1 and data2
-    distances_by_label1 = [data1[data1[:, 1] == label, 0] for label in labels1]
-    distances_by_label2 = [data2[data2[:, 1] == label, 0] for label in labels2]
-
-    if debug:
-        analyze_lists_by_label(distances_by_label1)
-        analyze_lists_by_label(distances_by_label2)
-
-    # Boxplot Creation with Styling
-    fig, ax = plt.subplots(figsize=(12, 6))
-
-    # Plot boxplots for data1
-    bp1 = ax.boxplot(distances_by_label1, positions=np.arange(len(labels1))-0.2, widths=0.4,
-                     patch_artist=True, showmeans=True, meanline=True, medianprops={'linewidth': 2},
-                     showfliers=False)
-
-    # Plot boxplots for data2
-    bp2 = ax.boxplot(distances_by_label2, positions=np.arange(len(labels2))+0.2, widths=0.4,
-                     patch_artist=True, showmeans=True, meanline=True, medianprops={'linewidth': 2},
-                     showfliers=False)
-
-    # Set colors for data1 and data2
-    color1 = 'skyblue'
-    color2 = 'lightcoral'
-
-    for patch in bp1['boxes']:
-        patch.set_facecolor(color1)
-
-    for patch in bp2['boxes']:
-        patch.set_facecolor(color2)
-
-    # Tweak Line Styles
-    for element in ['whiskers', 'caps', 'medians']:
-        plt.setp(bp1[element], color='gray', linewidth=1.5)
-        plt.setp(bp2[element], color='gray', linewidth=1.5)
-
-    # Customize Outlier ('flier') Style
-    plt.setp(bp1['fliers'], marker='o', markerfacecolor='none', markeredgecolor='gray', markersize=6)
-    plt.setp(bp2['fliers'], marker='o', markerfacecolor='none', markeredgecolor='gray', markersize=6)
-
-    # Customize Mean Marker (diamond)
-    plt.setp(bp1['means'], marker='D', markerfacecolor='white', markeredgecolor='black', markersize=8)
-    plt.setp(bp2['means'], marker='D', markerfacecolor='white', markeredgecolor='black', markersize=8)
-
-    # Labels, Title, and Layout (Modified)
-    ax.set_yscale('log')  # Set y-axis to logarithmic scale
-
-    # Set y-axis limits and tick positions
-    ylim_min = min(ax.get_ylim()[0], ax.get_ylim()[0])
-    ylim_max = max(ax.get_ylim()[1], ax.get_ylim()[1])
-    yticks = [1e-2, 1e-1, 1e0]
-    yticklabels = ['$10^{-2}$', '$10^{-1}$', '$10^{0}$']
-
-    ax.set_ylim(ylim_min, ylim_max)
-    ax.set_yticks(yticks)
-    ax.set_yticklabels(yticklabels)
-
-    ax.set_title(kwargs.get('title', 'Distribution of Distances to Centroids'), fontsize=14)
-    ax.set_xlabel(kwargs.get('xlabel', 'Digit'), fontsize=12)
-    ax.set_ylabel(kwargs.get('ylabel', 'Distance (Logarithmic Scale)'), fontsize=12)
-    ax.set_xticks(range(len(labels1)))
-    ax.set_xticklabels(labels1)
-
-    ax.tick_params(axis='both', labelsize=10)
-
-    # Create legend
-    legend_labels = ['Data 1', 'Data 2']
-    legend_handles = [plt.Rectangle((0, 0), 1, 1, facecolor=color1), plt.Rectangle((0, 0), 1, 1, facecolor=color2)]
-    ax.legend(legend_handles, legend_labels, loc='upper right', fontsize=12)
-
-    plt.tight_layout()
-
-    # Saving and Displaying
-    if save:
-        filename = kwargs.get('filename', 'centroid_distances_comparison.png')
-        plt.savefig(filename, dpi=300)
-
-    plt.show()
-
-def boxplots_side_by_side_x2(data1, data2, data3, data4, save=False, debug=False, **kwargs):
-    # Extract unique labels from the second column of data1, data2, data3, and data4
-    labels1 = np.unique(data1[:, 1]).astype(int)
-    labels2 = np.unique(data2[:, 1]).astype(int)
-    labels3 = np.unique(data3[:, 1]).astype(int)
-    labels4 = np.unique(data4[:, 1]).astype(int)
-
-    # Create lists to store the distances for each label in data1, data2, data3, and data4
-    distances_by_label1 = [data1[data1[:, 1] == label, 0] for label in labels1]
-    distances_by_label2 = [data2[data2[:, 1] == label, 0] for label in labels2]
-    distances_by_label3 = [data3[data3[:, 1] == label, 0] for label in labels3]
-    distances_by_label4 = [data4[data4[:, 1] == label, 0] for label in labels4]
-
-    if debug:
-        analyze_lists_by_label(distances_by_label1)
-        analyze_lists_by_label(distances_by_label2)
-        analyze_lists_by_label(distances_by_label3)
-        analyze_lists_by_label(distances_by_label4)
-
-    # Boxplot Creation with Styling
-    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(20, 5))
-
-    # Plot boxplots for data1 and data2 on the first subplot
-    bp1 = ax1.boxplot(distances_by_label1, positions=np.arange(len(labels1))-0.2, widths=0.4,
-                      patch_artist=True, showmeans=True, meanline=True, medianprops={'linewidth': 2})
-    bp2 = ax1.boxplot(distances_by_label2, positions=np.arange(len(labels2))+0.2, widths=0.4,
-                      patch_artist=True, showmeans=True, meanline=True, medianprops={'linewidth': 2})
-
-    # Plot boxplots for data3 and data4 on the second subplot
-    bp3 = ax2.boxplot(distances_by_label3, positions=np.arange(len(labels3))-0.2, widths=0.4,
-                      patch_artist=True, showmeans=True, meanline=True, medianprops={'linewidth': 2})
-    bp4 = ax2.boxplot(distances_by_label4, positions=np.arange(len(labels4))+0.2, widths=0.4,
-                      patch_artist=True, showmeans=True, meanline=True, medianprops={'linewidth': 2})
-
-
-    # Set colors for data1, data2, data3, and data4
-    color1 = 'skyblue'
-    color2 = 'lightcoral'
-    color3 = 'lightgreen'
-    color4 = 'lightcoral'
-
-    for patch in bp1['boxes']:
-        patch.set_facecolor(color1)
-    for patch in bp2['boxes']:
-        patch.set_facecolor(color2)
-    for patch in bp3['boxes']:
-        patch.set_facecolor(color3)
-    for patch in bp4['boxes']:
-        patch.set_facecolor(color4)
-
-    # Tweak Line Styles
-    for element in ['whiskers', 'caps', 'medians']:
-        plt.setp(bp1[element], color='gray', linewidth=1.5)
-        plt.setp(bp2[element], color='gray', linewidth=1.5)
-        plt.setp(bp3[element], color='gray', linewidth=1.5)
-        plt.setp(bp4[element], color='gray', linewidth=1.5)
-
-    # Customize Outlier ('flier') Style
-    plt.setp(bp1['fliers'], marker='o', markerfacecolor='none', markeredgecolor='gray', markersize=6)
-    plt.setp(bp2['fliers'], marker='o', markerfacecolor='none', markeredgecolor='gray', markersize=6)
-    plt.setp(bp3['fliers'], marker='o', markerfacecolor='none', markeredgecolor='gray', markersize=6)
-    plt.setp(bp4['fliers'], marker='o', markerfacecolor='none', markeredgecolor='gray', markersize=6)
-
-    # Customize Mean Marker (diamond)
-    plt.setp(bp1['means'], marker='D', markerfacecolor='white', markeredgecolor='black', markersize=8)
-    plt.setp(bp2['means'], marker='D', markerfacecolor='white', markeredgecolor='black', markersize=8)
-    plt.setp(bp3['means'], marker='D', markerfacecolor='white', markeredgecolor='black', markersize=8)
-    plt.setp(bp4['means'], marker='D', markerfacecolor='white', markeredgecolor='black', markersize=8)
-
-    # Labels, Title, and Layout (Modified)
-    ax1.set_yscale('log')  # Set y-axis to logarithmic scale
-    ax2.set_yscale('log')
-
-    # Set y-axis limits and tick positions for the first subplot
-    ylim_min1 = min(ax1.get_ylim()[0], ax1.get_ylim()[0])
-    ylim_max1 = max(ax1.get_ylim()[1], ax1.get_ylim()[1])
-    yticks1 = [1e-2, 1e-1, 1e0]
-    yticklabels1 = ['$10^{-2}$', '$10^{-1}$', '$10^{0}$']
-    ax1.set_ylim(ylim_min1, ylim_max1)
-    ax1.set_yticks(yticks1)
-    ax1.set_yticklabels(yticklabels1)
-
-    # Set y-axis limits and tick positions for the second subplot
-    ylim_min2 = min(ax2.get_ylim()[0], ax2.get_ylim()[0])
-    ylim_max2 = max(ax2.get_ylim()[1], ax2.get_ylim()[1])
-    yticks2 = [1e-2, 1e-1, 1e0]
-    yticklabels2 = ['$10^{-2}$', '$10^{-1}$', '$10^{0}$']
-    ax2.set_ylim(ylim_min2, ylim_max2)
-    ax2.set_yticks(yticks2)
-    ax2.set_yticklabels(yticklabels2)
-
-    ax1.set_title(kwargs.get('title1', ' Training Data Distribution of Distances to Centroids'), fontsize=14)
-    ax2.set_title(kwargs.get('title2', 'Testing Data Distribution of Distances to Centroids'), fontsize=14)
-    ax1.set_xlabel(kwargs.get('xlabel', 'Digit Class Prediction'), fontsize=12)
-    ax2.set_xlabel(kwargs.get('xlabel', 'Digit Class Prediction'), fontsize=12)
-    ax1.set_ylabel(kwargs.get('ylabel', 'Distance (Logarithmic Scale)'), fontsize=12)
-    ax2.set_ylabel(kwargs.get('ylabel', 'Distance (Logarithmic Scale)'), fontsize=12)
-    ax1.set_xticks(range(len(labels1)))
-    ax1.set_xticklabels(labels1)
-    ax2.set_xticks(range(len(labels3)))
-    ax2.set_xticklabels(labels3)
-
-    ax1.tick_params(axis='both', labelsize=10)
-    ax2.tick_params(axis='both', labelsize=10)
-
-    # Create legends for the first subplot
-    legend_labels1 = ['Correctly classified', 'Incorrectly classified']
-    legend_handles1 = [plt.Rectangle((0, 0), 1, 1, facecolor=color1), plt.Rectangle((0, 0), 1, 1, facecolor=color2)]
-    ax1.legend(legend_handles1, legend_labels1, loc='lower right', fontsize=12)
-
-    # Create legends for the second subplot
-    legend_labels2 = ['Correctly classified', 'Incorrectly classified']
-    legend_handles2 = [plt.Rectangle((0, 0), 1, 1, facecolor=color3), plt.Rectangle((0, 0), 1, 1, facecolor=color4)]
-    ax2.legend(legend_handles2, legend_labels2, loc='lower right', fontsize=12)
-
-    plt.subplots_adjust(wspace=0.2)  # Adjust spacing between subplots
-
-    # Saving and Displaying
-    if save:
-        filename = kwargs.get('filename', 'centroid_distances_comparison_4datasets.png')
-        plt.savefig(filename, dpi=300)
-
-    plt.show()    
-
-def plot_centroid_mean_distance_boxplots_2(data1, data2, save=False, debug=False, **kwargs):
-    # Extract unique labels from the second column of data1 and data2
-    labels1 = np.unique(data1[:, 1]).astype(int)
-    labels2 = np.unique(data2[:, 1]).astype(int)
-
-    # Create lists to store the distances for each label in data1 and data2
-    distances_by_label1 = [data1[data1[:, 1] == label, 0] for label in labels1]
-    distances_by_label2 = [data2[data2[:, 1] == label, 0] for label in labels2]
-
-    if debug:
-        analyze_lists_by_label(distances_by_label1)
-        analyze_lists_by_label(distances_by_label2)
-
-    # Boxplot Creation with Styling
-    fig, ax = plt.subplots(figsize=(12, 6))
-
-    # Plot boxplots for data1
-    bp1 = ax.boxplot(distances_by_label1, positions=np.arange(len(labels1))-0.2, widths=0.4,
-                     patch_artist=True, showmeans=True, meanline=True, medianprops={'linewidth': 2},
-                     showfliers=False)
-
-    # Plot boxplots for data2
-    bp2 = ax.boxplot(distances_by_label2, positions=np.arange(len(labels2))+0.2, widths=0.4,
-                     patch_artist=True, showmeans=True, meanline=True, medianprops={'linewidth': 2},
-                     showfliers=False)
-
-    # Customize Colors for data1
-    colors1 = ['lightblue', 'lightgreen', 'pink', 'peachpuff', 'lavender',
-               'salmon', 'skyblue', 'khaki', 'mediumpurple', 'hotpink']
-
-    for patch, color in zip(bp1['boxes'], colors1):
-        patch.set_facecolor(color)
-
-    # Customize Colors for data2
-    colors2 = ['darkblue', 'darkgreen', 'red', 'orange', 'purple',
-               'brown', 'teal', 'olive', 'indigo', 'crimson']
-
-    for patch, color in zip(bp2['boxes'], colors2):
-        patch.set_facecolor(color)
-
-    # Tweak Line Styles
-    for element in ['whiskers', 'caps', 'medians']:
-        plt.setp(bp1[element], color='gray', linewidth=1.5)
-        plt.setp(bp2[element], color='gray', linewidth=1.5)
-
-    # Customize Outlier ('flier') Style
-    plt.setp(bp1['fliers'], marker='o', markerfacecolor='none', markeredgecolor='gray', markersize=6)
-    plt.setp(bp2['fliers'], marker='o', markerfacecolor='none', markeredgecolor='gray', markersize=6)
-
-    # Customize Mean Marker (diamond)
-    plt.setp(bp1['means'], marker='D', markerfacecolor='white', markeredgecolor='black', markersize=8)
-    plt.setp(bp2['means'], marker='D', markerfacecolor='white', markeredgecolor='black', markersize=8)
-
-    # Labels, Title, and Layout (Modified)
-    ax.set_yscale('log')  # Set y-axis to logarithmic scale
-
-    # Set y-axis limits and tick positions
-    ylim_min = min(ax.get_ylim()[0], ax.get_ylim()[0])
-    ylim_max = max(ax.get_ylim()[1], ax.get_ylim()[1])
-    yticks = [1e-2, 1e-1, 1e0]
-    yticklabels = ['$10^{-2}$', '$10^{-1}$', '$10^{0}$']
-
-    ax.set_ylim(ylim_min, ylim_max)
-    ax.set_yticks(yticks)
-    ax.set_yticklabels(yticklabels)
-
-    ax.set_title(kwargs.get('title', 'Distribution of Distances to Centroids'), fontsize=14)
-    ax.set_xlabel(kwargs.get('xlabel', 'Digit'), fontsize=12)
-    ax.set_ylabel(kwargs.get('ylabel', 'Distance (Logarithmic Scale)'), fontsize=12)
-    ax.set_xticks(range(len(labels1)))
-    ax.set_xticklabels(labels1)
-
-    ax.tick_params(axis='both', labelsize=10)
-
-    # Create legend
-    legend_labels = ['Data 1', 'Data 2']
-    legend_handles = [plt.Rectangle((0, 0), 1, 1, facecolor=colors1[0]), plt.Rectangle((0, 0), 1, 1, facecolor=colors2[0])]
-    ax.legend(legend_handles, legend_labels, loc='upper right', fontsize=12)
-
-    plt.tight_layout()
-
-    # Saving and Displaying
-    if save:
-        filename = kwargs.get('filename', 'centroid_distances_comparison.png')
-        plt.savefig(filename, dpi=300)
-
-    plt.show()    
-
-def plot_side_by_side_top_bottom(data1, data2, save=False, debug=False):
-    """
-    Plots side-by-side boxplots of distances to centroid for MNIST digits based on two datasets.
-
-    Parameters:
-    - data1: First dataset as a Numpy array, where the first column is distances and the second is labels.
-    - data2: Second dataset as a Numpy array, similar to data1.
-    - save: If True, saves the plot as a PNG file.
-    - debug: If True, performs additional analysis on the lists (functionality not included here).
-    """
-    # Extract unique labels from the second column
-    labels = np.unique(np.concatenate((data1[:, 1], data2[:, 1]))).astype(int)
-
-    # Create lists to store distances for each label for both datasets
-    distances_by_label_data1 = [data1[data1[:, 1] == label, 0] for label in labels]
-    distances_by_label_data2 = [data2[data2[:, 1] == label, 0] for label in labels]
-
-    if debug:
-        # Placeholder for debugging function, which is not implemented in this snippet
-        pass
-
-    # Boxplot Creation with Styling
-    fig, axs = plt.subplots(2, 1, figsize=(10, 12), sharex=True)
-
-    # Plot for data1
-    bp1 = axs[0].boxplot(distances_by_label_data1, labels=labels, patch_artist=True,
-                         showmeans=True, meanline=True, medianprops={'linewidth': 2},
-                         showfliers=False)
-
-    # Plot for data2
-    bp2 = axs[1].boxplot(distances_by_label_data2, labels=labels, patch_artist=True,
-                         showmeans=True, meanline=True, medianprops={'linewidth': 2},
-                         showfliers=False)
-
-    # Define Colors for the plots
-    colors = ['lightblue', 'lightgreen', 'pink', 'peachpuff', 'lavender',
-              'salmon', 'skyblue', 'khaki', 'mediumpurple', 'hotpink']
-
-    # Customize Colors for data1
-    for patch, color in zip(bp1['boxes'], colors):
-        patch.set_facecolor(color)
-
-    # Customize Colors for data2
-    for patch, color in zip(bp2['boxes'], colors):
-        patch.set_facecolor(color)
-
-    # Tweak Line Styles for both datasets
-    for bp in [bp1, bp2]:
-        for element in ['whiskers', 'caps', 'medians']:
-            plt.setp(bp[element], color='gray', linewidth=1.5)
-        plt.setp(bp['fliers'], marker='o', markerfacecolor='none', markeredgecolor='gray', markersize=6)
-        plt.setp(bp['means'], marker='D', markerfacecolor='white', markeredgecolor='black', markersize=8)
-
-    # Labels, Title, and Layout (Modified)
-    for ax in axs:
-        ax.set_yscale('log')  # Set y-axis to logarithmic scale
-        ax.set_ylabel('Distance (Logarithmic Scale)', fontsize=12)
-        ax.tick_params(axis='both', labelsize=10)
-    axs[1].set_xlabel('Digit', fontsize=12)
-
-    # Title only for the first subplot
-    axs[0].set_title('Distribution of Distances to Centroids for MNIST Digits - Dataset 1', fontsize=14)
-    axs[1].set_title('Distribution of Distances to Centroids for MNIST Digits - Dataset 2', fontsize=14)
-
-    plt.tight_layout()
-
-    # Saving and Displaying
-    if save:
-        plt.savefig('centroid_distances_styled.png', dpi=300)
-    plt.show()
-
-# Example usage:
-# Assuming 'data1' and 'data2' are your numpy arrays
-# plot_centroid_mean_distance_boxplots_2(data1, data2, save=False, debug=False)
-
-
-# Example usage:
-# Assuming 'data' is your array with distances and labels
-# plot_centroid_mean_distance_boxplots_2(data, save=True)
-
-
-
-# Example usage:
-# Assuming 'data' is your array with distances and labels
-# plot_centroid_mean_distance_boxplots_2(data, save=True)
-
-def analyze_lists_by_label(data):
-    """
-    Calculates descriptive statistics for lists within a list of lists, organized by label.
-
-    Args:
-        data (list of lists): List of lists where the index represents the label.
-
-    Prints:
-        A Pandas DataFrame containing descriptive statistics for each label.
-    """
-    stats_dict = {}  # Dictionary to store statistics by label
-
-    # Calculate statistics for each list
-    for label, values in enumerate(data):
-        stats_dict[label] = {
-            'Mean': np.mean(values),
-            'Median': np.median(values),
-            'Min': np.min(values),
-            'Max': np.max(values),
-            'Standard Deviation': np.std(values),
-            'Count': len(values)
-        }
-
-    # Create a Pandas DataFrame and display results
-    df = pd.DataFrame.from_dict(stats_dict, orient='index')
-    print(df)
-
-def calculate_distances_to_centroids(train_correct_predictions, centroids):
-    """
-    Calculate the distances between the softmax outputs and their corresponding centroids.
-
-    Args:
-        train_correct_predictions (numpy.ndarray): Array of shape (59074, 12) containing softmax outputs
-            and correct predictions for MNIST training images. Indexes 0 to 9 are the predictions,
-            and index 10 is the correct prediction.
-        centroids (numpy.ndarray): Array of shape (10, 10) containing cluster centroids. Row indexes
-            correspond to the digit represented by the centroid.
-
-    Returns:
-        numpy.ndarray: Array of shape (59074, 2) where the first column contains the calculated distances,
-            and the second column contains the correct predictions.
-    """
-    results = np.zeros((train_correct_predictions.shape[0], 2))
-
-    for i, row in enumerate(train_correct_predictions):
-        # Get the correct prediction (label) for this row
-        correct_prediction = int(row[10])
-
-        # Calculate the distance between the softmax outputs (row[:10]) and the corresponding centroid
-        distance = np.linalg.norm(row[:10] - centroids[correct_prediction])
-
-        # Store the distance and correct prediction in the results array
-        results[i, 0] = distance
-        results[i, 1] = correct_prediction
-
-    return results      
-
-# Softmax output averages for each digit
-import numpy as np
-import matplotlib.pyplot as plt
-
-def plot_digit_averages(train_correct_predictions):
-    # Get the unique labels (digits) from column 11
-    labels = np.unique(train_correct_predictions[:, 11]).astype(int)
-    
-    # Create a figure and subplots for each digit
-    fig, axs = plt.subplots(1, len(labels), figsize=(20, 5), sharey=True)
-    
-    # Iterate over each digit
-    for i, label in enumerate(labels):
-        # Get the predictions for the current digit
-        digit_predictions = train_correct_predictions[train_correct_predictions[:, 11] == label, :10]
-        
-        # Calculate the average value for each index
-        averages = np.mean(digit_predictions, axis=0)
-        
-        # Plot the bar graph for the current digit
-        axs[i].bar(np.arange(10), averages)
-        
-        # Set the y-axis to logarithmic scale
-        axs[i].set_yscale('log')
-        
-        # Set the title and labels for the current subplot
-        axs[i].set_title(f'Digit {label}')
-        axs[i].set_xlabel('Digit Index')
-        axs[i].set_ylabel('Average Value (Logarithmic) CORRECT')
-        
-        # Set the x-tick positions and labels
-        axs[i].set_xticks(np.arange(10))
-        axs[i].set_xticklabels(np.arange(10))
-    
-    # Adjust the spacing between subplots
-    plt.tight_layout()
-    
-    # Display the plot
-    plt.show()
-
-# TODO: more descriptive function name, docstring and save file option
-# training data color1='skyblue', color2='lightcoral'
-# testing data color1='lightgreen', color2='lightcoral'
-def plot_digit_averages(train_correct_predictions, train_incorrect_predictions, color1='skyblue', color2='lightcoral', data="Training Data"):
-    # Get the unique labels (digits) from column 11
-    labels = np.unique(train_correct_predictions[:, 10]).astype(int)
-
-    # Create a figure and subplots for each digit (2 rows: correct and incorrect predictions)
-    fig, axs = plt.subplots(2, len(labels), figsize=(20, 10))
-    fig.suptitle(f'{data} - Softmax Average Distributions for Correct and Incorrect Digit Predictions', fontsize=16)
-
-    # Plot correct predictions
-    for i, label in enumerate(labels):
-        # Get the predictions for the current digit
-        digit_predictions = train_correct_predictions[train_correct_predictions[:, 10] == label, :10]
-        # Calculate the average value for each index
-        averages = np.mean(digit_predictions, axis=0)
-        # Plot the bar graph for the current digit
-        axs[0, i].bar(np.arange(10), averages, color=color1)
-        # Set the y-axis to logarithmic scale
-        axs[0, i].set_yscale('log')
-        # Set the y-axis limits to start from 10^-4
-        axs[0, i].set_ylim(bottom=1e-4)
-        # Set the title for the current subplot
-        axs[0, i].set_title(f'Digit {label} (Correct)', fontsize=12)
-        # Set the x-tick positions and labels
-        axs[0, i].set_xticks(np.arange(10))
-        axs[0, i].set_xticklabels(np.arange(10), fontsize=10)
-
-    # Plot incorrect predictions
-    for i, label in enumerate(labels):
-        # Get the predictions for the current digit
-        digit_predictions = train_incorrect_predictions[train_incorrect_predictions[:, 11] == label, :10]
-        # Calculate the average value for each index
-        averages = np.mean(digit_predictions, axis=0)
-        # Plot the bar graph for the current digit
-        axs[1, i].bar(np.arange(10), averages, color=color2)
-        # Set the y-axis to logarithmic scale
-        axs[1, i].set_yscale('log')
-        # Set the y-axis limits to start from 10^-4
-        axs[1, i].set_ylim(bottom=1e-4)
-        # Set the title for the current subplot
-        axs[1, i].set_title(f'Digit {label} (Incorrect)', fontsize=12)
-        # Set the x-tick positions and labels
-        axs[1, i].set_xticks(np.arange(10))
-        axs[1, i].set_xticklabels(np.arange(10), fontsize=10)
-
-    # Set x-axis label at the bottom of the figure
-    fig.text(0.5, 0.04, 'Digit Index', ha='center', fontsize=14)
-    # Set y-axis label on the left side of the figure
-    fig.text(0.04, 0.5, 'Average Softmax Value (Logarithmic)', va='center', rotation='vertical', fontsize=14)
+            axs[i].set_ylabel('')
+
+    # Extract the overall accuracy and decrement values
+    overall_accuracy = results_overall[:, COL_OVERALL_ACCURACY]
+    overall_decrement = results_overall[:, COL_OVERALL_DECREMENT]
+
+    # Plot the overall accuracy
+    axs[-1].plot(overall_decrement, overall_accuracy, marker='o', color='lightgreen')
+    axs[-1].set_title('Overall')
+    axs[-1].set_ylim(0.8, 1)
+    axs[-1].grid(True)
+
+    # Add vertical lines for each decrement in the overall accuracy plot
+    for dec in overall_decrement:
+        axs[-1].axvline(x=dec, color='gray', linestyle='--', linewidth=0.5)
+
+    # Set the x-axis label for the entire figure
+    fig.text(0.5, 0.02, 'Threshold Decrement', ha='center')
+
+    # Set the title for the entire figure
+    fig.suptitle('Class Prediction Accuracy vs Distance to Threshold Decrement')
 
     # Adjust the spacing between subplots
-    plt.tight_layout(rect=[0.05, 0.05, 0.95, 0.95])
-    fig.subplots_adjust(top=0.9)  # Adjust the top spacing for the main title
+    plt.tight_layout(rect=[0.03, 0.03, 1, 0.95])
+
+    # Save the plot as an image file
+    if save:
+        plt.savefig('plot_accuracy_decrements.png')
 
     # Display the plot
-    plt.show() 
+    plt.show()
+
+import matplotlib.pyplot as plt
+
+def single_plot_accuracy_decrements(results, results_overall, save=True):
+    """
+    Plots the accuracy vs threshold decrement for each digit class and the overall accuracy on a single plot.
+
+    Parameters:
+        results (numpy.ndarray): The results array obtained from the calculate_accuracy_decrements function.
+                                 Expected columns:
+                                 - Column 0: Total number of values below the threshold
+                                 - Column 1: Current threshold
+                                 - Column 2: Decrement
+                                 - Column 3: Digit class
+                                 - Column 4: Digit class prediction accuracy
+                                 - Column 5: Total values (correct + incorrect) for the digit class
+
+        results_overall (numpy.ndarray): The results array obtained from the calculate_accuracy_decrements_overall function.
+                                         Expected columns:
+                                         - Column 0: Total number of values below the threshold (overall)
+                                         - Column 1: Decrement
+                                         - Column 2: Overall accuracy
+                                         - Column 3: Total correct predictions (overall)
+                                         - Column 4: Total values (overall)
+
+        save (bool): Whether to save the plot as an image file. Default is True.
+
+    Returns:
+        None
+    """
+    # Define column indices
+    COL_DECREMENT = 2
+    COL_DIGIT_CLASS = 3
+    COL_ACCURACY = 4
+
+    COL_OVERALL_DECREMENT = 1
+    COL_OVERALL_ACCURACY = 2
+
+    # Get the unique digit classes
+    digit_classes = np.unique(results[:, COL_DIGIT_CLASS])
+
+    # Create a figure and a single axis
+    fig, ax = plt.subplots(figsize=(8, 6))
+
+    # Define color map for different colors
+    cmap = plt.cm.get_cmap('viridis', len(digit_classes) + 1)
+
+    # Plot accuracy vs decrement for each digit class
+    for i, digit_class in enumerate(digit_classes):
+        digit_rows = results[results[:, COL_DIGIT_CLASS] == digit_class]
+        accuracy = digit_rows[:, COL_ACCURACY]
+        decrement = digit_rows[:, COL_DECREMENT]
+        ax.plot(decrement, accuracy, marker='o', color=cmap(i), label=f'Digit {int(digit_class)}')
+
+    # Plot overall accuracy vs decrement
+    overall_accuracy = results_overall[:, COL_OVERALL_ACCURACY]
+    overall_decrement = results_overall[:, COL_OVERALL_DECREMENT]
+    ax.plot(overall_decrement, overall_accuracy, marker='o', color=cmap(len(digit_classes)), label='Overall')
+
+    # Set the x-axis and y-axis labels
+    ax.set_xlabel('Threshold Decrement')
+    ax.set_ylabel('Accuracy')
+
+    # Set the y-axis limits and ticks
+    ax.set_ylim(0.84, 1)
+    ax.set_yticks(np.arange(0.84, 1.01, 0.02))
+
+    # Add horizontal lines for each y-tick
+    ax.grid(True, which='both', axis='y', linewidth=0.5, linestyle='--', alpha=0.7)
+
+    # Add vertical lines for each decrement value
+    for dec in overall_decrement:
+        ax.axvline(x=dec, color='gray', linestyle='--', linewidth=0.5, alpha=0.7)
+
+    # Add labels for each decrement value below the x-axis
+    ax.set_xticks(overall_decrement)
+    ax.set_xticklabels([f'{dec:.1f}' for dec in overall_decrement])
+
+    # Set the title for the plot
+    ax.set_title('Class Prediction Accuracy vs Distance to Threshold Decrement')
+
+    # Add a legend on the bottom left
+    ax.legend(loc='lower left', ncol=2)
+
+    # Adjust the spacing
+    plt.tight_layout()
+
+    # Save the plot as an image file
+    if save:
+        plt.savefig('single_plot_accuracy_decrements.png')
+
+    # Display the plot
+    plt.show()

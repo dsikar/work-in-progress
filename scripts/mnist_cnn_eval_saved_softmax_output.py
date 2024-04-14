@@ -122,7 +122,7 @@ testloader = torch.utils.data.DataLoader(testset, batch_size=64, shuffle=False)
 test_np = save_predictions(net, testloader, True)
 train_np = save_predictions(net, trainloader, True)
 # find the indices of the misclassified images
-unequal_indices, unequal_rows = find_unequal_rows(test_np, 10, 11)
+# unequal_indices, unequal_rows = find_unequal_rows(test_np, 10, 11)
 # display the misclassified images
 conf_matrix1, conf_matrix2 = display_misclassifications_side_by_side(train_np, test_np, 10, 11, 20, 7)
 # get the number of misclassifications
@@ -145,7 +145,7 @@ train_incorrect_predictions = train_np[train_mismatch_condition]
 incorrect_train_distances = mean_distance_to_centroids(train_incorrect_predictions, centroids)
 
 # alternatively
-correct_train_distances_v2 = calculate_distances_to_centroids(train_np, equal=True, debug=False)
+#correct_train_distances_v2 = calculate_distances_to_centroids(train_np, equal=True, debug=False)
 
 #################################
 # Same data for testing dataset #
@@ -169,8 +169,8 @@ plot_mean_distances_x2(correct_train_distances, correct_test_distances, predicti
 # Same data for training and testing dataset, but incorrect classifications #
 #############################################################################
 
-incorrect_train_distances = calculate_distances_to_centroids(train_incorrect_predictions, centroids)
-incorrect_test_distances = calculate_distances_to_centroids(test_incorrect_predictions, test_incorrect_predictions)
+incorrect_train_distances = mean_distance_to_centroids(train_incorrect_predictions, centroids)
+incorrect_test_distances = mean_distance_to_centroids(test_incorrect_predictions, test_centroids)
 plot_mean_distances_x2(incorrect_train_distances, incorrect_test_distances, predictions_type="Incorrect")
 
 
@@ -186,12 +186,11 @@ plot_mean_distances_x2(incorrect_train_distances, incorrect_test_distances, pred
 plot_mean_distances_double_bars(correct_train_distances, incorrect_train_distances, correct_test_distances, incorrect_test_distances, save=True)
 
 # Plot accuracy vs distance to centroids, with linear fit
-plot_accuracy_vs_distance_linear_fit(correct_train_distances, train_class_accuracies, correct_test_distances, test_class_accuracies, save=True)
+plot_accuracy_vs_distance_linear_fit(correct_train_distances, train_class_accuracies, correct_test_distances, test_class_accuracies)
 
-# # boxplots of distances to centroids for training dataset
+# boxplots of distances to centroids for training dataset
 d2c_train_correct = calculate_distances_to_centroids(train_correct_predictions, centroids)
 d2c_train_incorrect = calculate_distances_to_centroids(train_incorrect_predictions, centroids)
-# plot_centroid_mean_distance_boxplots(d2c_train_correct, save=False)
 
 # # boxplots of distances to centroids for testing dataset
 d2c_test_correct = calculate_distances_to_centroids(test_correct_predictions, test_centroids)
@@ -200,8 +199,37 @@ d2c_test_incorrect = calculate_distances_to_centroids(test_incorrect_predictions
 # boxplots alt function - THE GOOD ONE
 boxplots_side_by_side_x2(d2c_train_correct, d2c_train_incorrect, d2c_test_correct, d2c_test_incorrect, False, True)
 
+# same boxplots, using only the training dataset correct class prediction centroids
+# # boxplots of distances to centroids for testing dataset
+d2c_test_correct_train_centroids = calculate_distances_to_centroids(test_correct_predictions, centroids)
+d2c_test_incorrect_train_centroids = calculate_distances_to_centroids(test_incorrect_predictions, centroids)
+
+# boxplots alt function - with testing data using training centroids
+boxplots_side_by_side_x2(d2c_train_correct, d2c_train_incorrect, d2c_test_correct_train_centroids, d2c_test_incorrect_train_centroids, False, True, title1="Training Data Boxplots of Softmax Distances to Training Centroids", title2="Testing Data Boxplots of Softmax Distances to Training Centroids")
+
 # bar charts of distances to centroids for training dataset
-plot_digit_averages(train_correct_predictions, train_incorrect_predictions, color1='skyblue', color2='lightcoral')
+plot_digit_averages(train_correct_predictions, train_incorrect_predictions, color1='skyblue', color2='lightcoral', data="MNIST Training Data")
 
 # bar charts of distances to centroids for testing dataset
-plot_digit_averages(test_correct_predictions, test_incorrect_predictions, color1='lightgreen', color2='lightcoral')
+plot_digit_averages(test_correct_predictions, test_incorrect_predictions, color1='lightgreen', color2='lightcoral', data="MNIST Testing Data")
+
+# data on overlap between distances to centroids for correct and incorrect predictions
+centroid_distance_overlap_plain_text(d2c_train_correct, d2c_train_incorrect, d2c_test_correct, d2c_test_incorrect)
+
+centroid_distance_overlap_latex(d2c_train_correct, d2c_train_incorrect, d2c_test_correct, d2c_test_incorrect)
+# statistical significance tests
+lowest_values = find_lowest_values(d2c_train_incorrect)
+accuracy_results = calculate_accuracy_decrements(d2c_test_correct, d2c_test_incorrect, lowest_values)
+overall_results = calculate_accuracy_decrements_overall(d2c_test_correct, d2c_test_incorrect, lowest_values)
+plot_accuracy_decrements(accuracy_results, overall_results)
+
+single_plot_accuracy_decrements(accuracy_results, overall_results, save=True)
+
+# STOPPED HERE
+# Next steps:
+# 1. Determine the accuracy of the model on the Training dataset given only examples from a threshold distance from the centroids
+# 2. Determine the accuracy of the model on the Test dataset given only examples from a threshold distance from the centroids
+# 3. Train 10 models on the training dataset, using softmax outputs as inputs, and the labels as targets, where given a digit, 
+# the model predicts if the prediction is correct or not
+# 4. Repeat step 3 for the test dataset
+# 5. Based on the two metrics, distance to centroid and predictions, finish paper.
