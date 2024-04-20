@@ -1424,3 +1424,60 @@ def find_lowest_values(d2c_train_incorrect):
 
         # Update the lowest value for the current digit class
         lowest_values[int(digit_class)] = min_row
+
+import matplotlib.pyplot as plt
+import numpy as np
+
+def plot_mean_distances_x2(training_correct, training_incorrect, testing_correct, testing_incorrect, save=False):
+    """
+    Plots bar charts of mean distances to centroids for training and testing datasets side by side, with each class represented by two bars.
+
+    Parameters:
+    - training_correct: A numpy array containing the mean distances for correct predictions in the training dataset.
+    - training_incorrect: A numpy array containing the mean distances for incorrect predictions in the training dataset.
+    - testing_correct: A numpy array containing the mean distances for correct predictions in the testing dataset.
+    - testing_incorrect: A numpy array containing the mean distances for incorrect predictions in the testing dataset.
+    - save: Boolean, if True, saves the plot. Defaults to False.
+    """
+    # Set up the figure and axes
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(20, 6))
+    
+    # Define the clusters and bar width
+    clusters = np.arange(len(training_correct))  # Assuming all arrays have the same size
+    bar_width = 0.35  # Width of the bars
+
+    # Plot training mean distances
+    ax1.bar(clusters - bar_width/2, training_correct, width=bar_width, color='skyblue', label='Correct')
+    ax1.bar(clusters + bar_width/2, training_incorrect, width=bar_width, color='orange', label='Incorrect')
+    ax1.set_xlabel('Cluster (Digit)')
+    ax1.set_ylabel('Mean Distance to Centroid')
+    ax1.set_title('Training Data - Mean Distance to Centroid for Each Cluster')
+    ax1.set_xticks(clusters)
+    ax1.set_xticklabels([str(i) for i in clusters])
+    ax1.legend()
+
+    # Plot testing mean distances
+    ax2.bar(clusters - bar_width/2, testing_correct, width=bar_width, color='lightgreen', label='Correct')
+    ax2.bar(clusters + bar_width/2, testing_incorrect, width=bar_width, color='red', label='Incorrect')
+    ax2.set_xlabel('Cluster (Digit)')
+    ax2.set_ylabel('Mean Distance to Centroid')
+    ax2.set_title('Testing Data - Mean Distance to Centroid for Each Cluster')
+    ax2.set_xticks(clusters)
+    ax2.set_xticklabels([str(i) for i in clusters])
+    ax2.legend()
+
+    plt.tight_layout()
+
+    # Save the plot if required
+    if save:
+        plt.savefig('Combined_mean_distances.png')
+
+    # Show the plot
+    plt.show()
+
+# Example usage with dummy data:
+# training_correct = np.random.rand(10)
+# training_incorrect = np.random.rand(10)
+# testing_correct = np.random.rand(10)
+# testing_incorrect = np.random.rand(10)
+# plot_mean_distances_x2(training_correct, training_incorrect, testing_correct, testing_incorrect)
