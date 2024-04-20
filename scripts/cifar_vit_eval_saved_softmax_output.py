@@ -13,135 +13,25 @@ parent_dir = os.path.dirname(current_dir)
 sys.path.append(parent_dir)
 from utils.distance_metrics import DistanceMetric
 from utils.perturbations import *
-from utils.helper_functions import *
 from utils.perturbation_levels import PERTURBATION_LEVELS
-# from utils.perturbation_levels_single import PERTURBATION_LEVELS
 from mnist_helper_functions import *
 
-# # for i in range(0, len(PERTURBATION_LEVELS['gaussian_noise'])):
-# #   print(PERTURBATION_LEVELS['gaussian_noise'][i]['mean'], PERTURBATION_LEVELS['gaussian_noise'][i]['std'])   
-
-# # Define transform to normalize data
-# transform = transforms.Compose([
-#     transforms.ToTensor(),
-#     transforms.Normalize((0.5,), (0.5,))
-# ])
-
-# # Our model
-# class Net(nn.Module):
-#     def __init__(self):
-#         super(Net, self).__init__()
-#         self.conv1 = nn.Conv2d(1, 16, 3, padding=1)
-#         self.conv2 = nn.Conv2d(16, 32, 3, padding=1)
-#         self.fc1 = nn.Linear(32 * 7 * 7, 128)
-#         self.fc2 = nn.Linear(128, 10)
-
-#     def forward(self, x):
-#         x = F.relu(self.conv1(x))
-#         x = F.max_pool2d(x, 2)
-#         x = F.relu(self.conv2(x))
-#         x = F.max_pool2d(x, 2)
-#         x = x.view(-1, 32 * 7 * 7)
-#         x = F.relu(self.fc1(x))
-#         x = self.fc2(x)
-#         return F.log_softmax(x, dim=1)
-
-# # Create a network instance
-# net = Net()
-# # Load the saved model from a file
-# # PATH = 'mnist_vanilla_cnn_hyperion_20230426110500.pth' # trained on hyperion, Accuracy on test dataset: 98.35%
-
-# load CIFAR10 training data ViT prediction results
+###################
+# CIFAR10 RESULTS #
+###################
 
 # Open and load cifar_train_np.npy
-train_np_logits = np.load('C:\\Users\\jsikard\\Documents\\git\\work-in-progress\\scripts\\data\\CIFAR10\\cifar_train_np.npy')
+train_np_logits = np.load(f'{current_dir}/data/CIFAR10/cifar_train_np.npy')
 train_np = logits_to_softmax(train_np_logits)
 sanity_check(train_np)
 # Open and load cifar_test_np.npy
-test_np_logits = np.load('C:\\Users\\jsikard\\Documents\\git\\work-in-progress\\scripts\\data\\CIFAR10\\cifar_test_np.npy')
+test_np_logits = np.load(f'{current_dir}/data/CIFAR10/cifar_test_np.npy')
 test_np = logits_to_softmax(test_np_logits)
 sanity_check(test_np)
 
 # Open and read class_labels.txt
-with open('C:\\Users\\jsikard\\Documents\\git\\work-in-progress\\scripts\\data\\CIFAR10\\class_labels.txt', 'r') as file:
+with open(f'{current_dir}/data/CIFAR10/class_labels.txt', 'r') as file:
     class_labels = file.read().splitlines()
-
-# # prepend current_dir to PATH
-# PATH = os.path.join(current_dir, PATH)
-# net.load_state_dict(torch.load(PATH))
-
-# # for future reference, the training dataset
-# trainset = datasets.MNIST(f'{current_dir}/data/', train=True, download=False, transform=transform)
-# # Not shuffling because we want to retrieve the image by index if necessary
-# trainloader = torch.utils.data.DataLoader(trainset, batch_size=64, shuffle=False)
-
-# # Load the test data
-# # data path current_dir plus 'data/'
-# datapath = os.path.join(current_dir, 'data/')
-# testset = datasets.MNIST(datapath, train=False, download=False, transform=transform)
-# # Not shuffling because we want to retrieve the image by index if necessary
-# testloader = torch.utils.data.DataLoader(testset, batch_size=64, shuffle=False)
-
-# # Test the model on the test dataset
-# correct = 0
-# total = 0
-
-# # Store Softmax output for each image prediction
-# num_columns = 12
-# data_np = np.empty((0, num_columns))
-
-# # .no_grad() disables gradient computation, which reduces memory usage
-# with torch.no_grad():
-#     for inputs, labels in testloader:
-#         outputs_original = net(inputs)
-#         # convert log probabilities to probabilities
-#         outputs = torch.exp(outputs_original)
-#         _, predicted = torch.max(outputs.data, 1) # outputs.shape
-#         total += labels.size(0)
-#         correct += (predicted == labels).sum().item()
-        
-#         outputs_np = outputs.data.numpy()
-#         labels_np = labels.numpy().reshape(-1, 1)
-#         predicted_np = predicted.numpy().reshape(-1, 1)
-#         combined_np = np.hstack((outputs_np, labels_np, predicted_np))
-
-#         data_np = np.vstack((data_np, combined_np))
-
-# # Print the accuracy of the model on the test dataset
-# accuracy = 100 * correct / total # 98.38
-# print('Accuracy on test dataset: %.2f%%' % accuracy)
-
-# # sanity check
-# # Extracting the 11th and 12th columns (indexed as 10 and 11)
-# labels = data_np[:, 10]
-# predictions = data_np[:, 11]
-
-# # Comparing the two columns to find where values are the same and where they are different
-# same_values_mask = labels == predictions
-
-# # Summing the values that are the same and different
-# same_values_count = np.sum(same_values_mask)
-# different_values_count = np.sum(~same_values_mask)
-
-# # Calculating and printing the percentage of values that are the same
-# percentage_same = (same_values_count / data_np.shape[0]) * 100
-# print(f"Accuracy on test dataset: {percentage_same:.2f}%")
-
-# Making sure the labels and predictions are as expected
-# np.unique(data_np[:, 10])
-# array([0., 1., 2., 3., 4., 5., 6., 7., 8., 9.])
-# np.unique(data_np[:, 11])
-# array([0., 1., 2., 3., 4., 5., 6., 7., 8., 9.])
-
-# bring in cifar predictions
-
-
-#test_np = save_predictions(net, testloader, True)
-#train_np = save_predictions(net, trainloader, True)
-# find the indices of the misclassified images
-# unequal_indices, unequal_rows = find_unequal_rows(test_np, 10, 11)
-# display the misclassified images
-# conf_matrix1, conf_matrix2 = display_misclassifications_side_by_side(train_np, test_np, 10, 11, 20, 7)
 
 ######################
 # CONFUSION MATRICES #
@@ -230,13 +120,13 @@ d2c_test_incorrect_train_centroids = calculate_distances_to_centroids(test_incor
 boxplots_side_by_side_x2(d2c_train_correct, d2c_train_incorrect, d2c_test_correct_train_centroids, d2c_test_incorrect_train_centroids, False, True, title1="Training Data Boxplots of Softmax Distances to Training Centroids", title2="Testing Data Boxplots of Softmax Distances to Training Centroids")
 
 # bar charts of distances to centroids for training dataset
-plot_digit_averages(train_correct_predictions, train_incorrect_predictions, color1='skyblue', color2='lightcoral', data="MNIST Training Data")
+plot_centroid_distance_bars(train_correct_predictions, train_incorrect_predictions, color1='skyblue', color2='lightcoral', data="CIFAR10 Training Data")
 
 # bar charts of distances to centroids for testing dataset
-plot_digit_averages(test_correct_predictions, test_incorrect_predictions, color1='lightgreen', color2='lightcoral', data="MNIST Testing Data")
+plot_centroid_distance_bars(test_correct_predictions, test_incorrect_predictions, color1='lightgreen', color2='lightcoral', data="CIFAR10 Testing Data")
 
 # data on overlap between distances to centroids for correct and incorrect predictions
-centroid_distance_overlap_plain_text(d2c_train_correct, d2c_train_incorrect, d2c_test_correct, d2c_test_incorrect)
+#centroid_distance_overlap_plain_text(d2c_train_correct, d2c_train_incorrect, d2c_test_correct, d2c_test_incorrect)
 
 centroid_distance_overlap_latex(d2c_train_correct, d2c_train_incorrect, d2c_test_correct, d2c_test_incorrect)
 # statistical significance tests

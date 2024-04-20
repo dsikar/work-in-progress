@@ -1,5 +1,133 @@
 import torch
 import numpy as np
+from scipy.optimize import curve_fit
+
+###########
+# PROCESS #
+###########
+
+def linear_fit(x, a, b):
+    return a * x + b
+
+def sanity_check(data, num_cols=10, pred_col=11):
+    """
+    Perform a sanity check on the input array.
+
+    Args:
+        data (numpy.ndarray): Array of shape (n, m) where the first num_cols columns contain softmax probabilities,
+                              and the pred_col column contains the predicted labels.
+        num_cols (int, optional): Number of columns containing softmax probabilities. Default is 10.
+        pred_col (int, optional): Index of the column containing predicted labels. Default is 11.
+
+    Raises:
+        AssertionError: If the predicted label does not correspond to the highest softmax probability.
+    """
+    num_samples = data.shape[0]
+
+    for i in range(num_samples):
+        softmax_probs = data[i, :num_cols]
+        predicted_label = int(data[i, pred_col])
+
+        # Find the index of the highest softmax probability
+        max_prob_index = np.argmax(softmax_probs)
+
+        # Assert that the predicted label corresponds to the highest softmax probability
+        assert max_prob_index == predicted_label, f"Sample {i}: Predicted label {predicted_label} does not correspond to the highest softmax probability index {max_prob_index}"
+
+    print("Sanity check passed!")
+
+def logits_to_softmax(logits, num_cols=10):
+    """
+    Convert logits to softmax probabilities.
+
+    Args:
+        logits (numpy.ndarray): Array of shape (n, m) where the first num_cols columns contain the logits.
+        num_cols (int, optional): Number of columns to be converted to softmax probabilities. Default is 10.
+
+    Returns:
+        numpy.ndarray: Array of shape (n, m) where the first num_cols columns contain the softmax probabilities.
+    """
+    # Extract the logits (first num_cols columns)
+    logits_values = logits[:, :num_cols]
+
+    # Calculate the softmax probabilities
+    exp_logits = np.exp(logits_values)
+    softmax_probs = exp_logits / np.sum(exp_logits, axis=1, keepdims=True)
+
+    # Create a new array to store the result
+    result = np.zeros_like(logits)
+
+    # Copy the softmax probabilities to the first num_cols columns of the result
+    result[:, :num_cols] = softmax_probs
+
+    # Copy the remaining columns from the input to the result
+    result[:, num_cols:] = logits[:, num_cols:]
+
+    return result
+
+def display_misclassifications_side_by_side_cifar10(x1, x2, y_true, y_pred, class_labels, w=20, h=10, save=False):
+    """
+    Displays heatmaps of the confusion matrices for two CIFAR-10 datasets side by side and example images of misclassified objects.
+
+    Parameters:
+    - x1: Numpy array of CIFAR-10 images for the first dataset.
+    - x2: Numpy array of CIFAR-10 images for the second dataset.
+    - y_true: Numpy array containing the true labels for both datasets.
+    - y_pred: Numpy array containing the predicted labels for both datasets.
+    - class_labels: List of class labels for the CIFAR-10 dataset.
+    - w: Width of the figure. Defaults to 20.
+    - h: Height of the figure. Defaults to 10.
+    - save: Boolean, if True, saves the confusion matrix plot. Defaults to False.
+
+    Returns:
+    - The confusion matrices for both datasets.
+
+    Example:
+    conf_matrix1, conf_matrix2 = display_misclassifications_side_by_side_cifar10(x1_test, x2_test, y_test, y_pred, class_labels, save=True)
+    """
+    # Retrieve data
+    true_labels1 = x1[:, y_true]
+    predicted_labels1 = x1[:, y_pred]
+    true_labels2 = x2[:, y_true]
+    predicted_labels2 = x2[:, y_pred]
+
+    # Compute the confusion matrices for both datasets
+    conf_matrix1 = confusion_matrix(true_labels1, predicted_labels1)
+    conf_matrix2 = confusion_matrix(true_labels2, predicted_labels2)
+
+    # Create a mask for non-zero values
+    non_zero_mask1 = np.array(conf_matrix1 > 0, dtype=int)
+    non_zero_mask2 = np.array(conf_matrix2 > 0, dtype=int)
+
+    plt.figure(figsize=(w, h))
+
+    # Plotting for the first dataset
+    plt.subplot(1, 2, 1)  # (rows, columns, subplot number)
+    sns.heatmap(conf_matrix1, annot=True, fmt='d', cmap='Reds', mask=non_zero_mask1 == 0, xticklabels=class_labels, yticklabels=class_labels)
+    sns.heatmap(conf_matrix1, annot=True, fmt='d', cmap='Blues', mask=non_zero_mask1, cbar=False, xticklabels=class_labels, yticklabels=class_labels)
+    plt.title('Confusion Matrix for CIFAR-10 Training Dataset')
+    plt.xlabel('Predicted Label')
+    plt.ylabel('True Label')
+    plt.xticks(rotation=45)
+
+    # Plotting for the second dataset
+    plt.subplot(1, 2, 2)  # (rows, columns, subplot number)
+    sns.heatmap(conf_matrix2, annot=True, fmt='d', cmap='Reds', mask=non_zero_mask2 == 0, xticklabels=class_labels, yticklabels=class_labels)
+    sns.heatmap(conf_matrix2, annot=True, fmt='d', cmap='Blues', mask=non_zero_mask2, cbar=False, xticklabels=class_labels, yticklabels=class_labels)
+    plt.title('Confusion Matrix for CIFAR-10 Testing Dataset')
+    plt.xlabel('Predicted Label')
+    plt.ylabel('True Label')
+    plt.xticks(rotation=45)
+
+    # Decrease the padding between the plots
+    plt.subplots_adjust(wspace=0.1)
+
+    if save:
+        plt.savefig('cifar10_combined_confusion_matrix.png')
+
+    plt.show()
+
+    return conf_matrix1, conf_matrix2
 
 def save_predictions(net, testloader, verbose=False):
     """
@@ -671,3 +799,628 @@ def single_plot_accuracy_decrements(results, results_overall, save=True):
 
     # Display the plot
     plt.show()
+
+def centroid_distance_overlap_latex(d2c_train_correct, d2c_train_incorrect, d2c_test_correct, d2c_test_incorrect):
+    """
+    Compares the distances in column 1 of d2c_train_correct, d2c_train_incorrect, d2c_test_correct, and d2c_test_incorrect
+    for each label (digit) in column 2, and calculates the count and percentage of rows
+    in d2c_train_correct and d2c_test_correct where column 1 has values greater than or equal to the
+    corresponding values in d2c_train_incorrect and d2c_test_incorrect.
+    Args:
+    d2c_train_correct (numpy.ndarray): Array of shape (n, 2) containing distances and labels for correct predictions in training data.
+    d2c_train_incorrect (numpy.ndarray): Array of shape (m, 2) containing distances and labels for incorrect predictions in training data.
+    d2c_test_correct (numpy.ndarray): Array of shape (p, 2) containing distances and labels for correct predictions in testing data.
+    d2c_test_incorrect (numpy.ndarray): Array of shape (q, 2) containing distances and labels for incorrect predictions in testing data.
+
+    Returns:
+    None
+    """
+
+    # Get the unique labels (digits) from column 2
+    labels = np.unique(d2c_train_correct[:, 1]).astype(int)
+
+    # Initialize arrays to store the results
+    train_count_greater_equal = np.zeros(len(labels), dtype=int)
+    train_total_count = np.zeros(len(labels), dtype=int)
+    test_train_count_greater_equal = np.zeros(len(labels), dtype=int)
+    test_train_total_count = np.zeros(len(labels), dtype=int)
+
+    # Iterate over each label (digit)
+    for i, label in enumerate(labels):
+        # Get the distances for the current label from training arrays
+        train_correct_distances = d2c_train_correct[d2c_train_correct[:, 1] == label, 0]
+        train_incorrect_distances = d2c_train_incorrect[d2c_train_incorrect[:, 1] == label, 0]
+        
+        # Get the distances for the current label from testing arrays
+        test_correct_distances = d2c_test_correct[d2c_test_correct[:, 1] == label, 0]
+        
+        # Count the number of rows in d2c_train_correct where column 1 has values greater than or equal to the minimum value in d2c_train_incorrect
+        train_count_greater_equal[i] = np.sum(train_correct_distances >= np.min(train_incorrect_distances))
+        
+        # Count the total number of rows for the current label in d2c_train_correct
+        train_total_count[i] = len(train_correct_distances)
+        
+        # Count the number of rows in d2c_train_correct where column 1 has values greater than or equal to the minimum value in d2c_test_incorrect
+        test_train_count_greater_equal[i] = np.sum(test_correct_distances >= np.min(train_incorrect_distances))
+        
+        # Count the total number of rows for the current label in d2c_train_correct
+        test_train_total_count[i] = len(test_correct_distances)
+
+    # Calculate the percentage of rows greater than or equal for each label in training data
+    train_percentage_greater_equal = train_count_greater_equal / train_total_count * 100
+
+    # Calculate the percentage of rows greater than or equal for each label between d2c_train_correct and d2c_test_incorrect
+    test_train_percentage_greater_equal = test_train_count_greater_equal / test_train_total_count * 100
+
+    # Calculate the totals for each column
+    train_count_total = np.sum(train_count_greater_equal)
+    train_total = np.sum(train_total_count)
+    train_percentage_total = train_count_total / train_total * 100
+
+    test_train_count_total = np.sum(test_train_count_greater_equal)
+    test_train_total = np.sum(test_train_total_count)
+    test_train_percentage_total = test_train_count_total / test_train_total * 100
+
+    # Create the LaTeX table
+    print("\\begin{table}[htbp]")
+    print("\\centering")
+    print("\\begin{tabular}{|c|c|c|c|c|c|c|}")
+    print("\\hline")
+    print("Digit & \\multicolumn{3}{c|}{Train} & \\multicolumn{3}{c|}{Test-Train} \\\\")
+    print("\\hline")
+    print(" & Cnt & Ttl & Opct & Cnt & Ttl & Opct \\\\")
+    print("\\hline")
+    for i, label in enumerate(labels):
+        print(f"{label} & {train_count_greater_equal[i]} & {train_total_count[i]} & {train_percentage_greater_equal[i]:.2f}\\% & {test_train_count_greater_equal[i]} & {test_train_total_count[i]} & {test_train_percentage_greater_equal[i]:.2f}\\% \\\\")
+    print("\\hline")
+    print(f"Totals & {train_count_total} & {train_total} & {train_percentage_total:.2f}\\% & {test_train_count_total} & {test_train_total} & {test_train_percentage_total:.2f}\\% \\\\")
+    print("\\hline")
+    print("\\end{tabular}")
+    print("\\caption{Comparison of centroid distances between correct and incorrect predictions}")
+    print("\\label{tab:centroid_distance_overlap}")
+    print("\\end{table}")
+
+def plot_digit_averages(train_correct_predictions, train_incorrect_predictions, color1='skyblue', color2='lightcoral', data="Training Data"):
+    # Get the unique labels (digits) from column 11
+    labels = np.unique(train_correct_predictions[:, 10]).astype(int)
+
+    # Create a figure and subplots for each digit (2 rows: correct and incorrect predictions)
+    fig, axs = plt.subplots(2, len(labels), figsize=(20, 10))
+    fig.suptitle(f'{data} - Softmax Average Distributions for Correct and Incorrect Digit Predictions', fontsize=16)
+
+    # Plot correct predictions
+    for i, label in enumerate(labels):
+        # Get the predictions for the current digit
+        digit_predictions = train_correct_predictions[train_correct_predictions[:, 10] == label, :10]
+        # Calculate the average value for each index
+        averages = np.mean(digit_predictions, axis=0)
+        # Plot the bar graph for the current digit
+        axs[0, i].bar(np.arange(10), averages, color=color1)
+        # Set the y-axis to logarithmic scale
+        axs[0, i].set_yscale('log')
+        # Set the y-axis limits to start from 10^-4
+        axs[0, i].set_ylim(bottom=1e-4)
+        # Set the title for the current subplot
+        axs[0, i].set_title(f'Digit {label} (Correct)', fontsize=12)
+        # Set the x-tick positions and labels
+        axs[0, i].set_xticks(np.arange(10))
+        axs[0, i].set_xticklabels(np.arange(10), fontsize=10)
+        # Add x-axis grid lines
+        axs[0, i].set_xticks(np.arange(10), minor=True)
+        axs[0, i].grid(True, which='minor', axis='x', linestyle='--', linewidth=0.5, alpha=0.7)
+        # Add y-axis grid lines
+        axs[0, i].grid(True, which='both', axis='y', linestyle='--', linewidth=0.5, alpha=0.7)
+
+    # Plot incorrect predictions
+    for i, label in enumerate(labels):
+        # Get the predictions for the current digit
+        digit_predictions = train_incorrect_predictions[train_incorrect_predictions[:, 11] == label, :10]
+        # Calculate the average value for each index
+        averages = np.mean(digit_predictions, axis=0)
+        # Plot the bar graph for the current digit
+        axs[1, i].bar(np.arange(10), averages, color=color2)
+        # Set the y-axis to logarithmic scale
+        axs[1, i].set_yscale('log')
+        # Set the y-axis limits to start from 10^-4
+        axs[1, i].set_ylim(bottom=1e-4)
+        # Set the title for the current subplot
+        axs[1, i].set_title(f'Digit {label} (Incorrect)', fontsize=12)
+        # Set the x-tick positions and labels
+        axs[1, i].set_xticks(np.arange(10))
+        axs[1, i].set_xticklabels(np.arange(10), fontsize=10)
+        # Add x-axis grid lines
+        axs[1, i].set_xticks(np.arange(10), minor=True)
+        axs[1, i].grid(True, which='minor', axis='x', linestyle='--', linewidth=0.5, alpha=0.7)
+        # Add y-axis grid lines
+        axs[1, i].grid(True, which='both', axis='y', linestyle='--', linewidth=0.5, alpha=0.7)
+
+    # Set x-axis label at the bottom of the figure
+    fig.text(0.5, 0.04, 'Digit Index', ha='center', fontsize=14)
+
+    # Set y-axis label on the left side of the figure
+    fig.text(0.04, 0.5, 'Average Softmax Value (Logarithmic)', va='center', rotation='vertical', fontsize=14)
+
+    # Adjust the spacing between subplots
+    plt.tight_layout(rect=[0.05, 0.05, 0.95, 0.95])
+    fig.subplots_adjust(top=0.9)  # Adjust the top spacing for the main title
+
+    # Display the plot
+    plt.show()    
+
+def plot_centroid_distance_bars(train_correct_predictions, train_incorrect_predictions, color1='skyblue', color2='lightcoral', data="Training Data"):
+    # Get the unique labels (classes) from column 11
+    labels = np.unique(train_correct_predictions[:, 10]).astype(int)
+    
+    # Create a figure and subplots for each class (2 rows: correct and incorrect predictions)
+    fig, axs = plt.subplots(2, len(labels), figsize=(20, 10))
+    fig.suptitle(f'{data} - Softmax Average Distributions for Correct and Incorrect Class Predictions', fontsize=16)
+    
+    # Plot correct predictions
+    for i, label in enumerate(labels):
+        # Get the predictions for the current class
+        class_predictions = train_correct_predictions[train_correct_predictions[:, 10] == label, :10]
+        
+        # Calculate the average value for each index
+        averages = np.mean(class_predictions, axis=0)
+        
+        # Plot the bar graph for the current class
+        axs[0, i].bar(np.arange(10), averages, color=color1)
+        
+        # Set the y-axis to logarithmic scale
+        axs[0, i].set_yscale('log')
+        
+        # Set the y-axis limits to start from 10^-4
+        axs[0, i].set_ylim(bottom=1e-4)
+        
+        # Set the title for the current subplot
+        axs[0, i].set_title(f'Class {label} (Correct)', fontsize=12)
+        
+        # Set the x-tick positions and labels
+        axs[0, i].set_xticks(np.arange(10))
+        axs[0, i].set_xticklabels(np.arange(10), fontsize=10)
+        
+        # Add x-axis grid lines
+        axs[0, i].set_xticks(np.arange(10), minor=True)
+        axs[0, i].grid(True, which='minor', axis='x', linestyle='--', linewidth=0.5, alpha=0.7)
+        
+        # Add y-axis grid lines
+        axs[0, i].grid(True, which='both', axis='y', linestyle='--', linewidth=0.5, alpha=0.7)
+    
+    # Plot incorrect predictions
+    for i, label in enumerate(labels):
+        # Get the predictions for the current class
+        class_predictions = train_incorrect_predictions[train_incorrect_predictions[:, 11] == label, :10]
+        
+        # Calculate the average value for each index
+        averages = np.mean(class_predictions, axis=0)
+        
+        # Plot the bar graph for the current class
+        axs[1, i].bar(np.arange(10), averages, color=color2)
+        
+        # Set the y-axis to logarithmic scale
+        axs[1, i].set_yscale('log')
+        
+        # Set the y-axis limits to start from 10^-4
+        axs[1, i].set_ylim(bottom=1e-4)
+        
+        # Set the title for the current subplot
+        axs[1, i].set_title(f'Class {label} (Incorrect)', fontsize=12)
+        
+        # Set the x-tick positions and labels
+        axs[1, i].set_xticks(np.arange(10))
+        axs[1, i].set_xticklabels(np.arange(10), fontsize=10)
+        
+        # Add x-axis grid lines
+        axs[1, i].set_xticks(np.arange(10), minor=True)
+        axs[1, i].grid(True, which='minor', axis='x', linestyle='--', linewidth=0.5, alpha=0.7)
+        
+        # Add y-axis grid lines
+        axs[1, i].grid(True, which='both', axis='y', linestyle='--', linewidth=0.5, alpha=0.7)
+    
+    # Set x-axis label at the bottom of the figure
+    fig.text(0.5, 0.04, 'Class Index', ha='center', fontsize=14)
+    
+    # Set y-axis label on the left side of the figure
+    fig.text(0.04, 0.5, 'Average Softmax Value (Logarithmic)', va='center', rotation='vertical', fontsize=14)
+    
+    # Adjust the spacing between subplots
+    plt.tight_layout(rect=[0.05, 0.05, 0.95, 0.95])
+    fig.subplots_adjust(top=0.9)  # Adjust the top spacing for the main title
+    
+    # Display the plot
+    plt.show()    
+
+def boxplots_side_by_side_x2(data1, data2, data3, data4, save=False, debug=False, **kwargs):
+    # Extract unique labels from the second column of data1, data2, data3, and data4
+    labels1 = np.unique(data1[:, 1]).astype(int)
+    labels2 = np.unique(data2[:, 1]).astype(int)
+    labels3 = np.unique(data3[:, 1]).astype(int)
+    labels4 = np.unique(data4[:, 1]).astype(int)
+
+    # Create lists to store the distances for each label in data1, data2, data3, and data4
+    distances_by_label1 = [data1[data1[:, 1] == label, 0] for label in labels1]
+    distances_by_label2 = [data2[data2[:, 1] == label, 0] for label in labels2]
+    distances_by_label3 = [data3[data3[:, 1] == label, 0] for label in labels3]
+    distances_by_label4 = [data4[data4[:, 1] == label, 0] for label in labels4]
+
+    if debug:
+        analyze_lists_by_label(distances_by_label1)
+        analyze_lists_by_label(distances_by_label2)
+        analyze_lists_by_label(distances_by_label3)
+        analyze_lists_by_label(distances_by_label4)
+
+    # Boxplot Creation with Styling
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(20, 5))
+
+    # Plot boxplots for data1 and data2 on the first subplot
+    bp1 = ax1.boxplot(distances_by_label1, positions=np.arange(len(labels1))-0.2, widths=0.4,
+                      patch_artist=True, showmeans=True, meanline=True, medianprops={'linewidth': 2})
+    bp2 = ax1.boxplot(distances_by_label2, positions=np.arange(len(labels2))+0.2, widths=0.4,
+                      patch_artist=True, showmeans=True, meanline=True, medianprops={'linewidth': 2})
+
+    # Plot boxplots for data3 and data4 on the second subplot
+    bp3 = ax2.boxplot(distances_by_label3, positions=np.arange(len(labels3))-0.2, widths=0.4,
+                      patch_artist=True, showmeans=True, meanline=True, medianprops={'linewidth': 2})
+    bp4 = ax2.boxplot(distances_by_label4, positions=np.arange(len(labels4))+0.2, widths=0.4,
+                      patch_artist=True, showmeans=True, meanline=True, medianprops={'linewidth': 2})
+
+
+    # Set colors for data1, data2, data3, and data4
+    color1 = 'skyblue'
+    color2 = 'lightcoral'
+    color3 = 'lightgreen'
+    color4 = 'lightcoral'
+
+    for patch in bp1['boxes']:
+        patch.set_facecolor(color1)
+    for patch in bp2['boxes']:
+        patch.set_facecolor(color2)
+    for patch in bp3['boxes']:
+        patch.set_facecolor(color3)
+    for patch in bp4['boxes']:
+        patch.set_facecolor(color4)
+
+    # Tweak Line Styles
+    for element in ['whiskers', 'caps', 'medians']:
+        plt.setp(bp1[element], color='gray', linewidth=1.5)
+        plt.setp(bp2[element], color='gray', linewidth=1.5)
+        plt.setp(bp3[element], color='gray', linewidth=1.5)
+        plt.setp(bp4[element], color='gray', linewidth=1.5)
+
+    # Customize Outlier ('flier') Style
+    plt.setp(bp1['fliers'], marker='o', markerfacecolor='none', markeredgecolor='gray', markersize=6)
+    plt.setp(bp2['fliers'], marker='o', markerfacecolor='none', markeredgecolor='gray', markersize=6)
+    plt.setp(bp3['fliers'], marker='o', markerfacecolor='none', markeredgecolor='gray', markersize=6)
+    plt.setp(bp4['fliers'], marker='o', markerfacecolor='none', markeredgecolor='gray', markersize=6)
+
+    # Customize Mean Marker (diamond)
+    plt.setp(bp1['means'], marker='D', markerfacecolor='white', markeredgecolor='black', markersize=8)
+    plt.setp(bp2['means'], marker='D', markerfacecolor='white', markeredgecolor='black', markersize=8)
+    plt.setp(bp3['means'], marker='D', markerfacecolor='white', markeredgecolor='black', markersize=8)
+    plt.setp(bp4['means'], marker='D', markerfacecolor='white', markeredgecolor='black', markersize=8)
+
+    # Labels, Title, and Layout (Modified)
+    ax1.set_yscale('log')  # Set y-axis to logarithmic scale
+    ax1.grid(True, which='both', axis='both', linestyle='--', linewidth=0.5, alpha=0.7)
+    ax2.set_yscale('log')
+    ax2.grid(True, which='both', axis='both', linestyle='--', linewidth=0.5, alpha=0.7)
+
+    # Set y-axis limits and tick positions for the first subplot
+    ylim_min1 = min(ax1.get_ylim()[0], ax1.get_ylim()[0])
+    ylim_max1 = max(ax1.get_ylim()[1], ax1.get_ylim()[1])
+    yticks1 = [1e-2, 1e-1, 1e0]
+    yticklabels1 = ['$10^{-2}$', '$10^{-1}$', '$10^{0}$']
+    ax1.set_ylim(ylim_min1, ylim_max1)
+    ax1.set_yticks(yticks1)
+    ax1.set_yticklabels(yticklabels1)
+
+    # Set y-axis limits and tick positions for the second subplot
+    ylim_min2 = min(ax2.get_ylim()[0], ax2.get_ylim()[0])
+    ylim_max2 = max(ax2.get_ylim()[1], ax2.get_ylim()[1])
+    yticks2 = [1e-2, 1e-1, 1e0]
+    yticklabels2 = ['$10^{-2}$', '$10^{-1}$', '$10^{0}$']
+    ax2.set_ylim(ylim_min2, ylim_max2)
+    ax2.set_yticks(yticks2)
+    ax2.set_yticklabels(yticklabels2)
+
+    ax1.set_title(kwargs.get('title1', ' Training Data Distribution of Distances to Centroids'), fontsize=14)
+    ax2.set_title(kwargs.get('title2', 'Testing Data Distribution of Distances to Centroids'), fontsize=14)
+    ax1.set_xlabel(kwargs.get('xlabel', 'Digit Class Prediction'), fontsize=12)
+    ax2.set_xlabel(kwargs.get('xlabel', 'Digit Class Prediction'), fontsize=12)
+    ax1.set_ylabel(kwargs.get('ylabel', 'Distance (Logarithmic Scale)'), fontsize=12)
+    ax2.set_ylabel(kwargs.get('ylabel', 'Distance (Logarithmic Scale)'), fontsize=12)
+    ax1.set_xticks(range(len(labels1)))
+    ax1.set_xticklabels(labels1)
+    ax1.set_xticks(range(len(labels1)), minor=True)
+    ax1.grid(True, which='minor', axis='x', linestyle='--', linewidth=0.5, alpha=0.7)
+    ax2.set_xticks(range(len(labels3)))
+    ax2.set_xticklabels(labels3)
+    ax2.set_xticks(range(len(labels3)), minor=True)
+    ax2.grid(True, which='minor', axis='x', linestyle='--', linewidth=0.5, alpha=0.7)
+
+    ax1.tick_params(axis='both', labelsize=10)
+    ax2.tick_params(axis='both', labelsize=10)
+
+    # Create legends for the first subplot
+    legend_labels1 = ['Correctly classified', 'Incorrectly classified']
+    legend_handles1 = [plt.Rectangle((0, 0), 1, 1, facecolor=color1), plt.Rectangle((0, 0), 1, 1, facecolor=color2)]
+    ax1.legend(legend_handles1, legend_labels1, loc='lower right', fontsize=12)
+
+    # Create legends for the second subplot
+    legend_labels2 = ['Correctly classified', 'Incorrectly classified']
+    legend_handles2 = [plt.Rectangle((0, 0), 1, 1, facecolor=color3), plt.Rectangle((0, 0), 1, 1, facecolor=color4)]
+    ax2.legend(legend_handles2, legend_labels2, loc='lower right', fontsize=12)
+
+    plt.subplots_adjust(wspace=0.2)  # Adjust spacing between subplots
+
+    # Saving and Displaying
+    if save:
+        filename = kwargs.get('filename', 'centroid_distances_comparison_4datasets.png')
+        plt.savefig(filename, dpi=300)
+
+    plt.show()         
+
+def plot_accuracy_vs_distance_linear_fit(train_distance, train_accuracy, test_distance, test_accuracy, save=True):
+    """
+    Plots accuracy against mean class distance to centroid for both training and testing data,
+    with a linear fit for the trend in the data.
+    
+    Parameters:
+    - train_distance: A numpy array with shape (10,) containing mean distances to centroid for each class in the training set.
+    - train_accuracy: A numpy array with shape (1,10) containing accuracies for each class in the training set.
+    - test_distance: A numpy array with shape (10,) containing mean distances to centroid for each class in the testing set.
+    - test_accuracy: A numpy array with shape (1,10) containing accuracies for each class in the testing set.
+    - save: A boolean indicating whether to save the plot. Default is True.
+    """
+    
+    # Ensure the arrays are correctly shaped
+    train_distance = np.reshape(train_distance, (10,))
+    train_accuracy = np.reshape(train_accuracy, (10,))
+    test_distance = np.reshape(test_distance, (10,))
+    test_accuracy = np.reshape(test_accuracy, (10,))
+    
+    # Fit a linear function to the data
+    params_train, _ = curve_fit(linear_fit, train_distance, train_accuracy)
+    params_test, _ = curve_fit(linear_fit, test_distance, test_accuracy)
+    
+    # Generate a sequence of distances for plotting the fit function
+    distance_plot = np.linspace(min(train_distance.min(), test_distance.min()), max(train_distance.max(), test_distance.max()), 100)
+    
+    # Calculate the fitted values
+    fit_train = linear_fit(distance_plot, *params_train)
+    fit_test = linear_fit(distance_plot, *params_test)
+    
+    # Create the plot
+    plt.figure(figsize=(14, 8))
+    
+    # Plot train data and fit function
+    plt.scatter(train_distance, train_accuracy, c='blue', label='Train Data')
+    plt.plot(distance_plot, fit_train, 'b--', label=f'Train Fit: {params_train[0]:.3f}*x + {params_train[1]:.3f}')
+    
+    # Plot test data and fit function
+    plt.scatter(test_distance, test_accuracy, c='green', label='Test Data')
+    plt.plot(distance_plot, fit_test, 'g--', label=f'Test Fit: {params_test[0]:.3f}*x + {params_test[1]:.3f}')
+    
+    # Set the axis labels
+    plt.xlabel('Mean Class Distance to Centroid')
+    plt.ylabel('Accuracy')
+    
+    # Set the y-axis limits between 0.94 and 1
+    plt.ylim(0.95, 1)
+    
+    # Add horizontal lines
+    plt.axhline(y=0.96, color='gray', linestyle='--', linewidth=0.8)
+    plt.axhline(y=0.97, color='gray', linestyle='--', linewidth=0.8)
+    plt.axhline(y=0.98, color='gray', linestyle='--', linewidth=0.8)
+    plt.axhline(y=0.99, color='gray', linestyle='--', linewidth=0.8)
+    
+    # Set the title
+    plt.title('MNIST Classification: Train vs Test Accuracy and Mean Distance to Centroid with Linear Fit')
+    
+    # Show the grid
+    plt.grid(True)
+    
+    # Show the legend with fit functions
+    plt.legend(loc='lower left')
+    
+    # Show the plot
+    plt.show()
+    
+    if save:
+        plt.savefig('MNIST_Classification_Train_Test_Accuracy_Mean_Distance_to_Centroid_Linear_Fit.png')    
+
+def plot_mean_distances_double_bars(training_correct_distances, training_incorrect_distances,
+                                    testing_correct_distances, testing_incorrect_distances, save=False):
+    """
+    Plots bar charts of mean distances to centroids for training and testing datasets.
+    Each class is represented by two bars side by side: correct and incorrect predictions.
+    
+    Parameters:
+    - training_correct_distances: A numpy array containing the mean distances to centroids for correct predictions in the training dataset.
+    - training_incorrect_distances: A numpy array containing the mean distances to centroids for incorrect predictions in the training dataset.
+    - testing_correct_distances: A numpy array containing the mean distances to centroids for correct predictions in the testing dataset.
+    - testing_incorrect_distances: A numpy array containing the mean distances to centroids for incorrect predictions in the testing dataset.
+    - save: Boolean, if True, saves the plot. Defaults to False.
+    """
+    
+    # Set up the figure and axes
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(20, 5))
+    clusters = range(len(training_correct_distances))
+    
+    # Plot training data
+    bar_width = 0.35
+    ax1.bar(np.arange(len(clusters)) - bar_width/2, training_correct_distances, bar_width, color='skyblue', label='Correctly classified')
+    ax1.bar(np.arange(len(clusters)) + bar_width/2, training_incorrect_distances, bar_width, color='lightcoral', label='Incorrectly classified')
+    ax1.set_xlabel('Digit Class Prediction')
+    ax1.set_ylabel('Mean Distance to Centroid')
+    ax1.set_title('Training Data - Softmax Output Mean Distance to Centroid')
+    ax1.set_xticks(np.arange(len(clusters)))
+    ax1.set_xticklabels([str(i) for i in clusters])
+    ax1.legend(loc='center left')  # ax1.legend()
+    
+    # Add horizontal lines for training data
+    ax1.axhline(y=np.mean(training_correct_distances), color='skyblue', linestyle='--', linewidth=1)
+    ax1.axhline(y=np.mean(training_incorrect_distances), color='lightcoral', linestyle='--', linewidth=1)
+    
+    # Annotate each bar with the mean distance value for training data
+    for i, (correct_distance, incorrect_distance) in enumerate(zip(training_correct_distances, training_incorrect_distances)):
+        ax1.text(i - bar_width/2, correct_distance, f'{correct_distance:.4f}', ha='center', va='bottom')
+        ax1.text(i + bar_width/2, incorrect_distance, f'{incorrect_distance:.4f}', ha='center', va='bottom')
+    
+    # Plot testing data
+    ax2.bar(np.arange(len(clusters)) - bar_width/2, testing_correct_distances, bar_width, color='lightgreen', label='Correctly classified')
+    ax2.bar(np.arange(len(clusters)) + bar_width/2, testing_incorrect_distances, bar_width, color='lightcoral', label='Incorrectly classified')
+    ax2.set_xlabel('Digit Class Prediction')
+    ax2.set_ylabel('Mean Distance to Centroid')
+    ax2.set_title('Testing Data - Softmax Output Mean Distance to Centroid')
+    ax2.set_xticks(np.arange(len(clusters)))
+    ax2.set_xticklabels([str(i) for i in clusters])
+    ax2.legend(loc='center left')  # ax2.legend()
+    
+    # Add horizontal lines for testing data
+    ax2.axhline(y=np.mean(testing_correct_distances), color='lightgreen', linestyle='--', linewidth=1)
+    ax2.axhline(y=np.mean(testing_incorrect_distances), color='lightcoral', linestyle='--', linewidth=1)
+    
+    # Annotate each bar with the mean distance value for testing data
+    for i, (correct_distance, incorrect_distance) in enumerate(zip(testing_correct_distances, testing_incorrect_distances)):
+        ax2.text(i - bar_width/2, correct_distance, f'{correct_distance:.4f}', ha='center', va='bottom')
+        ax2.text(i + bar_width/2, incorrect_distance, f'{incorrect_distance:.4f}', ha='center', va='bottom')
+    
+    plt.tight_layout()
+    plt.show()
+    
+    if save:
+        plt.savefig('Combined_mean_distances_double_bars.png')        
+
+def calculate_accuracy_decrements(d2c_test_correct, d2c_test_incorrect, lowest_values):
+    # Get the unique digit classes
+    digit_classes = np.unique(d2c_test_correct[:, 1])
+
+    # Initialize an array to store the results
+    results = np.zeros((100, 6))
+
+    # Iterate over each unique digit class
+    for digit_class in digit_classes:
+        # Find the indices of rows with the current digit class in d2c_test_correct
+        indices_correct = np.where(d2c_test_correct[:, 1] == digit_class)
+        class_rows_correct = d2c_test_correct[indices_correct]
+
+        # Find the indices of rows with the current digit class in d2c_test_incorrect
+        indices_incorrect = np.where(d2c_test_incorrect[:, 1] == digit_class)
+        class_rows_incorrect = d2c_test_incorrect[indices_incorrect]
+
+        # Get the number of rows for the current digit class in d2c_test_correct and d2c_test_incorrect
+        num_correct = class_rows_correct.shape[0]
+        num_incorrect = class_rows_incorrect.shape[0]
+
+        # Get the threshold value for the current digit class from lowest_values
+        threshold = lowest_values[int(digit_class), 0]
+
+        # Iterate over decrements [0.0, 0.1, 0.2, ..., 0.9]
+        for i, decrement in enumerate(np.arange(0, 1, 0.1)):
+            # Calculate the current threshold with the decrement
+            current_threshold = threshold * (1 - decrement)
+
+            # Count the number of values below the current threshold in class_rows_correct
+            count_below_threshold_correct = np.sum(class_rows_correct[:, 0] < current_threshold)
+
+            # Count the number of values below the current threshold in class_rows_incorrect
+            count_below_threshold_incorrect = np.sum(class_rows_incorrect[:, 0] < current_threshold)
+
+            # Calculate the total number of values below the threshold
+            total_below_threshold = count_below_threshold_correct + count_below_threshold_incorrect
+
+            # Calculate the digit class prediction accuracy
+            accuracy = count_below_threshold_correct / (num_correct + num_incorrect)
+
+            # Calculate the index in the results array
+            index = int(digit_class * 10 + i)
+
+            # Store the results in the array
+            results[index, 0] = total_below_threshold
+            results[index, 1] = current_threshold
+            results[index, 2] = decrement
+            results[index, 3] = digit_class
+            results[index, 4] = accuracy
+            results[index, 5] = num_correct + num_incorrect  # Total values
+
+    return results
+
+
+def calculate_accuracy_decrements_overall(d2c_test_correct, d2c_test_incorrect, lowest_values):
+    # Get the unique digit classes
+    digit_classes = np.unique(d2c_test_correct[:, 1])
+
+    # Initialize an array to store the results
+    results = np.zeros((10, 5))
+
+    # Iterate over decrements [0.0, 0.1, 0.2, ..., 0.9]
+    for i, decrement in enumerate(np.arange(0, 1, 0.1)):
+        # Initialize variables to store the totals for each decrement
+        total_below_threshold = 0
+        total_correct = 0
+        total_values = 0
+
+        # Iterate over each unique digit class
+        for digit_class in digit_classes:
+            # Find the indices of rows with the current digit class in d2c_test_correct
+            indices_correct = np.where(d2c_test_correct[:, 1] == digit_class)
+            class_rows_correct = d2c_test_correct[indices_correct]
+
+            # Find the indices of rows with the current digit class in d2c_test_incorrect
+            indices_incorrect = np.where(d2c_test_incorrect[:, 1] == digit_class)
+            class_rows_incorrect = d2c_test_incorrect[indices_incorrect]
+
+            # Get the number of rows for the current digit class in d2c_test_correct and d2c_test_incorrect
+            num_correct = class_rows_correct.shape[0]
+            num_incorrect = class_rows_incorrect.shape[0]
+
+            # Get the threshold value for the current digit class from lowest_values
+            threshold = lowest_values[int(digit_class), 0]
+
+            # Calculate the current threshold with the decrement
+            current_threshold = threshold * (1 - decrement)
+
+            # Count the number of values below the current threshold in class_rows_correct
+            count_below_threshold_correct = np.sum(class_rows_correct[:, 0] < current_threshold)
+
+            # Count the number of values below the current threshold in class_rows_incorrect
+            count_below_threshold_incorrect = np.sum(class_rows_incorrect[:, 0] < current_threshold)
+
+            # Update the totals for the current decrement
+            total_below_threshold += count_below_threshold_correct + count_below_threshold_incorrect
+            total_correct += count_below_threshold_correct
+            total_values += num_correct + num_incorrect
+
+        # Calculate the overall accuracy for the current decrement
+        accuracy = total_correct / total_values
+
+        # Store the results in the array
+        results[i, 0] = total_below_threshold
+        results[i, 1] = decrement
+        results[i, 2] = accuracy
+        results[i, 3] = total_correct
+        results[i, 4] = total_values
+
+    return results
+
+def find_lowest_values(d2c_train_incorrect):
+    # Initialize an array to store the lowest values for each class
+    lowest_values = np.zeros((10, 2))
+
+    # Get the unique digit classes
+    digit_classes = np.unique(d2c_train_incorrect[:, 1])
+
+    # Iterate over each unique digit class
+    for digit_class in digit_classes:
+        # Find the indices of rows with the current digit class
+        indices = np.where(d2c_train_incorrect[:, 1] == digit_class)
+
+        # Extract the rows corresponding to the current digit class
+        class_rows = d2c_train_incorrect[indices]
+
+        # Find the row with the minimum distance for the current digit class
+        min_row = class_rows[np.argmin(class_rows[:, 0])]
+
+        # Update the lowest value for the current digit class
+        lowest_values[int(digit_class)] = min_row
