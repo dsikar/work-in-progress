@@ -709,7 +709,98 @@ def plot_accuracy_decrements(results, results_overall, save=True):
 
 import matplotlib.pyplot as plt
 
-def single_plot_accuracy_decrements(results, results_overall, save=True):
+# def single_plot_accuracy_decrements(results, results_overall, save=True):
+#     """
+#     Plots the accuracy vs threshold decrement for each digit class and the overall accuracy on a single plot.
+
+#     Parameters:
+#         results (numpy.ndarray): The results array obtained from the calculate_accuracy_decrements function.
+#                                  Expected columns:
+#                                  - Column 0: Total number of values below the threshold
+#                                  - Column 1: Current threshold
+#                                  - Column 2: Decrement
+#                                  - Column 3: Digit class
+#                                  - Column 4: Digit class prediction accuracy
+#                                  - Column 5: Total values (correct + incorrect) for the digit class
+
+#         results_overall (numpy.ndarray): The results array obtained from the calculate_accuracy_decrements_overall function.
+#                                          Expected columns:
+#                                          - Column 0: Total number of values below the threshold (overall)
+#                                          - Column 1: Decrement
+#                                          - Column 2: Overall accuracy
+#                                          - Column 3: Total correct predictions (overall)
+#                                          - Column 4: Total values (overall)
+
+#         save (bool): Whether to save the plot as an image file. Default is True.
+
+#     Returns:
+#         None
+#     """
+#     # Define column indices
+#     COL_DECREMENT = 2
+#     COL_DIGIT_CLASS = 3
+#     COL_ACCURACY = 4
+
+#     COL_OVERALL_DECREMENT = 1
+#     COL_OVERALL_ACCURACY = 2
+
+#     # Get the unique digit classes
+#     digit_classes = np.unique(results[:, COL_DIGIT_CLASS])
+
+#     # Create a figure and a single axis
+#     fig, ax = plt.subplots(figsize=(8, 6))
+
+#     # Define color map for different colors
+#     cmap = plt.cm.get_cmap('viridis', len(digit_classes) + 1)
+
+#     # Plot accuracy vs decrement for each digit class
+#     for i, digit_class in enumerate(digit_classes):
+#         digit_rows = results[results[:, COL_DIGIT_CLASS] == digit_class]
+#         accuracy = digit_rows[:, COL_ACCURACY]
+#         decrement = digit_rows[:, COL_DECREMENT]
+#         ax.plot(decrement, accuracy, marker='o', color=cmap(i), label=f'Digit {int(digit_class)}')
+
+#     # Plot overall accuracy vs decrement
+#     overall_accuracy = results_overall[:, COL_OVERALL_ACCURACY]
+#     overall_decrement = results_overall[:, COL_OVERALL_DECREMENT]
+#     ax.plot(overall_decrement, overall_accuracy, marker='o', color=cmap(len(digit_classes)), label='Overall')
+
+#     # Set the x-axis and y-axis labels
+#     ax.set_xlabel('Threshold Decrement')
+#     ax.set_ylabel('Accuracy')
+
+#     # Set the y-axis limits and ticks
+#     ax.set_ylim(0.84, 1)
+#     ax.set_yticks(np.arange(0.84, 1.01, 0.02))
+
+#     # Add horizontal lines for each y-tick
+#     ax.grid(True, which='both', axis='y', linewidth=0.5, linestyle='--', alpha=0.7)
+
+#     # Add vertical lines for each decrement value
+#     for dec in overall_decrement:
+#         ax.axvline(x=dec, color='gray', linestyle='--', linewidth=0.5, alpha=0.7)
+
+#     # Add labels for each decrement value below the x-axis
+#     ax.set_xticks(overall_decrement)
+#     ax.set_xticklabels([f'{dec:.1f}' for dec in overall_decrement])
+
+#     # Set the title for the plot
+#     ax.set_title('Class Prediction Accuracy vs Distance to Threshold Decrement')
+
+#     # Add a legend on the bottom left
+#     ax.legend(loc='lower left', ncol=2)
+
+#     # Adjust the spacing
+#     plt.tight_layout()
+
+#     # Save the plot as an image file
+#     if save:
+#         plt.savefig('single_plot_accuracy_decrements.png')
+
+#     # Display the plot
+#     plt.show()
+
+def single_plot_accuracy_decrements(results, results_overall, labels=None, dataset="MNIST", save=True):
     """
     Plots the accuracy vs threshold decrement for each digit class and the overall accuracy on a single plot.
 
@@ -722,7 +813,6 @@ def single_plot_accuracy_decrements(results, results_overall, save=True):
                                  - Column 3: Digit class
                                  - Column 4: Digit class prediction accuracy
                                  - Column 5: Total values (correct + incorrect) for the digit class
-
         results_overall (numpy.ndarray): The results array obtained from the calculate_accuracy_decrements_overall function.
                                          Expected columns:
                                          - Column 0: Total number of values below the threshold (overall)
@@ -730,7 +820,8 @@ def single_plot_accuracy_decrements(results, results_overall, save=True):
                                          - Column 2: Overall accuracy
                                          - Column 3: Total correct predictions (overall)
                                          - Column 4: Total values (overall)
-
+        labels (list): List of labels for each digit class. Default is None.
+        dataset (str): Name of the dataset. Default is "MNIST".
         save (bool): Whether to save the plot as an image file. Default is True.
 
     Returns:
@@ -740,7 +831,6 @@ def single_plot_accuracy_decrements(results, results_overall, save=True):
     COL_DECREMENT = 2
     COL_DIGIT_CLASS = 3
     COL_ACCURACY = 4
-
     COL_OVERALL_DECREMENT = 1
     COL_OVERALL_ACCURACY = 2
 
@@ -758,7 +848,11 @@ def single_plot_accuracy_decrements(results, results_overall, save=True):
         digit_rows = results[results[:, COL_DIGIT_CLASS] == digit_class]
         accuracy = digit_rows[:, COL_ACCURACY]
         decrement = digit_rows[:, COL_DECREMENT]
-        ax.plot(decrement, accuracy, marker='o', color=cmap(i), label=f'Digit {int(digit_class)}')
+        if labels is not None:
+            label = labels[int(digit_class)]
+        else:
+            label = f'Digit {int(digit_class)}'
+        ax.plot(decrement, accuracy, marker='o', color=cmap(i), label=label)
 
     # Plot overall accuracy vs decrement
     overall_accuracy = results_overall[:, COL_OVERALL_ACCURACY]
@@ -785,7 +879,7 @@ def single_plot_accuracy_decrements(results, results_overall, save=True):
     ax.set_xticklabels([f'{dec:.1f}' for dec in overall_decrement])
 
     # Set the title for the plot
-    ax.set_title('Class Prediction Accuracy vs Distance to Threshold Decrement')
+    ax.set_title(f'{dataset} Class Prediction Accuracy vs Distance to Threshold Decrement')
 
     # Add a legend on the bottom left
     ax.legend(loc='lower left', ncol=2)
@@ -1030,6 +1124,38 @@ def plot_centroid_distance_bars(train_correct_predictions, train_incorrect_predi
     # Display the plot
     plt.show()    
 
+def calculate_distances_to_centroids(train_correct_predictions, centroids):
+    """
+    Calculates the distances to the centroids for each row in the given numpy array.
+
+    Parameters:
+    - train_correct_predictions: A numpy array of shape (n, 12) where:
+        - The first 10 columns represent the output of the softmax function.
+        - Column 11 represents the class label.
+        - Column 12 represents the predicted class.
+    - centroids: A numpy array of shape (10, 10) where:
+        - The row index represents the class label.
+        - The columns represent the centroid values.
+
+    Returns:
+    - distances_to_centroids: A numpy array of shape (n, 2) where:
+        - The first column represents the distance to the centroid.
+        - The second column represents the class label.
+    """
+    n = train_correct_predictions.shape[0]
+    distances_to_centroids = np.zeros((n, 2))
+
+    for i in range(n):
+        row = train_correct_predictions[i]
+        class_label = int(row[10])
+        centroid = centroids[class_label]
+        distance = np.linalg.norm(row[:10] - centroid)
+        
+        distances_to_centroids[i, 0] = distance
+        distances_to_centroids[i, 1] = class_label
+
+    return distances_to_centroids
+
 def boxplots_side_by_side_x2(data1, data2, data3, data4, save=False, debug=False, **kwargs):
     # Extract unique labels from the second column of data1, data2, data3, and data4
     labels1 = np.unique(data1[:, 1]).astype(int)
@@ -1043,11 +1169,11 @@ def boxplots_side_by_side_x2(data1, data2, data3, data4, save=False, debug=False
     distances_by_label3 = [data3[data3[:, 1] == label, 0] for label in labels3]
     distances_by_label4 = [data4[data4[:, 1] == label, 0] for label in labels4]
 
-    if debug:
-        analyze_lists_by_label(distances_by_label1)
-        analyze_lists_by_label(distances_by_label2)
-        analyze_lists_by_label(distances_by_label3)
-        analyze_lists_by_label(distances_by_label4)
+    # if debug:
+    #     analyze_lists_by_label(distances_by_label1)
+    #     analyze_lists_by_label(distances_by_label2)
+    #     analyze_lists_by_label(distances_by_label3)
+    #     analyze_lists_by_label(distances_by_label4)
 
     # Boxplot Creation with Styling
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(20, 5))
@@ -1158,7 +1284,41 @@ def boxplots_side_by_side_x2(data1, data2, data3, data4, save=False, debug=False
         filename = kwargs.get('filename', 'centroid_distances_comparison_4datasets.png')
         plt.savefig(filename, dpi=300)
 
-    plt.show()         
+    plt.show()  
+
+def calculate_class_accuracies(train_np, num_classes=10, class_label_col=10, class_pred_col=11):
+    """
+    Calculates the prediction accuracy for each class in the given numpy array.
+
+    Parameters:
+    - train_np: A numpy array of shape (n, m) where:
+        - The first m-2 columns represent the output of the softmax function.
+        - Column with index 'class_label_col' represents the class label.
+        - Column with index 'class_pred_col' represents the class prediction.
+    - num_classes: The number of distinct classes (default: 10).
+    - class_label_col: The index of the column containing the class labels (default: 10).
+    - class_pred_col: The index of the column containing the class predictions (default: 11).
+
+    Returns:
+    - A numpy array of shape (1, num_classes) where:
+        - The column index represents the class.
+        - The value represents the prediction accuracy for the class.
+    """
+    class_accuracies = np.zeros((1, num_classes))
+
+    for class_label in range(num_classes):
+        class_rows = train_np[train_np[:, class_label_col] == class_label]
+        total_rows = class_rows.shape[0]
+        correct_predictions = np.sum(class_rows[:, class_label_col] == class_rows[:, class_pred_col])
+        
+        if total_rows > 0:
+            accuracy = correct_predictions / total_rows
+        else:
+            accuracy = 0.0
+        
+        class_accuracies[0, class_label] = accuracy
+
+    return class_accuracies           
 
 def plot_accuracy_vs_distance_linear_fit(train_distance, train_accuracy, test_distance, test_accuracy, save=True):
     """
@@ -1425,8 +1585,7 @@ def find_lowest_values(d2c_train_incorrect):
         # Update the lowest value for the current digit class
         lowest_values[int(digit_class)] = min_row
 
-import matplotlib.pyplot as plt
-import numpy as np
+    return lowest_values
 
 def plot_mean_distances_x2(training_correct, training_incorrect, testing_correct, testing_incorrect, save=False):
     """
