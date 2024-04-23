@@ -94,11 +94,6 @@ incorrect_test_distances = mean_distance_to_centroids(test_incorrect_predictions
 # TODO comment back in
 # plot_mean_distances_x2(correct_train_distances, incorrect_train_distances, correct_test_distances, incorrect_test_distances)
 
-# Plot accuracy vs distance to centroids
-train_class_accuracies = calculate_class_accuracies(train_np)
-test_class_accuracies = calculate_class_accuracies(test_np)
-
-# plot_accuracy_vs_distance(correct_train_distances, train_class_accuracies)
 
 #plot_mean_distances_x2(incorrect_train_distances, incorrect_test_distances, predictions_type="Incorrect")
 
@@ -118,38 +113,95 @@ d2c_train_incorrect = calculate_distances_to_centroids(train_incorrect_predictio
 d2c_test_correct = calculate_distances_to_centroids(test_correct_predictions, test_centroids)
 d2c_test_incorrect = calculate_distances_to_centroids(test_incorrect_predictions, test_centroids)
 
-# boxplots alt function - THE GOOD ONE
-# TODO comment back in
-# boxplots_side_by_side_x2(d2c_train_correct, d2c_train_incorrect, d2c_test_correct, d2c_test_incorrect, False, True)
-
 # same boxplots, using only the training dataset correct class prediction centroids
 # # boxplots of distances to centroids for testing dataset
 d2c_test_correct_train_centroids = calculate_distances_to_centroids(test_correct_predictions, centroids)
 d2c_test_incorrect_train_centroids = calculate_distances_to_centroids(test_incorrect_predictions, centroids)
 
+boxplots_side_by_side_x2(d2c_train_correct, 
+                        d2c_train_incorrect, 
+                        d2c_test_correct_train_centroids, 
+                        d2c_test_incorrect_train_centroids, 
+                        labels=class_labels,
+                        save=True, 
+                        debug=True,
+                        title1='Training Dataset Distribution of Distances to Centroids',
+                        title2='Testing Dataset Distribution of Distances to Centroids',
+                        xlabel1='CIFAR10 Training Dataset Class Prediction',
+                        xlabel2='CIFAR10 Testing Dataset Class Prediction',
+                        ylabel1='Distance to Centroid (Logarithmic Scale)',
+                        ylabel2='',
+                        filename='CIFAR10_boxplots_side_by_side_x2.png',
+                        figsize=(20, 5)
+                    )
+
 # boxplots alt function - with testing data using training centroids
-# TODO comment back in
-# boxplots_side_by_side_x2(d2c_train_correct, d2c_train_incorrect, d2c_test_correct_train_centroids, d2c_test_incorrect_train_centroids, False, True, title1="Training Data Boxplots of Softmax Distances to Training Centroids", title2="Testing Data Boxplots of Softmax Distances to Training Centroids")
+boxplots_side_by_side_x2(d2c_train_correct, 
+                         d2c_train_incorrect, 
+                         d2c_test_correct_train_centroids, 
+                         d2c_test_incorrect_train_centroids, 
+                         save=False, 
+                         debug=True, 
+                         title1="Training Data Boxplots of Softmax Distances to Training Centroids", 
+                         title2="Testing Data Boxplots of Softmax Distances to Training Centroids")
 
 # bar charts of distances to centroids for training dataset
-# TODO comment back in
 # plot_centroid_distance_bars(train_correct_predictions, train_incorrect_predictions, color1='skyblue', color2='lightcoral', data="CIFAR10 Training Data")
+plot_centroid_distance_bars(train_correct_predictions, 
+                            train_incorrect_predictions, 
+                            labels=class_labels, 
+                            color1='lightblue', 
+                            color2='lightcoral', 
+                            data="CIFAR10 Training Data", 
+                            save=True, 
+                            filename='CIFAR10_training_plot_centroid_distance_bars.png')
 
 # bar charts of distances to centroids for testing dataset
-plot_centroid_distance_bars(test_correct_predictions, test_incorrect_predictions, color1='lightgreen', color2='lightcoral', data="CIFAR10 Testing Data")
+plot_centroid_distance_bars(test_correct_predictions, 
+                            test_incorrect_predictions, 
+                            labels=class_labels, 
+                            color1='lightgreen', 
+                            color2='lightcoral', 
+                            data="CIFAR10 Testing Data", 
+                            save=True, 
+                            filename='CIFAR10_testing_plot_centroid_distance_bars.png')
 
 # data on overlap between distances to centroids for correct and incorrect predictions
 #centroid_distance_overlap_plain_text(d2c_train_correct, d2c_train_incorrect, d2c_test_correct, d2c_test_incorrect)
 
-# TODO comment back in
-# centroid_distance_overlap_latex(d2c_train_correct, d2c_train_incorrect, d2c_test_correct, d2c_test_incorrect)
+# TODO Set table caption with function argument
+# Correct and incorrect classification distance to centroid overlap in LaTeX format
+centroid_distance_overlap_latex(d2c_train_correct, 
+                                d2c_train_incorrect, 
+                                d2c_test_correct, 
+                                d2c_test_incorrect, 
+                                caption='CIFAR10 centroid distances overlap count for correct predictions above incorrect threshold'
+                            )
+
+# STOPPED HERE, Next step, extend y axis on linear plot
+
 # statistical significance tests
 lowest_values = find_lowest_values(d2c_train_incorrect)
 accuracy_results = calculate_accuracy_decrements(d2c_test_correct, d2c_test_incorrect, lowest_values)
 overall_results = calculate_accuracy_decrements_overall(d2c_test_correct, d2c_test_incorrect, lowest_values)
-plot_accuracy_decrements(accuracy_results, overall_results)
+# Testing dataset
+# plot_accuracy_decrements(accuracy_results, overall_results)
+# plot_accuracy_decrements(accuracy_results, overall_results, labels=class_labels)
+plot_accuracy_decrements(accuracy_results, 
+                         overall_results,
+                         labels=class_labels, 
+                         save=True, 
+                         x_label='Threshold Decrement Factor', 
+                         title='CIFAR10 Testing Dataset Class Prediction Accuracy vs Distance to Threshold Decrement Factor', 
+                         filename='CIFAR10_testing_plot_accuracy_decrements.png')
 
-single_plot_accuracy_decrements(accuracy_results, overall_results, save=True)
+
+# Same as above CIFAR10 testing dataset, combined in a single plot
+single_plot_accuracy_decrements(accuracy_results, 
+                                overall_results, 
+                                labels=class_labels, 
+                                dataset="CIFAR10", 
+                                save=True)
 
 # STOPPED HERE
 # Next steps:

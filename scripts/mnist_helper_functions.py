@@ -613,7 +613,7 @@ def plot_mean_distances(mean_distances):
     
     plt.show()
 
-def plot_accuracy_decrements(results, results_overall, save=True):
+def plot_accuracy_decrements(results, results_overall, labels=None, save=True, x_label='Threshold Decrement', title='Class Prediction Accuracy vs Distance to Threshold Decrement', filename='plot_accuracy_decrements.png'):
     """
     Plots the accuracy vs threshold decrement for each digit class and the overall accuracy.
 
@@ -626,7 +626,6 @@ def plot_accuracy_decrements(results, results_overall, save=True):
                                  - Column 3: Digit class
                                  - Column 4: Digit class prediction accuracy
                                  - Column 5: Total values (correct + incorrect) for the digit class
-
         results_overall (numpy.ndarray): The results array obtained from the calculate_accuracy_decrements_overall function.
                                          Expected columns:
                                          - Column 0: Total number of values below the threshold (overall)
@@ -634,6 +633,12 @@ def plot_accuracy_decrements(results, results_overall, save=True):
                                          - Column 2: Overall accuracy
                                          - Column 3: Total correct predictions (overall)
                                          - Column 4: Total values (overall)
+        labels (list, optional): List of labels for each digit class. If provided, the labels will be used for the plot titles.
+                                 If not provided, the default digit classes will be used. Default is None.
+        save (bool, optional): Whether to save the plot as an image file. Default is True.
+        x_label (str, optional): The label for the x-axis. Default is 'Threshold Decrement'.
+        title (str, optional): The title for the entire figure. Default is 'Class Prediction Accuracy vs Distance to Threshold Decrement'.
+        filename (str, optional): The filename to save the plot. Default is 'plot_accuracy_decrements.png'.
 
     Returns:
         None
@@ -642,7 +647,6 @@ def plot_accuracy_decrements(results, results_overall, save=True):
     COL_DECREMENT = 2
     COL_DIGIT_CLASS = 3
     COL_ACCURACY = 4
-
     COL_OVERALL_DECREMENT = 1
     COL_OVERALL_ACCURACY = 2
 
@@ -663,7 +667,13 @@ def plot_accuracy_decrements(results, results_overall, save=True):
 
         # Plot the accuracy vs decrement for the current digit class
         axs[i].plot(decrement, accuracy, marker='o', color='lightgreen')
-        axs[i].set_title(f'{int(digit_class)}')
+
+        # Set the plot title based on the provided labels or default digit class
+        if labels is not None:
+            axs[i].set_title(f'{labels[int(digit_class)]}')
+        else:
+            axs[i].set_title(f'{int(digit_class)}')
+
         axs[i].set_ylim(0.8, 1)
         axs[i].grid(True)
 
@@ -692,21 +702,20 @@ def plot_accuracy_decrements(results, results_overall, save=True):
         axs[-1].axvline(x=dec, color='gray', linestyle='--', linewidth=0.5)
 
     # Set the x-axis label for the entire figure
-    fig.text(0.5, 0.02, 'Threshold Decrement', ha='center')
+    fig.text(0.5, 0.02, x_label, ha='center')
 
     # Set the title for the entire figure
-    fig.suptitle('Class Prediction Accuracy vs Distance to Threshold Decrement')
+    fig.suptitle(title)
 
     # Adjust the spacing between subplots
     plt.tight_layout(rect=[0.03, 0.03, 1, 0.95])
 
     # Save the plot as an image file
     if save:
-        plt.savefig('plot_accuracy_decrements.png')
+        plt.savefig(filename)
 
     # Display the plot
     plt.show()
-
 import matplotlib.pyplot as plt
 
 # def single_plot_accuracy_decrements(results, results_overall, save=True):
@@ -894,7 +903,7 @@ def single_plot_accuracy_decrements(results, results_overall, labels=None, datas
     # Display the plot
     plt.show()
 
-def centroid_distance_overlap_latex(d2c_train_correct, d2c_train_incorrect, d2c_test_correct, d2c_test_incorrect):
+def centroid_distance_overlap_latex(d2c_train_correct, d2c_train_incorrect, d2c_test_correct, d2c_test_incorrect, **kwargs):
     """
     Compares the distances in column 1 of d2c_train_correct, d2c_train_incorrect, d2c_test_correct, and d2c_test_incorrect
     for each label (digit) in column 2, and calculates the count and percentage of rows
@@ -905,6 +914,7 @@ def centroid_distance_overlap_latex(d2c_train_correct, d2c_train_incorrect, d2c_
     d2c_train_incorrect (numpy.ndarray): Array of shape (m, 2) containing distances and labels for incorrect predictions in training data.
     d2c_test_correct (numpy.ndarray): Array of shape (p, 2) containing distances and labels for correct predictions in testing data.
     d2c_test_incorrect (numpy.ndarray): Array of shape (q, 2) containing distances and labels for incorrect predictions in testing data.
+    **kwargs: caption (str) - The caption for the LaTeX table.
 
     Returns:
     None
@@ -955,6 +965,7 @@ def centroid_distance_overlap_latex(d2c_train_correct, d2c_train_incorrect, d2c_
     test_train_total = np.sum(test_train_total_count)
     test_train_percentage_total = test_train_count_total / test_train_total * 100
 
+    caption = kwargs.get('caption', 'Comparison of centroid distances between correct and incorrect predictions')
     # Create the LaTeX table
     print("\\begin{table}[htbp]")
     print("\\centering")
@@ -962,7 +973,7 @@ def centroid_distance_overlap_latex(d2c_train_correct, d2c_train_incorrect, d2c_
     print("\\hline")
     print("Digit & \\multicolumn{3}{c|}{Train} & \\multicolumn{3}{c|}{Test-Train} \\\\")
     print("\\hline")
-    print(" & Cnt & Ttl & Opct & Cnt & Ttl & Opct \\\\")
+    print(" & Count & Total & Overlap & Count & Total & Overlap \\\\")
     print("\\hline")
     for i, label in enumerate(labels):
         print(f"{label} & {train_count_greater_equal[i]} & {train_total_count[i]} & {train_percentage_greater_equal[i]:.2f}\\% & {test_train_count_greater_equal[i]} & {test_train_total_count[i]} & {test_train_percentage_greater_equal[i]:.2f}\\% \\\\")
@@ -970,7 +981,7 @@ def centroid_distance_overlap_latex(d2c_train_correct, d2c_train_incorrect, d2c_
     print(f"Totals & {train_count_total} & {train_total} & {train_percentage_total:.2f}\\% & {test_train_count_total} & {test_train_total} & {test_train_percentage_total:.2f}\\% \\\\")
     print("\\hline")
     print("\\end{tabular}")
-    print("\\caption{Comparison of centroid distances between correct and incorrect predictions}")
+    print("\\caption{" + caption +"}")
     print("\\label{tab:centroid_distance_overlap}")
     print("\\end{table}")
 
@@ -1041,88 +1052,116 @@ def plot_digit_averages(train_correct_predictions, train_incorrect_predictions, 
     # Display the plot
     plt.show()    
 
-def plot_centroid_distance_bars(train_correct_predictions, train_incorrect_predictions, color1='skyblue', color2='lightcoral', data="Training Data"):
+def plot_centroid_distance_bars(train_correct_predictions, 
+                                train_incorrect_predictions, 
+                                labels=None, color1='skyblue', 
+                                color2='lightcoral', 
+                                data="Training Data", 
+                                save=False,
+                                **kwargs):
+    """
+    Plot centroid distance bars
+
+    Args:
+    train_correct_predictions (numpy.ndarray): Array of shape (n, 12) containing the predictions for correct samples.
+    train_incorrect_predictions (numpy.ndarray): Array of shape (m, 12) containing the predictions for incorrect samples.
+    labels (list): List of labels for each class. Default is None.
+    color1 (str): Color for correct predictions. Default is 'skyblue'.
+    color2 (str): Color for incorrect predictions. Default is 'lightcoral'.
+    data (str): Name of the dataset. Default is "Training Data".
+    save (bool): Whether to save the plot. Default is False - use row indexes as labels.
+    **kwargs: Additional keyword arguments.
+    """
     # Get the unique labels (classes) from column 11
-    labels = np.unique(train_correct_predictions[:, 10]).astype(int)
-    
+    if labels is None:
+        labels = np.unique(train_correct_predictions[:, 10]).astype(int)
+    else:
+        labels = [str(label) for label in labels]
+
     # Create a figure and subplots for each class (2 rows: correct and incorrect predictions)
     fig, axs = plt.subplots(2, len(labels), figsize=(20, 10))
     fig.suptitle(f'{data} - Softmax Average Distributions for Correct and Incorrect Class Predictions', fontsize=16)
-    
+
     # Plot correct predictions
     for i, label in enumerate(labels):
         # Get the predictions for the current class
-        class_predictions = train_correct_predictions[train_correct_predictions[:, 10] == label, :10]
-        
+        class_predictions = train_correct_predictions[train_correct_predictions[:, 10].astype(int) == i, :10]
+
         # Calculate the average value for each index
         averages = np.mean(class_predictions, axis=0)
-        
+
         # Plot the bar graph for the current class
         axs[0, i].bar(np.arange(10), averages, color=color1)
-        
+
         # Set the y-axis to logarithmic scale
         axs[0, i].set_yscale('log')
-        
+
         # Set the y-axis limits to start from 10^-4
         axs[0, i].set_ylim(bottom=1e-4)
-        
+
         # Set the title for the current subplot
-        axs[0, i].set_title(f'Class {label} (Correct)', fontsize=12)
-        
+        axs[0, i].set_title(f'{label}', fontsize=12)
+
         # Set the x-tick positions and labels
         axs[0, i].set_xticks(np.arange(10))
         axs[0, i].set_xticklabels(np.arange(10), fontsize=10)
-        
+
         # Add x-axis grid lines
         axs[0, i].set_xticks(np.arange(10), minor=True)
         axs[0, i].grid(True, which='minor', axis='x', linestyle='--', linewidth=0.5, alpha=0.7)
-        
+
         # Add y-axis grid lines
         axs[0, i].grid(True, which='both', axis='y', linestyle='--', linewidth=0.5, alpha=0.7)
-    
+
     # Plot incorrect predictions
     for i, label in enumerate(labels):
         # Get the predictions for the current class
-        class_predictions = train_incorrect_predictions[train_incorrect_predictions[:, 11] == label, :10]
-        
+        class_predictions = train_incorrect_predictions[train_incorrect_predictions[:, 11].astype(int) == i, :10]
+
         # Calculate the average value for each index
         averages = np.mean(class_predictions, axis=0)
-        
+
         # Plot the bar graph for the current class
         axs[1, i].bar(np.arange(10), averages, color=color2)
-        
+
         # Set the y-axis to logarithmic scale
         axs[1, i].set_yscale('log')
-        
+
         # Set the y-axis limits to start from 10^-4
         axs[1, i].set_ylim(bottom=1e-4)
-        
+
         # Set the title for the current subplot
-        axs[1, i].set_title(f'Class {label} (Incorrect)', fontsize=12)
-        
+        #axs[1, i].set_title(f'Class {label} (Incorrect)', fontsize=12)
+        axs[1, i].set_title(f'{label}', fontsize=12)
+
         # Set the x-tick positions and labels
         axs[1, i].set_xticks(np.arange(10))
         axs[1, i].set_xticklabels(np.arange(10), fontsize=10)
-        
+
         # Add x-axis grid lines
         axs[1, i].set_xticks(np.arange(10), minor=True)
         axs[1, i].grid(True, which='minor', axis='x', linestyle='--', linewidth=0.5, alpha=0.7)
-        
+
         # Add y-axis grid lines
         axs[1, i].grid(True, which='both', axis='y', linestyle='--', linewidth=0.5, alpha=0.7)
-    
+
     # Set x-axis label at the bottom of the figure
     fig.text(0.5, 0.04, 'Class Index', ha='center', fontsize=14)
-    
+
     # Set y-axis label on the left side of the figure
     fig.text(0.04, 0.5, 'Average Softmax Value (Logarithmic)', va='center', rotation='vertical', fontsize=14)
-    
+
     # Adjust the spacing between subplots
     plt.tight_layout(rect=[0.05, 0.05, 0.95, 0.95])
     fig.subplots_adjust(top=0.9)  # Adjust the top spacing for the main title
-    
+
+    # Saving and Displaying
+    if save:
+        filename = kwargs.get('filename', 'plot_centroid_distance_bars.png')
+        plt.savefig(filename, dpi=300)
+
     # Display the plot
-    plt.show()    
+    plt.show()
 
 def calculate_distances_to_centroids(train_correct_predictions, centroids):
     """
@@ -1156,42 +1195,45 @@ def calculate_distances_to_centroids(train_correct_predictions, centroids):
 
     return distances_to_centroids
 
-def boxplots_side_by_side_x2(data1, data2, data3, data4, save=False, debug=False, **kwargs):
-    # Extract unique labels from the second column of data1, data2, data3, and data4
-    labels1 = np.unique(data1[:, 1]).astype(int)
-    labels2 = np.unique(data2[:, 1]).astype(int)
-    labels3 = np.unique(data3[:, 1]).astype(int)
-    labels4 = np.unique(data4[:, 1]).astype(int)
+def boxplots_side_by_side_x2(d2c_train_correct, d2c_train_incorrect, d2c_test_correct_train_centroids, d2c_test_incorrect_train_centroids4, labels=None, save=False, debug=False, **kwargs):
+    # Extract unique labels from the second column of d2c_train_correct, d2c_train_incorrect, d2c_test_correct_train_centroids, and d2c_test_incorrect_train_centroids4
+    labels1 = np.unique(d2c_train_correct[:, 1]).astype(int)
+    labels2 = np.unique(d2c_train_incorrect[:, 1]).astype(int)
+    labels3 = np.unique(d2c_test_correct_train_centroids[:, 1]).astype(int)
+    labels4 = np.unique(d2c_test_incorrect_train_centroids4[:, 1]).astype(int)
 
-    # Create lists to store the distances for each label in data1, data2, data3, and data4
-    distances_by_label1 = [data1[data1[:, 1] == label, 0] for label in labels1]
-    distances_by_label2 = [data2[data2[:, 1] == label, 0] for label in labels2]
-    distances_by_label3 = [data3[data3[:, 1] == label, 0] for label in labels3]
-    distances_by_label4 = [data4[data4[:, 1] == label, 0] for label in labels4]
+    # Create lists to store the distances for each label in d2c_train_correct, d2c_train_incorrect, d2c_test_correct_train_centroids, and d2c_test_incorrect_train_centroids4
+    distances_by_label1 = [d2c_train_correct[d2c_train_correct[:, 1] == label, 0] for label in labels1]
+    distances_by_label2 = [d2c_train_incorrect[d2c_train_incorrect[:, 1] == label, 0] for label in labels2]
+    distances_by_label3 = [d2c_test_correct_train_centroids[d2c_test_correct_train_centroids[:, 1] == label, 0] for label in labels3]
+    distances_by_label4 = [d2c_test_incorrect_train_centroids4[d2c_test_incorrect_train_centroids4[:, 1] == label, 0] if label in labels4 else [] for label in labels3]
 
-    # if debug:
-    #     analyze_lists_by_label(distances_by_label1)
-    #     analyze_lists_by_label(distances_by_label2)
-    #     analyze_lists_by_label(distances_by_label3)
-    #     analyze_lists_by_label(distances_by_label4)
+    # Create labels for the x-axis, including "N/A" for missing classes
+#    labels4_extended = ["N/A" if label not in labels4 else str(label) for label in labels3]
 
+    # Create labels for the x-axis, including "N/A" for missing classes
+    if labels is None:
+        labels4_extended = ["N/A" if label not in labels4 else str(label) for label in labels3]
+    else:
+        labels4_extended = [f"{labels[label]} (N/A)" if label not in labels4 else labels[label] for label in labels3]
+        
     # Boxplot Creation with Styling
-    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(20, 5))
+    figsize = kwargs.get('figsize', (20, 5))
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=figsize)
 
-    # Plot boxplots for data1 and data2 on the first subplot
+    # Plot boxplots for d2c_train_correct and d2c_train_incorrect on the first subplot
     bp1 = ax1.boxplot(distances_by_label1, positions=np.arange(len(labels1))-0.2, widths=0.4,
                       patch_artist=True, showmeans=True, meanline=True, medianprops={'linewidth': 2})
     bp2 = ax1.boxplot(distances_by_label2, positions=np.arange(len(labels2))+0.2, widths=0.4,
                       patch_artist=True, showmeans=True, meanline=True, medianprops={'linewidth': 2})
 
-    # Plot boxplots for data3 and data4 on the second subplot
+    # Plot boxplots for d2c_test_correct_train_centroids and d2c_test_incorrect_train_centroids4 on the second subplot
     bp3 = ax2.boxplot(distances_by_label3, positions=np.arange(len(labels3))-0.2, widths=0.4,
                       patch_artist=True, showmeans=True, meanline=True, medianprops={'linewidth': 2})
-    bp4 = ax2.boxplot(distances_by_label4, positions=np.arange(len(labels4))+0.2, widths=0.4,
+    bp4 = ax2.boxplot(distances_by_label4, positions=np.arange(len(labels3))+0.2, widths=0.4,
                       patch_artist=True, showmeans=True, meanline=True, medianprops={'linewidth': 2})
 
-
-    # Set colors for data1, data2, data3, and data4
+    # Set colors for d2c_train_correct, d2c_train_incorrect, d2c_test_correct_train_centroids, and d2c_test_incorrect_train_centroids4
     color1 = 'skyblue'
     color2 = 'lightcoral'
     color3 = 'lightgreen'
@@ -1249,18 +1291,27 @@ def boxplots_side_by_side_x2(data1, data2, data3, data4, save=False, debug=False
     ax2.set_yticks(yticks2)
     ax2.set_yticklabels(yticklabels2)
 
-    ax1.set_title(kwargs.get('title1', ' Training Data Distribution of Distances to Centroids'), fontsize=14)
-    ax2.set_title(kwargs.get('title2', 'Testing Data Distribution of Distances to Centroids'), fontsize=14)
-    ax1.set_xlabel(kwargs.get('xlabel', 'Digit Class Prediction'), fontsize=12)
-    ax2.set_xlabel(kwargs.get('xlabel', 'Digit Class Prediction'), fontsize=12)
-    ax1.set_ylabel(kwargs.get('ylabel', 'Distance (Logarithmic Scale)'), fontsize=12)
-    ax2.set_ylabel(kwargs.get('ylabel', 'Distance (Logarithmic Scale)'), fontsize=12)
-    ax1.set_xticks(range(len(labels1)))
-    ax1.set_xticklabels(labels1)
+    ax1.set_title(kwargs.get('title1', ' Training d2c_test_incorrect_train_centroids Distribution of Distances to Centroids'), fontsize=14)
+    ax2.set_title(kwargs.get('title2', 'Testing d2c_test_incorrect_train_centroids Distribution of Distances to Centroids'), fontsize=14)
+    ax1.set_xlabel(kwargs.get('xlabel1', 'Digit Class Prediction'), fontsize=12)
+    ax2.set_xlabel(kwargs.get('xlabel2', 'Digit Class Prediction'), fontsize=12)
+    ax1.set_ylabel(kwargs.get('ylabel1', 'Distance (Logarithmic Scale)'), fontsize=12)
+    ax2.set_ylabel(kwargs.get('ylabel2', 'Distance (Logarithmic Scale)'), fontsize=12)  
+
+   # Set x-tick labels for the first subplot
+    if labels is None:
+        ax1.set_xticks(range(len(labels1)))
+        ax1.set_xticklabels(labels1)
+    else:
+        ax1.set_xticks(range(len(labels1)))
+        ax1.set_xticklabels([labels[label] for label in labels1], rotation=45, ha='right')
+
     ax1.set_xticks(range(len(labels1)), minor=True)
     ax1.grid(True, which='minor', axis='x', linestyle='--', linewidth=0.5, alpha=0.7)
+
+    # Set x-tick labels for the second subplot
     ax2.set_xticks(range(len(labels3)))
-    ax2.set_xticklabels(labels3)
+    ax2.set_xticklabels(labels4_extended, rotation=45, ha='right')
     ax2.set_xticks(range(len(labels3)), minor=True)
     ax2.grid(True, which='minor', axis='x', linestyle='--', linewidth=0.5, alpha=0.7)
 
@@ -1277,15 +1328,15 @@ def boxplots_side_by_side_x2(data1, data2, data3, data4, save=False, debug=False
     legend_handles2 = [plt.Rectangle((0, 0), 1, 1, facecolor=color3), plt.Rectangle((0, 0), 1, 1, facecolor=color4)]
     ax2.legend(legend_handles2, legend_labels2, loc='lower right', fontsize=12)
 
-    plt.subplots_adjust(wspace=0.2)  # Adjust spacing between subplots
+    plt.subplots_adjust(wspace=0.2, bottom=0.2)  # Adjust spacing between subplots
 
     # Saving and Displaying
     if save:
-        filename = kwargs.get('filename', 'centroid_distances_comparison_4datasets.png')
+        filename = kwargs.get('filename', 'boxplots_side_by_side_x2.png')
         plt.savefig(filename, dpi=300)
 
     plt.show()  
-
+    
 def calculate_class_accuracies(train_np, num_classes=10, class_label_col=10, class_pred_col=11):
     """
     Calculates the prediction accuracy for each class in the given numpy array.
