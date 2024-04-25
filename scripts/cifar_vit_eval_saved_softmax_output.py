@@ -43,8 +43,7 @@ with open(f'{current_dir}{path}class_labels.txt', 'r') as file:
 ######################
 # CONFUSION MATRICES #
 ######################
-# TODO comment back in
-# conf_matrix1, conf_matrix2 = display_misclassifications_side_by_side_cifar10(train_np, test_np, 10, 11, class_labels, 20, 7, True)
+conf_matrix1, conf_matrix2 = display_misclassifications_side_by_side_cifar10(train_np, test_np, 10, 11, class_labels, 20, 7, True)
 
 # get the number of misclassifications - obsolete
 #train_misclassifications = sum_misclassifications(conf_matrix1)
@@ -90,20 +89,29 @@ incorrect_test_distances = mean_distance_to_centroids(test_incorrect_predictions
 # TRAINING AND TESTING MEAN DISTANCE TO CENTROIDS BAR CHARTS # 
 ##############################################################
 
+# Plot accuracy vs distance to centroids
+train_class_accuracies = calculate_class_accuracies(train_np)
+test_class_accuracies = calculate_class_accuracies(test_np)
+
+# Plot not used in overleaf
 # Plot mean correct prediction distances to centroids side by side, for training and testing
-# TODO comment back in
-# plot_mean_distances_x2(correct_train_distances, incorrect_train_distances, correct_test_distances, incorrect_test_distances)
-
-
+plot_mean_distances_x2(correct_train_distances, incorrect_train_distances, correct_test_distances, incorrect_test_distances)
 #plot_mean_distances_x2(incorrect_train_distances, incorrect_test_distances, predictions_type="Incorrect")
 
+# Plot not used in overleaf
 # plot mean distances double bar chart
-# TODO comment back in
-# plot_mean_distances_double_bars(correct_train_distances, incorrect_train_distances, correct_test_distances, incorrect_test_distances, save=True)
+plot_mean_distances_double_bars(correct_train_distances, incorrect_train_distances, correct_test_distances, incorrect_test_distances, save=True)
 
 # Plot accuracy vs distance to centroids, with linear fit
-# TODO comment back in
-# plot_accuracy_vs_distance_linear_fit(correct_train_distances, train_class_accuracies, correct_test_distances, test_class_accuracies)
+plot_accuracy_vs_distance_linear_fit(correct_train_distances, 
+                                     train_class_accuracies, 
+                                     correct_test_distances, 
+                                     test_class_accuracies,
+                                     save=True,
+                                     ylim=(0.90,1),
+                                     title='CIFAR10 Accuracy vs Distance to Centroids Linear Fit',
+                                     filename='CIFAR10_plot_accuracy_vs_distance_linear_fit.png'
+                                     )
 
 # boxplots of distances to centroids for training dataset
 d2c_train_correct = calculate_distances_to_centroids(train_correct_predictions, centroids)
@@ -169,16 +177,14 @@ plot_centroid_distance_bars(test_correct_predictions,
 # data on overlap between distances to centroids for correct and incorrect predictions
 #centroid_distance_overlap_plain_text(d2c_train_correct, d2c_train_incorrect, d2c_test_correct, d2c_test_incorrect)
 
-# TODO Set table caption with function argument
 # Correct and incorrect classification distance to centroid overlap in LaTeX format
 centroid_distance_overlap_latex(d2c_train_correct, 
                                 d2c_train_incorrect, 
                                 d2c_test_correct, 
                                 d2c_test_incorrect, 
+                                labels=class_labels,
                                 caption='CIFAR10 centroid distances overlap count for correct predictions above incorrect threshold'
                             )
-
-# STOPPED HERE, Next step, extend y axis on linear plot
 
 # statistical significance tests
 lowest_values = find_lowest_values(d2c_train_incorrect)

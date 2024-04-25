@@ -903,7 +903,7 @@ def single_plot_accuracy_decrements(results, results_overall, labels=None, datas
     # Display the plot
     plt.show()
 
-def centroid_distance_overlap_latex(d2c_train_correct, d2c_train_incorrect, d2c_test_correct, d2c_test_incorrect, **kwargs):
+def centroid_distance_overlap_latex(d2c_train_correct, d2c_train_incorrect, d2c_test_correct, d2c_test_incorrect, labels=None, **kwargs):
     """
     Compares the distances in column 1 of d2c_train_correct, d2c_train_incorrect, d2c_test_correct, and d2c_test_incorrect
     for each label (digit) in column 2, and calculates the count and percentage of rows
@@ -914,6 +914,7 @@ def centroid_distance_overlap_latex(d2c_train_correct, d2c_train_incorrect, d2c_
     d2c_train_incorrect (numpy.ndarray): Array of shape (m, 2) containing distances and labels for incorrect predictions in training data.
     d2c_test_correct (numpy.ndarray): Array of shape (p, 2) containing distances and labels for correct predictions in testing data.
     d2c_test_incorrect (numpy.ndarray): Array of shape (q, 2) containing distances and labels for incorrect predictions in testing data.
+    labels (list, optional): List of string labels corresponding to each digit. If None, the default digit labels will be used.
     **kwargs: caption (str) - The caption for the LaTeX table.
 
     Returns:
@@ -921,22 +922,22 @@ def centroid_distance_overlap_latex(d2c_train_correct, d2c_train_incorrect, d2c_
     """
 
     # Get the unique labels (digits) from column 2
-    labels = np.unique(d2c_train_correct[:, 1]).astype(int)
+    digits = np.unique(d2c_train_correct[:, 1]).astype(int)
 
     # Initialize arrays to store the results
-    train_count_greater_equal = np.zeros(len(labels), dtype=int)
-    train_total_count = np.zeros(len(labels), dtype=int)
-    test_train_count_greater_equal = np.zeros(len(labels), dtype=int)
-    test_train_total_count = np.zeros(len(labels), dtype=int)
+    train_count_greater_equal = np.zeros(len(digits), dtype=int)
+    train_total_count = np.zeros(len(digits), dtype=int)
+    test_train_count_greater_equal = np.zeros(len(digits), dtype=int)
+    test_train_total_count = np.zeros(len(digits), dtype=int)
 
     # Iterate over each label (digit)
-    for i, label in enumerate(labels):
+    for i, digit in enumerate(digits):
         # Get the distances for the current label from training arrays
-        train_correct_distances = d2c_train_correct[d2c_train_correct[:, 1] == label, 0]
-        train_incorrect_distances = d2c_train_incorrect[d2c_train_incorrect[:, 1] == label, 0]
+        train_correct_distances = d2c_train_correct[d2c_train_correct[:, 1] == digit, 0]
+        train_incorrect_distances = d2c_train_incorrect[d2c_train_incorrect[:, 1] == digit, 0]
         
         # Get the distances for the current label from testing arrays
-        test_correct_distances = d2c_test_correct[d2c_test_correct[:, 1] == label, 0]
+        test_correct_distances = d2c_test_correct[d2c_test_correct[:, 1] == digit, 0]
         
         # Count the number of rows in d2c_train_correct where column 1 has values greater than or equal to the minimum value in d2c_train_incorrect
         train_count_greater_equal[i] = np.sum(train_correct_distances >= np.min(train_incorrect_distances))
@@ -966,22 +967,27 @@ def centroid_distance_overlap_latex(d2c_train_correct, d2c_train_incorrect, d2c_
     test_train_percentage_total = test_train_count_total / test_train_total * 100
 
     caption = kwargs.get('caption', 'Comparison of centroid distances between correct and incorrect predictions')
+
     # Create the LaTeX table
     print("\\begin{table}[htbp]")
     print("\\centering")
     print("\\begin{tabular}{|c|c|c|c|c|c|c|}")
     print("\\hline")
-    print("Digit & \\multicolumn{3}{c|}{Train} & \\multicolumn{3}{c|}{Test-Train} \\\\")
+    print("Digit & \\multicolumn{3}{c|}{Train Data - Train Centroids} & \\multicolumn{3}{c|}{Test Data - Train Centroids} \\\\")
     print("\\hline")
     print(" & Count & Total & Overlap & Count & Total & Overlap \\\\")
     print("\\hline")
-    for i, label in enumerate(labels):
+    for i, digit in enumerate(digits):
+        if labels is None:
+            label = str(digit)
+        else:
+            label = labels[digit]
         print(f"{label} & {train_count_greater_equal[i]} & {train_total_count[i]} & {train_percentage_greater_equal[i]:.2f}\\% & {test_train_count_greater_equal[i]} & {test_train_total_count[i]} & {test_train_percentage_greater_equal[i]:.2f}\\% \\\\")
     print("\\hline")
     print(f"Totals & {train_count_total} & {train_total} & {train_percentage_total:.2f}\\% & {test_train_count_total} & {test_train_total} & {test_train_percentage_total:.2f}\\% \\\\")
     print("\\hline")
     print("\\end{tabular}")
-    print("\\caption{" + caption +"}")
+    print("\\caption{" + caption + "}")
     print("\\label{tab:centroid_distance_overlap}")
     print("\\end{table}")
 
@@ -1371,7 +1377,7 @@ def calculate_class_accuracies(train_np, num_classes=10, class_label_col=10, cla
 
     return class_accuracies           
 
-def plot_accuracy_vs_distance_linear_fit(train_distance, train_accuracy, test_distance, test_accuracy, save=True):
+def plot_accuracy_vs_distance_linear_fit(train_distance, train_accuracy, test_distance, test_accuracy, save=True, **kwargs):
     """
     Plots accuracy against mean class distance to centroid for both training and testing data,
     with a linear fit for the trend in the data.
@@ -1382,6 +1388,7 @@ def plot_accuracy_vs_distance_linear_fit(train_distance, train_accuracy, test_di
     - test_distance: A numpy array with shape (10,) containing mean distances to centroid for each class in the testing set.
     - test_accuracy: A numpy array with shape (1,10) containing accuracies for each class in the testing set.
     - save: A boolean indicating whether to save the plot. Default is True.
+    - **kwargs: Additional keyword arguments for the plot.
     """
     
     # Ensure the arrays are correctly shaped
@@ -1416,8 +1423,8 @@ def plot_accuracy_vs_distance_linear_fit(train_distance, train_accuracy, test_di
     plt.xlabel('Mean Class Distance to Centroid')
     plt.ylabel('Accuracy')
     
-    # Set the y-axis limits between 0.94 and 1
-    plt.ylim(0.95, 1)
+    # get ylim from kwargs, if not present, use default
+    plt.ylim(kwargs.get('ylim', (0.95, 1)))
     
     # Add horizontal lines
     plt.axhline(y=0.96, color='gray', linestyle='--', linewidth=0.8)
@@ -1426,7 +1433,7 @@ def plot_accuracy_vs_distance_linear_fit(train_distance, train_accuracy, test_di
     plt.axhline(y=0.99, color='gray', linestyle='--', linewidth=0.8)
     
     # Set the title
-    plt.title('MNIST Classification: Train vs Test Accuracy and Mean Distance to Centroid with Linear Fit')
+    plt.title(kwargs.get('title','MNIST Classification: Train vs Test Accuracy and Mean Distance to Centroid with Linear Fit'))
     
     # Show the grid
     plt.grid(True)
@@ -1438,7 +1445,7 @@ def plot_accuracy_vs_distance_linear_fit(train_distance, train_accuracy, test_di
     plt.show()
     
     if save:
-        plt.savefig('MNIST_Classification_Train_Test_Accuracy_Mean_Distance_to_Centroid_Linear_Fit.png')    
+        plt.savefig(kwargs.get('filename','MNIST_Classification_Train_Test_Accuracy_Mean_Distance_to_Centroid_Linear_Fit.png'))   
 
 def plot_mean_distances_double_bars(training_correct_distances, training_incorrect_distances,
                                     testing_correct_distances, testing_incorrect_distances, save=False):

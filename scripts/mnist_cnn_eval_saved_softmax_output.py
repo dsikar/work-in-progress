@@ -180,7 +180,7 @@ test_class_accuracies = calculate_class_accuracies(test_np)
 
 plot_accuracy_vs_distance(correct_train_distances, train_class_accuracies)
 
-plot_mean_distances_x2(incorrect_train_distances, incorrect_test_distances, predictions_type="Incorrect")
+plot_mean_distances_x2(correct_train_distances, incorrect_train_distances, correct_test_distances, incorrect_test_distances)
 
 # plot mean distances double bar chart
 plot_mean_distances_double_bars(correct_train_distances, incorrect_train_distances, correct_test_distances, incorrect_test_distances, save=True)
