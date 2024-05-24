@@ -1,7 +1,7 @@
 import torch
 import numpy as np
 from scipy.optimize import curve_fit
-
+import os
 ###########
 # PROCESS #
 ###########
@@ -204,6 +204,106 @@ def save_predictions(net, testloader, verbose=False):
         print(f"Accuracy on dataset saved to numpy array: {percentage_same:.2f}%")
 
     return data_np
+    
+def save_predictions_perturbed(net, testloader, pertubation_filepath, verbose=False, save=False):
+    """
+    Save model predictions for the "perturbed" MNIST dataset - softmax output, labels, and predicted labels to a numpy array
+    Note, the files in data/MNIST/raw/need to be manually replaced with the perturbed images, and same names kept i.e.
+    For the testing dataset:
+    t1210k-perturbed-images-idx3-ubyte -> t10k-images-idx3-ubyte
+    t1210k-perturbed-labels-idx1-ubyte -> t10k-labels-idx1-ubyte
+    Moreover, t1210k-perturbation-levels-idx0-ubyte is used to retrieve the perturbation and levels for each image.
+    We do not repeat the operation for the training dataset, and assume model was trained on the original clean MNIST dataset.
+
+    Parameters
+    ----------
+    net : torch.nn.Module
+        The trained model.
+    testloader : torch.utils.data.DataLoader
+    pertubation_filepath : str, path to the perturbation file t1210k-perturbation-levels-idx0-ubyte
+    verbose : bool, optional
+    save : bool, optional
+
+    Output
+    ------
+    data_np : numpy.ndarray
+        The softmax output, labels, and predicted labels for each image in the test dataset.
+        Array shape: (number of images, 12)
+    Example
+    -------
+    # Load the saved model from a file
+    PATH = 'models/mnist_vanilla_cnn_local_202306241859.pth' # trained on google colab,
+    PATH = os.path.join(current_dir, PATH)
+    net.load_state_dict(torch.load(PATH))
+    # Load the test data
+    datapath = os.path.join(current_dir, 'data/')
+    testset = datasets.MNIST(datapath, train=False, download=False, transform=transform)
+    testloader = torch.utils.data.DataLoader(testset, batch_size=64, shuffle=True)
+    # Save the model predictions
+    data_np = save_predictions(net, testloader)
+    """
+
+    # Running totals 
+    correct = 0
+    total = 0
+
+    # Store Softmax output for each image prediction
+    num_columns = 12 # softmax probabilities (10), labels, predicted labels
+    data_np = np.empty((0, num_columns))
+
+    # .no_grad() disables gradient computation, which reduces memory usage
+    with torch.no_grad():
+        for inputs, labels in testloader:
+            outputs_original = net(inputs)
+            # convert log probabilities to probabilities
+            outputs = torch.exp(outputs_original)
+            _, predicted = torch.max(outputs.data, 1) # outputs.shape
+            total += labels.size(0)
+            correct += (predicted == labels).sum().item()
+            
+            outputs_np = outputs.data.numpy()
+            labels_np = labels.numpy().reshape(-1, 1)
+            predicted_np = predicted.numpy().reshape(-1, 1)
+            combined_np = np.hstack((outputs_np, labels_np, predicted_np))
+            data_np = np.vstack((data_np, combined_np))
+
+    # add two more columns to data_np - perturbation, perturbation level
+    data_np = np.hstack((data_np, np.zeros((data_np.shape[0], 2))))
+    # Load the perturbation types and levels
+    # get the number of predictions
+    for i in range(data_np.shape[0]):
+        # load the perturbation type and level
+        packed_byte = get_mnist_byte(pertubation_filepath, i, verbose=False)
+        perturbation, perturbation_level = unpack_perturbation_info(packed_byte) #load_perturbation_level(pertubation_filepath, i)
+        data_np[i, 12] = perturbation
+        data_np[i, 13] = perturbation_level
+
+    if verbose:
+        # Print the accuracy of the model on the test dataset
+        accuracy = 100 * correct / total # 98.38
+        print('Accuracy on perturbed testing dataset: %.2f%%' % accuracy)
+
+        # sanity check
+        # Extracting the 11th and 12th columns (indexed as 10 and 11)
+        labels = data_np[:, 10]
+        predictions = data_np[:, 11]
+
+        # Comparing the two columns to find where values are the same and where they are different
+        same_values_mask = labels == predictions
+
+        # Summing the values that are the same and different
+        same_values_count = np.sum(same_values_mask)
+        different_values_count = np.sum(~same_values_mask)
+
+        # Calculating and printing the percentage of values that are the same
+        percentage_same = (same_values_count / data_np.shape[0]) * 100
+        print(f"Accuracy on perturbed testing dataset saved to numpy array: {percentage_same:.2f}%")
+
+    # save the numpy array to a file
+    if save:
+        np.save('data_np_perturbed.npy', data_np)
+
+    return data_np    
 
 def find_unequal_rows(arr, idx1, idx2):
     
@@ -1698,3 +1798,70 @@ def plot_mean_distances_x2(training_correct, training_incorrect, testing_correct
 # testing_correct = np.random.rand(10)
 # testing_incorrect = np.random.rand(10)
 # plot_mean_distances_x2(training_correct, training_incorrect, testing_correct, testing_incorrect)
+
+def get_mnist_byte(filename, index, verbose=False):
+    """
+    Get the byte value at a given index in the MNIST binary file.
+
+    Parameters
+    ==========
+    filename: string, the MNIST binary file
+    index: the index of the byte to retrieve
+    verbose: boolean, display debug info (default: False)
+
+    Returns
+    =======
+    byte_value: int, the byte value at the specified index
+
+    Example
+    =======
+    mnist_file = 'data/MNIST/raw/train-images-idx3-ubyte'
+    index = 16
+    byte_value = get_mnist_byte(mnist_file, index)
+    print(byte_value)
+    """
+    num_bytes = 1
+    start = 8+index
+
+    # Check if the index is within bounds
+    file_size = os.path.getsize(filename)
+    if file_size < start + num_bytes:
+        raise IndexError("The specified index {} is out of bounds for the file.".format(index))
+
+    byte_value = read_bytes_from_file(filename, num_bytes, start, verbose)
+    if verbose:
+        print("In file {}, label index {} is {}".format(filename, index, byte_value))
+
+    return int(byte_value, 16)
+
+def unpack_perturbation_info(packed_byte):
+    """
+    Unpack the perturbation type and intensity from a single byte.
+
+    Parameters:
+    - packed_byte (int): The packed byte containing the perturbation type and intensity.
+
+    Returns:
+    - perturbation_type (int): Perturbation type, ranging from 0 to 11.
+    - intensity (int): Intensity value, ranging from 0 to 9.
+    """
+    perturbation_type = packed_byte >> 4
+    intensity = packed_byte & 0x0F
+    return perturbation_type, intensity
+
+def read_bytes_from_file(file_path, num_bytes, start=0, verbose=False):
+    """
+    Reads a specified number of bytes from a file starting at a given offset and prints them in hexadecimal.
+
+    Parameters:
+    - file_path: The path to the file.
+    - num_bytes: The number of bytes to read from the file.
+    - start: The offset from the beginning of the file to start reading bytes (default is 0).
+    """
+    with open(file_path, 'rb') as file:
+        file.seek(start)  # Move to the start position
+        data = file.read(num_bytes)
+        if verbose:
+          print("Hexadecimal representation of", num_bytes, "bytes starting from byte", start, ":")
+          print(data.hex())
+    return data.hex()
