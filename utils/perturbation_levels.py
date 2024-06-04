@@ -129,7 +129,7 @@ PERTURBATION_LEVELS = {
         {'snow_level': 0.93, 'snow_color': 1.0, 'blur_kernel_size': 2, 'blur_sigma': 1.0}, # 73 *
         {'snow_level': 0.94, 'snow_color': 1.0, 'blur_kernel_size': 2, 'blur_sigma': 1.0}, # 69 *
         {'snow_level': 0.95, 'snow_color': 1.0, 'blur_kernel_size': 2, 'blur_sigma': 1.0}, # 66 *
-        {'snow_level': 99, 'snow_color': 1.0, 'blur_kernel_size': 2, 'blur_sigma': 1.0}, # 51.7800
+        {'snow_level': 0.99, 'snow_color': 1.0, 'blur_kernel_size': 2, 'blur_sigma': 1.0}, # 51.7800
         #{'snow_level': 1.0, 'snow_color': 1.0, 'blur_kernel_size': 2, 'blur_sigma': 1.0}, # 49 * # does not resemble snow 2024.05.21
         
         ],

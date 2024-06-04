@@ -50,4 +50,13 @@ outputs/
 figures/archive
 figures/data
 
+# images
+*.png
+
+# archive
+archive
+
+# data files
+*ubyte
+
 
